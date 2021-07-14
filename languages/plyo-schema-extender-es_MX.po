@@ -1,0 +1,83 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-06-20 08:48-0700\n"
+"PO-Revision-Date: 2021-06-20 08:57-0800\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: \n"
+"X-Generator: Eazy Po 0.9.5.3\n"
+
+#: admin/Plyo_Plugin_Settings.php:612
+msgid ""
+"Use this section to add general fields that are not present in the default "
+"version of Yoast. Information is general and will be applied to all Schema "
+"relative to the Organization. Phone assumes a USA format. Email and URL will "
+"be checked for validity."
+msgstr ""
+"Utilice esta sección para agregar campos generales que no están presentes en "
+"la versión predeterminada de Yoast. La información es general y se aplicará "
+"a todos los esquemas relacionados con la organización. El teléfono asume un "
+"formato de EE. UU. Se comprobará la validez del correo electrónico y la URL."
+
+#: admin/Plyo_Plugin_Settings.php:1197
+msgid "Descriptive name of type of schema."
+msgstr "Nombre descriptivo del tipo de esquema."
+
+#: admin/Plyo_Plugin_Settings.php:1211
+msgid "Descriptive text."
+msgstr " Texto descriptivo."
+
+#: admin/Plyo_Plugin_Settings.php:1225
+msgid "Formatted Postal Code."
+msgstr "Código postal formateado."
+
+#: admin/Plyo_Plugin_Settings.php:1239
+msgid "Phone format: xxx-xxx-xxxx"
+msgstr "Formato de teléfono: xxx-xxx-xxxx"
+
+#: admin/Plyo_Plugin_Settings.php:1253
+msgid "Email format: xxxx@novyunlimited.com"
+msgstr "Formato de correo electrónico: xxxx@novyunlimited.com"
+
+#: admin/Plyo_Plugin_Settings.php:1267
+msgid "URL format: https://domain/page"
+msgstr " Formato de URL: https: // dominio / página Formato de URL: https: // dominio / página"
+
+#: admin/Plyo_Plugin_Settings.php:1281
+msgid ""
+"If checked, Schema applied to the following Custom Post Types and Categories"
+msgstr ""
+" Si está marcado, el esquema se aplicó a los siguientes tipos y categorías "
+"de publicaciones personalizadas Si está marcado, el esquema se aplicó a los "
+"siguientes tipos y categorías de publicaciones personalizadas"
+
+#: includes/PLSE_SCHEMA_Base.php:364
+msgid "This plugin requires <strong>PHP "
+msgstr "Este plugin requiere <strong> PHP"
+
+#: includes/PLSE_SCHEMA_Base.php:367 includes/PLSE_SCHEMA_Base.php:413
+#, php-format
+msgid "<strong>%s</strong> has been deactivated"
+msgstr " <strong>% s </strong> se ha desactivado <strong>% s </strong> se ha desactivado"
+
+#: includes/PLSE_SCHEMA_Base.php:410
+msgid "This plugin depends on the <strong>Yoast SEO, version "
+msgstr "Este plugin depende de la <strong> versión de Yoast SEO"
+
+#: includes/schema/WPSEO_Schema_Event.php:254
+#: includes/schema/WPSEO_Schema_Game.php:255
+#: includes/schema/WPSEO_Schema_NewsArticle.php:145
+#: includes/schema/WPSEO_Schema_Service.php:308
+msgid "Uncategorized"
+msgstr "Sin categorizar"
