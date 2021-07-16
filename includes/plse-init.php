@@ -66,6 +66,15 @@ class PLSE_Init {
     private $plugin_menu_slug  = 'plse-options-page';
 
     /**
+     * The the returned $option value for the selected checkbox or radio option.
+     * 
+     * @since    1.0.0
+     * @access   private
+     * @var      string    $option_group    name for storing plugin options.
+     */
+    private $ON = 'on';
+
+    /**
      * Initialize the class and set its properties.
      * @since    1.0.0
      */
@@ -237,6 +246,17 @@ class PLSE_Init {
      */
     public function get_default_placeholder_icon_url () {
         return esc_url( plugins_url( '../assets/images/plyo-schema-extender-logo-placeholder.png', __FILE__ ) );
+    }
+
+    /**
+     * Return the value which a checked checkbox returns in a form
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @return   string   the 'on' value returned by checkboxes
+     */
+    public function get_checkbox_on () {
+        return $this->ON;
     }
 
     /**

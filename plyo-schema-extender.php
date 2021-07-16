@@ -177,7 +177,7 @@ if ( ! defined( 'PLSE_INPUT_TYPES' ) ) {
         'CHECKBOX' => 'checkbox',
         'CPT' => 'cpt',
         'CAT' => 'cat',
-        'IMG' => 'image',
+        'IMAGE' => 'image',
         'AUDIO' => 'audio',
         'VIDEO' => 'video',
         'INT' => 'int',

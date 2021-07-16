@@ -81,8 +81,6 @@ class PLSE_Options {
      */
     public function __construct () {
 
-        /////echo "IIIIIIIIIIIIIIIIIINNNN CONSTRUCTOR";
-
         // utilities
         $this->init = PLSE_Init::getInstance();
 
@@ -270,6 +268,10 @@ class PLSE_Options {
                     echo '<hr>';
                 }
 
+                // TODO:
+                // TODO: WRONG DIV NUM CAUSING FOOTER TO JUMP
+                // TODO:
+
                 // show the data group fields (which can be hidden with checkbox)
                 echo '<!--inside a mask-->';
                 echo '<div class="plse-panel-mask" style="display:' . $panel_display . '">';
@@ -366,6 +368,7 @@ class PLSE_Options {
     /**
      * Initialize all the fields in the admin window using WP Settings API. The
      * methods with '_toggle' are used to activate and deactivate each Schema.
+     * 'admin_init hook -> setup_options()
      * 
      * @since    1.0.0
      * @access   public
@@ -621,9 +624,10 @@ class PLSE_Options {
         $slug = $args[0];
         $state = $args[1];
         $option = get_option ( $slug );
+        ///////echo "ON for slug: " . $slug . " IS:" . $option;
         echo '<label style="display:block;" for="' . $slug . '">' . esc_html_e( 'If checked, Schema applied to the following Custom Post Types and Categories' ) . '</label>';
         echo '<input style="display:block;" type="checkbox" id="' . $slug . '" name="' . $slug . '"';
-        if ( $option == $this->ON ) echo ' CHECKED';
+        if ( $option == $this->init->get_checkbox_on() ) echo ' CHECKED';
         echo ' />';	
     }
 
@@ -726,13 +730,13 @@ class PLSE_Options {
         $option = esc_attr( get_option ( $slug ) );
 
         // current image (default to plugin blank if not set)
-        $plse_base = PLSE_Base::getInstance();
+        $plse_init = PLSE_Init::getInstance();
 
         // show the image specified by the URL accessed via $slug
         if ( $option ) {
             echo '<img id="' . $slug . '-img-id" src="' . $option . '" width="128" height="128">';
         } else {
-            echo '<img id="'. $slug . '-img-id" src="' . $plse_base->get_default_placeholder_icon_url() . '" width="128" height="128">';
+            echo '<img id="'. $slug . '-img-id" src="' . $plse_init->get_default_placeholder_icon_url() . '" width="128" height="128">';
         }
 
         // media library button (ajax), $slug is the key, $option if the value of the image URL

@@ -342,6 +342,9 @@ class PLSE_Options_Data {
      */
     public function __construct () {
 
+        // utilities
+        $this->init = PLSE_Init::getInstance();
+
     }
 
     /**
@@ -443,12 +446,15 @@ class PLSE_Options_Data {
 
     /**
      * Check if plugin options show a Schema is active.
-     * User controls by clicking a checkbox
+     * User controls by clicking a checkbox. 
+     * For Schema data without a checkbox (e.g. contact information) just make 
+     * active by default.
      * 
      */
     public function check_if_schema_active ( $schema_label ) {
-        $toggle_slug = $this->settings_schema_toggle[ $schema_label ]['fields']['used']['slug'];
-        if ( get_option( $toggle_slug )  == $this->ON ) return true; else return false;
+        if ( ! isset( $this->options_toggle[ $schema_label ]['fields']['used']['slug'] )) return true;
+        else if ( get_option( $this->options_toggle[ $schema_label ]['fields']['used']['slug'] )  == $this->init->get_checkbox_on() ) return true; 
+        else return false;
     }
 
     /**
@@ -458,7 +464,6 @@ class PLSE_Options_Data {
     public function check_if_schema_assigned ( $schema_label, string $cpt_slug, string $cat_slug ) {
         // TODO:
         return true;
-
     }
 
     public function section_has_panel_tab ( $section_label ) {
