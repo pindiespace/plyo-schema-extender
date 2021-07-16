@@ -461,15 +461,35 @@ class PLSE_Options_Data {
 
     }
 
+    public function section_has_panel_tab ( $section_label ) {
+        if ( $this->options[ $section_label ]['tab'] ) return true;
+        else return false;
+    }
+
+    public function section_has_toggle ( $section_label ) {
+        if ( isset( $this->options_toggle[ $section_label ]['section_box'] ) ) return true;
+        if ( isset( $this->options_tobble[ strtoupper( $section_label ) ] ) ) return true;
+        else return false;
+    }
+
+    public function get_section_toggle_slug ( $section_label ) {
+        $box = $this->options_toggle[ $section_label ]['section_box'];
+        if ( ! $box ) {
+            $box = $this->options_toggle[ strtoupper( $section_label ) ]['section_box'];
+        }
+        return $box;
+        //return $this->options_toggle[ $section ]['section_box'];
+    }
+
     /**
      * Get an options section div slug
      */
-    public function get_section_div ( $section ) {
-        return $this->options[ $section ]['section_box'];
-    }
-
-    public function get_section_toggle_div ( $section ) {
-        return $this->options_toggle[ $section ]['section_box'];
+    public function get_section_slug ( $section_label ) {
+        $box = $this->options[ $section_label ]['section_box'];
+        if ( ! $box ) {
+            $box = $this->options[ strtoupper( $section_label ) ]['section_box'];
+        }
+        return $box;
     }
 
     /**

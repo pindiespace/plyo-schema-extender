@@ -67,6 +67,15 @@ class PLSE_Options {
     private $options_js_name = 'plse_plugin_options';
 
     /**
+     * CSS panel style
+     * 
+     * @since    1.0.0
+     * @access   private
+     * @var      string    $panel_class
+     */
+    private $panel_class = 'plyo-schema-extender-box';
+
+    /**
      * Initialize the class and set its properties.
      * @since    1.0.0
      */
@@ -229,32 +238,59 @@ class PLSE_Options {
      * TODO:
      * TODO:
      */
-    public function setup_panels () {
+    public function setup_panels ( $tab_href ) {
+
+        // content linked to each tab
+        echo '<div id="content-tabs">';
 
         $schema = $this->options_data->get_options();
         $toggles = $this->options_data->get_toggles();
+        $tab_option = $this->options_data->get_tabsel();
+        $panel_style = $this->panel_class;
+        $count = 1;
 
+        foreach ( $this->options_data->get_options() as $key => $section ) {
 
-        ?>
+            // ignore 'HIDDEN'
+            if ( $this->options_data->section_has_panel_tab( $key ) ) {   
 
-            <!--service schema data-->
-            <div class="content-tab<?php
-            if ( $tab_href == 'content-tab3' ) echo ' open';
-            ?>" id="content-tab3">
-                <h3>Service Schema Settings</h3>
-                <?php
-                    $panel_display = $this->set_panel_visibility( 'SERVICE' );
+                $panel_id = 'content-tab' . $count;
+                $open = '';
 
-                    echo '<div class="' . $panel_style . '">' . "\n";
-                    //THIS BIFFS IT
-                    do_settings_sections( $this->options_data->get_section_toggle_div('SERVICE') );
-                    echo '</div>' . "\n";
+                if ( $tab_href == $panel_id ) $open = 'open';
 
-                ?>
-            </div>
+                echo '<div class="content-tab ' . $open . '" id="' . $panel_id . '">';
 
+                $panel_display = $this->set_panel_visibility( $key );
 
-        <?php
+                // if there's a checkbox for turning Schema on and off, show it
+                echo '<div class="' . $panel_style . '">' . "\n";
+                if ( $this->options_data->section_has_toggle( $key ) ) {
+                    do_settings_sections( $this->options_data->get_section_toggle_slug( $key ) );
+                    echo '<hr>';
+                }
+
+                // show the data group fields (which can be hidden with checkbox)
+                echo '<!--inside a mask-->';
+                echo '<div class="plse-panel-mask" style="display:' . $panel_display . '">';
+                echo '<div>' ."\n";
+                do_settings_sections( $this->options_data->get_section_slug( $key ) );
+                echo '</div>';
+                echo '</div>' . "\n";
+
+                ////do_settings_sections( $this->options_data->get_section_slug( $key ) );
+                ////echo 'count2:' . $count;
+
+                echo '</div>' . "\n"; // panel style
+                
+                echo '</div>'; // content-tabXXX
+                $count++;
+
+            }
+
+        }
+
+        echo '</div>'; // content-tabs
 
     }
 
@@ -306,111 +342,22 @@ class PLSE_Options {
         <!-- page tabs, hidden field and section here -->
         <?php 
         echo '<div class="' . $panel_style . '" style="display:none">' ."\n";
-            do_settings_sections( $this->options_data->get_section_div( 'HIDDEN' ) );
+            do_settings_sections( $this->options_data->get_section_slug( 'HIDDEN' ) );
         echo "</div>\n"; 
 
         echo $this->setup_tabs();
-        ?>
 
-        <!-- content linked to each tab -->
-        <div id="content-tabs">
+        // panels
+        // TODO: KLUDGE
+        $this->setup_panels( $tab_href );
 
-            <!--general schema data-->
-            <div class="content-tab<?php
-                if ( $tab_href == 'content-tab1' ) echo ' open';
-                ?>" id="content-tab1">
-
-                <h3>Local Information Settings</h3>
-                <div>
-                    <?php
-                        echo  __( 'Use this section to add general fields that are not present in the default version of Yoast. Information is general and will be applied to all Schema relative to the Organization. Phone assumes a USA format. Email and URL will be checked for validity.' );
-                        echo '<div class="' . $panel_style . '">' ."\n";
-                        do_settings_sections( $this->options_data->get_section_div( 'GENERAL' ) );
-                        echo "</div>\n";
-
-                    ?>
-                </div>
-
-            </div>
-
-            <!--address schema data-->
-            <div class="content-tab<?php
-            if ( $tab_href == 'content-tab2' ) echo ' open';
-            ?>" id="content-tab2">
-                <h3>Local Address Settings</h3>
-                <?php
-                    $panel_display = $this->set_panel_visibility( 'ADDRESS' );
-                    echo __( 'Use the section to set a local business address' );
-                    echo '<div class="' . $panel_style . '">' . "\n";
-                    do_settings_sections( $this->options_data->get_section_div('ADDRESS') );
-                    echo '</div>' . "\n";
-
-                ?>
-            </div>
-
-            <!--service schema data-->
-            <div class="content-tab<?php
-            if ( $tab_href == 'content-tab3' ) echo ' open';
-            ?>" id="content-tab3">
-                <h3>Service Schema Settings</h3>
-                <?php
-                    $panel_display = $this->set_panel_visibility( 'SERVICE' );
-
-                    echo '<div class="' . $panel_style . '">' . "\n";
-                    //THIS BIFFS IT
-                    do_settings_sections( $this->options_data->get_section_toggle_div('SERVICE') );
-                    echo '</div>' . "\n";
-
-                ?>
-            </div>
-
-            <!--game schema data-->
-            <div class="content-tab<?php
-            if ( $tab_href == 'content-tab4' ) echo ' open';
-
-            ?>" id="content-tab4">
-                <h3>Game Schema Settings</h3>
-                <?php
-                $panel_display = $this->set_panel_visibility( 'GAME' );
-
-                echo '<div class="' . $panel_style . '">' . "\n";
-                //THIS BIFFS IT
-                do_settings_sections( $this->options_data->get_section_toggle_div('GAME') );
-                echo '</div>' . "\n";
-                ?>
-            </div>
-
-            <!--event schema-->
-            <div class="content-tab<?php
-            if ( $tab_href == 'content-tab5' ) echo ' open';
-            ?>" id="content-tab5">
-                <h3>Event Schema Settings</h3>
-                <?php
-                $panel_display = $this->set_panel_visibility( 'EVENT' );
-
-                echo '<div class="' . $panel_style . '">' . "\n";
-                //THIS BIFFS IT
-                do_settings_sections( $this->options_data->get_section_toggle_div('EVENT') );
-                echo '</div>' . "\n";
-                ?>
-            </div>
-
-            <!--product review-->
-
-
-        </div>
-
-        </div>
-        </div>
-        </div>
-
-        <?php 
+        echo '</div></div></div>'; // end of container, row, col-md-12
 
         submit_button(); 
     
         echo '</form>';
-
-         echo '</div>' . "\n"; // end of wrapper
+        echo '</div>' . "\n"; // end of wrapper
+        echo '</div>' . "\n"; // end of big row
 
     }
 
@@ -696,7 +643,7 @@ class PLSE_Options {
      */
     public function render_cpt_field ( $args ) {
         // no dropdown if no Custom Post Types
-        $cpts = $this->util->get_all_cpts();
+        $cpts = $this->init->get_all_cpts();
         if ( ! $cpts ) return;
 
         $slug = $args[0];
@@ -734,7 +681,7 @@ class PLSE_Options {
      */
     public function render_cat_field ( $args ) {
         // no dropdown if categories don't exist
-        $cats = $this->util->get_all_cats();
+        $cats = $this->init->get_all_cats();
         if ( ! $cats ) return;
 
         $slug = $args[0];

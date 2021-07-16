@@ -256,5 +256,35 @@ class PLSE_Init {
      * -----------------------------------------------------------------------
      */
 
+    /**
+     * Get the full Custom Post Type List (non-built-in)
+     * by setting to 'public' we ignore the pb_* post types
+     * @since    1.0.0
+     * @access   public
+     * @return   array    $post_types    return all the Custom Post Types
+     */
+    public function get_all_cpts () {
+        $args = array(
+            'public'   => true,
+            '_builtin' => false
+        );
+        $post_types = get_post_types( $args, 'objects' );
+        return $post_types;
+    }
+
+    /**
+     * Get the full category list
+     * @since    1.0.0
+     * @access   public
+     * @return   array    $cats    return categories
+     */
+    public function get_all_cats () {
+        $args = array(
+            'hide_empty' => 0,
+        );
+        $cats = get_categories( $args );
+        return $cats;
+    }
+
 
 } // end of class
