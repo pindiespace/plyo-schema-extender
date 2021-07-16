@@ -493,13 +493,16 @@ class PLSE_Options_Data {
     }
 
     /**
-     * Get the global state of the tabs for the whole UI, and 
+     * Get the global state of the tabs for the whole UI, 
+     * read the stored value in the hidden field:
+     * tab1, tab2, tab3...
      * return content-tab1, content-tab2...
      */
     public function get_tabsel () {
         $tab_href = $tab_href = 'content-tab1';
-        $option = intval( $this->options['HIDDEN']['fields']['tabsel']['slug'] );
+        $option = get_option( $this->options['HIDDEN']['fields']['tabsel']['slug'] );
         if ( $option ) {
+            $option = filter_var( $option, FILTER_SANITIZE_NUMBER_INT );
             $tab_href = 'content-tab' . $option;
         }
         return $tab_href;

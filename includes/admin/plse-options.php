@@ -171,7 +171,7 @@ class PLSE_Options {
             // use PLSE_Options to inject variables into JS specifically for PLSE_Meta media library button clicks 
             $plse_init->load_js_passthrough_script( 
                 $script_label,
-                $this->meta_js_name,
+                $this->options_js_name,
                 $this->options_data->get_options_fields()
             );
 
@@ -238,14 +238,14 @@ class PLSE_Options {
      * TODO:
      * TODO:
      */
-    public function setup_panels ( $tab_href ) {
+    public function setup_panels () {
 
         // content linked to each tab
         echo '<div id="content-tabs">';
 
         $schema = $this->options_data->get_options();
         $toggles = $this->options_data->get_toggles();
-        $tab_option = $this->options_data->get_tabsel();
+        $tab_href = $this->options_data->get_tabsel();
         $panel_style = $this->panel_class;
         $count = 1;
 
@@ -274,6 +274,7 @@ class PLSE_Options {
                 echo '<!--inside a mask-->';
                 echo '<div class="plse-panel-mask" style="display:' . $panel_display . '">';
                 echo '<div>' ."\n";
+                echo "TABSEL IS A:" . $tab_href;
                 do_settings_sections( $this->options_data->get_section_slug( $key ) );
                 echo '</div>';
                 echo '</div>' . "\n";
@@ -349,7 +350,7 @@ class PLSE_Options {
 
         // panels
         // TODO: KLUDGE
-        $this->setup_panels( $tab_href );
+        $this->setup_panels();
 
         echo '</div></div></div>'; // end of container, row, col-md-12
 

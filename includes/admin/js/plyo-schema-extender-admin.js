@@ -15,6 +15,7 @@
 
         var tabs = $('.plyo-schema-extender-tab-nav').find('a');
 
+
         if (tabs) {
 
             /*
@@ -23,10 +24,10 @@
             * Copyright (c) 2021 by Paolo Duzioni (https://codepen.io/Paolo-Duzioni/pen/MaXPXJ)
             * ---------------------------------------------------
             */
-            var tabContents = $('#content-tabs').children('.content-tab'),
-            tabState = $('plse-tabsel').val();
-
-            // TODO: just select the tabs
+            var tsel = 'plse-settings-tabsel';
+            
+            var tabContents = $('#content-tabs').children('.content-tab');
+            var tabState = $('#plse-settings-tabsel').val();
 
             // Switch Tab Handler
             tabs.on('click', function(e) {
@@ -46,8 +47,13 @@
                 // add class to panel connected to clicked-on tab
                 $(contentTab).addClass('open');
 
+                // strip non-numeric ('tab3' to '3')
+                //var num = e.target.id.replace(/\D/g,'');
+
+                //console.log("BOB:" + num);
+
                 // save status (which tab is open = tab #ID) into hidden options field, used by Options API
-                var tabsel = $('.plyo-schema-extender-box #plse-tabsel').val(e.target.id);
+                var tabsel = $('.plyo-schema-extender-box #plse-settings-tabsel').val(e.target.id);
 
             });
 
