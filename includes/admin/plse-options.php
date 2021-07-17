@@ -317,31 +317,30 @@ class PLSE_Options {
 
         // wraps the whole page
         echo '<div class="plyo-schema-extender">' . "\n";
-
         // page headers
         echo '<div class="plyo-schema-extender-row">' . "\n";
-
             echo '<div class="plyo-schema-extender-col">' . $this->init->get_logo() . '</div>';
             echo '<div class="plyo-schema-extender-col plyo-schema-extender-valign">';
             echo '<h2 class="plyo-schema-extender-h2">' . PLSE_SCHEMA_EXTENDER_NAME . '</h2>'; 
-            echo '<p>This plugin works with Yoast SEO and adds additional schema to the default schema provided by Yoast. Schemas can be added through a custom post type whose name matches the schema.org schema, or by creating a category name matching the schema name. Plugin is NOT compatible with other Schema plugins.</p>';
-            echo '</div>';
+                echo '<p>' . PLSE_SCHEMA_OPTIONS_DESCRIPTION . '</p>';
+                echo '</div>';
             echo '</div>' . "\n";
 
+
                  // begin the form
-        echo '<form id="plyo-schema-extender-form" method="post" action="options.php">';
+            echo '<form id="plyo-schema-extender-form" method="post" action="options.php">';
 
-        settings_fields( $this->option_group ); // options, also auto-generates the nonce
+            settings_fields( $this->option_group ); // options, also auto-generates the nonce
 
-        // get the options value for the last tab selected (1, 2, 3...)
-        $tab_href = $this->options_data->get_tabsel();
+            // get the options value for the last tab selected (1, 2, 3...)
+            $tab_href = $this->options_data->get_tabsel();
 
-        // draw the tabs
-        ?>
-        <!-- plugin settings page -->
-        <div class="container">
-        <div class="row">
-        <div class="col-md-12">
+            // draw the tabs
+            ?>
+            <!-- plugin settings page -->
+            <div class="container">
+            <div class="row">
+            <div class="col-md-12">
         <!-- page tabs, hidden field and section here -->
         <?php 
         echo '<div class="' . $panel_style . '" style="display:none">' ."\n";
@@ -354,7 +353,7 @@ class PLSE_Options {
         // TODO: KLUDGE
         $this->setup_panels();
 
-        echo '</div></div></div>'; // end of container, row, col-md-12
+        echo '</div></div>'; // end of container, row, col-md-12
 
         submit_button(); 
     

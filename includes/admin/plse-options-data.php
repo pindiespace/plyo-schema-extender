@@ -121,6 +121,8 @@ class PLSE_Options_Data {
             'section_title' => '', // hidden, so no title
             'section_box'   =>  PLSE_OPTIONS_SLUG . PLSE_SCHEMA_HIDDEN . '-box',
             'tab'           => null,
+            // 'tab' ?????
+            // 'tab_title' ???????
 
             'fields' => array(
 
@@ -332,7 +334,7 @@ class PLSE_Options_Data {
 
             )
 
-                ),
+        ),
 
     );
 
@@ -362,7 +364,7 @@ class PLSE_Options_Data {
 
     /**
      * ---------------------------------------------------------------------
-     * SCHEMA
+     * GETTERS
      * ---------------------------------------------------------------------
      */
 
@@ -373,6 +375,11 @@ class PLSE_Options_Data {
         return $this->options;
     }
 
+    public function get_toggles () {
+        return $this->options_toggle;
+    }
+
+
     /**
      * Unwrap individual fields out of the data object
      * 
@@ -382,78 +389,122 @@ class PLSE_Options_Data {
      */
     public function get_options_fields () {
 
-        $data = $this->options;
+        $field_list = array();
 
-        foreach ( $data as $data_group ) {
-
+        foreach ( $this->options as $data_group ) {
             foreach ( $data_group['fields'] as $fields ) {
-
                 $field_list[] = $fields;
-
             }
-
         }
 
         return $field_list;
-
     }
 
-    /**
-     * ask for all data by schema
-     */
-    public function get_options_by_schema ( $schema_label ) {
+    public function get_toggles_fields () {
 
-        $data = $this->options;
+        $field_list = array();
 
-        if ( isset( $data[ $schema_label ] ) ) {
-            return $data[ $schema_label ];
+        foreach ( $this_options_toggle as $data_group ) {
+            foreach ( $data_group['fields'] as $fields ) {
+                $field_list[] = $fields;
+            }
         }
-
-        return null;
-
+        
+        return $field_list;
     }
 
-    /**
-     * ---------------------------------------------------------------------
-     * SCHEMA TOGGLES
-     * ---------------------------------------------------------------------
-     */
-
-    public function get_toggles () {
-        return $this->options_toggle;
+    public function get_options_by_schema ( $schema_label ) {
+        $s = strtoupper( $schema_label );
+        return $this->options[ $s ];
     }
 
     /**
      * ask for data toggle by schema
      */
     public function get_toggles_by_schema ( $schema_label ) {
-        
-        $data = $this->options_toggle;
+        $s = strtoupper( $schema_label );
+        return $this->options_toggle[ $s ];
+    }
 
-        if ( isset( $data[ $schema_label ] ) ) {
-            return $data[ $schema_label ];
-        }
+    /**
+     * Get an options section <div> slug.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @return   string   $this->options[SCHEMA]['section_box']
+     */
+    public function get_section_slug ( $section_label ) {
+        $s = strtoupper( $section_label );
+        return $this->options[ $s ]['section_box'];
+    }
 
-        return null;
-
+    /**
+     * Get the slug for the section toggle (activate/deactivate Schema checkbox) in options
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @return   string   $this->options_toggle[SCHEMA]['section_box]
+     */
+    public function get_section_toggle_slug ( $section_label ) {
+        $s = strtoupper ( $section_label );
+        return $this->options_toggle[ $s ]['section_box'];
     }
 
     /**
      * ---------------------------------------------------------------------
-     * CHECK OPTIONS (used by PLSE_Metabox and PLSE_Options)
+     * CHECK FEATURES OF SECTIONS, FIELDS (used by PLSE_Metabox and PLSE_Options)
+     * ---------------------------------------------------------------------
+     */
+
+    /**
+     * Check if the section has a panel (not true for hidden field groups).
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @return   boolean    if the panel has a tab return true, else false
+     */
+    public function section_has_panel_tab ( $section_label ) {
+        $s = strtoupper( $section_label );
+        if ( $this->options[ $s ]['tab'] ) return true;
+        else return false;
+    }
+
+    /**
+     * Check to see if the section panel has a checkbox.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @return   boolean    if the panel has an activate/deactive checkbox return true, else false
+     */
+    public function section_has_toggle ( $section_label ) {
+        $s = strtoupper( $section_label );
+        if ( isset( $this->options_toggle[ $s ]['section_box'] ) ) return true;
+        else return false;
+    }
+
+    /**
+     * ---------------------------------------------------------------------
+     * CHECK OPTIONS DATABASE (used by PLSE_Metabox and PLSE_Options)
      * ---------------------------------------------------------------------
      */
 
     /**
      * Check if plugin options show a Schema is active.
-     * User controls by clicking a checkbox. 
-     * For Schema data without a checkbox (e.g. contact information) just make 
-     * active by default.
+     * - if $schema_label isn't in $this->options_toggle, return always true
+     * - if  $schema_label is in $this->options_toggle, check the options database for 
+     *   its value, and return the checkbox state.
      * 
+     * Used by plse-metabox.php, plse-options-data.php
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @return   boolean   if Schema is active, return true, else return false
      */
     public function check_if_schema_active ( $schema_label ) {
-        if ( ! isset( $this->options_toggle[ $schema_label ]['fields']['used']['slug'] )) return true;
-        else if ( get_option( $this->options_toggle[ $schema_label ]['fields']['used']['slug'] )  == $this->init->get_checkbox_on() ) return true; 
+        $s = strtoupper( $schema_label );
+        if ( ! isset( $this->options_toggle[ $s ] ) ) return true;
+        if ( ! isset( $this->options_toggle[ $s ]['fields']['used']['slug'] ) ) return false;
+        else if ( get_option( $this->options_toggle[ $s ]['fields']['used']['slug'] ) == $this->init->get_checkbox_on() ) return true; 
         else return false;
     }
 
@@ -461,47 +512,27 @@ class PLSE_Options_Data {
      * Check plugin options to see if a particular CPT and/or category (from the 
      * current post) has been assigned a Schema.
      */
-    public function check_if_schema_assigned ( $schema_label, string $cpt_slug, string $cat_slug ) {
+    public function check_if_schema_assigned_cpt ( $schema_label, string $cpt_slug ) {
         // TODO:
         return true;
     }
 
-    public function section_has_panel_tab ( $section_label ) {
-        if ( $this->options[ $section_label ]['tab'] ) return true;
-        else return false;
-    }
-
-    public function section_has_toggle ( $section_label ) {
-        if ( isset( $this->options_toggle[ $section_label ]['section_box'] ) ) return true;
-        if ( isset( $this->options_tobble[ strtoupper( $section_label ) ] ) ) return true;
-        else return false;
-    }
-
-    public function get_section_toggle_slug ( $section_label ) {
-        $box = $this->options_toggle[ $section_label ]['section_box'];
-        if ( ! $box ) {
-            $box = $this->options_toggle[ strtoupper( $section_label ) ]['section_box'];
-        }
-        return $box;
-        //return $this->options_toggle[ $section ]['section_box'];
+    public function check_if_schema_assigned_cat ( $schema_label, string $cat_slug ) {
+        // TODO:
+        return true;
     }
 
     /**
-     * Get an options section div slug
-     */
-    public function get_section_slug ( $section_label ) {
-        $box = $this->options[ $section_label ]['section_box'];
-        if ( ! $box ) {
-            $box = $this->options[ strtoupper( $section_label ) ]['section_box'];
-        }
-        return $box;
-    }
-
-    /**
-     * Get the global state of the tabs for the whole UI, 
-     * read the stored value in the hidden field:
-     * tab1, tab2, tab3...
-     * return content-tab1, content-tab2...
+     * Get the stored global state for the last-selected tab
+     * read the stored value in the hidden field. Use to make the 
+     * tab and show/hide panels in the UI work properly.
+     * 
+     * option saves: tab1, tab2, tab3...
+     * function returns: content-tab1, content-tab2...
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @return   string    $tab_href    the stored tab value from the last option
      */
     public function get_tabsel () {
         $tab_href = $tab_href = 'content-tab1';

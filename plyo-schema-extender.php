@@ -43,7 +43,6 @@ if ( ! defined( 'PLSE_SCHEMA_EXTENDER_NAME' ) ) {
     define ( 'PLSE_SCHEMA_EXTENDER_NAME', 'Plyo Schema Extender' );
 }
 
-
 /*
  * Current plugin version.
  * Start at version 1.0.0 and use SemVer - https://semver.org
@@ -53,6 +52,15 @@ define( 'PLSE_SCHEMA_EXTENDER_VERSION', '1.0.0' );
 if ( ! defined( 'PLSE_SCHEMA_PHP_MIN_VERSION' ) ) {
     define( 'PLSE_SCHEMA_PHP_MIN_VERSION', '5.6' );
 }
+
+/*
+ * Basic Plugin description (for options page)
+ */
+if ( ! defined( 'PLSE_SCHEMA_OPTIONS_DESCRIPTION' ) ) {
+    define( 'PLSE_SCHEMA_OPTIONS_DESCRIPTION', __( 'This plugin works with Yoast SEO and adds additional schema to the default schema provided by Yoast. Schemas can be added through a custom post type whose name matches the schema.org schema, or by creating a category name matching the schema name. Plugin is NOT compatible with other Schema plugins' ) );
+}
+
+
 
 // define the plugin slug for the admin options menu
 if ( ! defined( 'PLSE_SCHEMA_EXTENDER_SLUG' ) ) {
@@ -157,7 +165,7 @@ if ( ! defined( 'PLSE_SCHEMA_HIDDEN' ) ) {
 
 /**
  * --------------------------------------------------------------------------
- * INTERNALLY USED
+ * INTERNALLY USED IN FORM CONTROLS
  * --------------------------------------------------------------------------
  */
 

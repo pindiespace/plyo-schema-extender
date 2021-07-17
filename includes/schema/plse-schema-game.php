@@ -70,7 +70,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
             'game_image' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-image',
                 'title' => 'Game Image and Image URL:',
-                'type'  => 'IMG',
+                'type'  => 'IMAGE',
                 'required' => '',
                 'value_type'=>'normal',
                 'wp_data' => 'post_meta',

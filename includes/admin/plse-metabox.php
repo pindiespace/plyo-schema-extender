@@ -107,12 +107,12 @@ class PLSE_Metabox {
     }
 
     /**
-     * Look in the Schema directory, extract current Schema list
-     * pattern: 'plse-schema-xxxx.php' to 'xxxx'
+     * Look in the Schema directory, extract current Schema list from the FILEs
+     * pattern: 'plse-schema-xxxx.php' to 'XXX', plse-schema-game.php to 'GAME.'
      * 
      * @since    1.0.0
      * @access   private
-     * @return   array    a list of the defined Schemas
+     * @return   array    a list of the defined Schemas, capitalized
      */
     public function get_available_schemas () {
 
@@ -129,7 +129,7 @@ class PLSE_Metabox {
 
             // strip out non-schema substrings
             if ( $entry != "." && $entry != ".." ) {
-                $schemas[] = preg_replace( $patterns, $replacements, $entry );
+                $schemas[] = strtoupper( preg_replace( $patterns, $replacements, $entry ) );
             }
 
         }
@@ -137,6 +137,41 @@ class PLSE_Metabox {
         closedir( $handle );
 
         return $schemas;
+
+    }
+
+    /**
+     * Check if a Schema file has been defined. 
+     * If Schema: 'game' or 'GAME', look for 'plse-schema-game.php'
+     * Independent of the fields data defined in plse-options-data.php
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @return   boolean    if a file exists with 'plse-schema-xxx.php' return true, else return false
+     */
+    public function has_schema ( $schema_label ) {
+
+        $dir = plugin_dir_path( dirname( __FILE__ ) ) . $this->schema_dir . '/';
+
+        $s = strtolower( $schema_label ) . '.php';
+
+        $handle = opendir( $dir );
+
+        while ( false !== ( $entry = readdir( $handle ) ) ) { 
+
+            if ( $entry != '.' && $entry != '..' ) {
+
+                if ( strpos( $entry, $s ) !== false ) {
+                    closedir ( $handle );
+                    return true;
+                }
+
+            }
+
+        }
+
+        closedir( $handle );
+        return false;
 
     }
 
@@ -169,40 +204,22 @@ class PLSE_Metabox {
     }
 
     /**
-     * Get the field list from the Schema file
-     */
-    public function get_schema_fields ( $schema_label ) {
-
-        $schema_data = $this->load_schema_fields( $schema_label );
-
-        if ( $schema_data ) {
-            return $schema_data['fields'];
-        }
-
-        return null;
-
-    }
-
-    /**
-     * Check if a Schema was defined as 'active'.
-     */
-    public function check_if_schema_active ( $schema_label ) {
-        return true;
-    }
-
-    /**
      * Check if a metabox should be drawn (Schema assigned by post type or category).
      */
     public function check_if_metabox_needed ( $schema_label ) {
 
-        if ( $this->check_if_schema_active( $schema_label ) ) {
+        // check if the Schema is active, being used
+        if ( $this->options_data->check_if_schema_active( $schema_label ) ) {
 
-            // test cpt type
-            // test categories
+            // test cpt types associated with the Schema
+
+            // test categories associated with the Schema
+
+            return true;
 
         }
 
-        return true;
+        return false;
     }
 
     /**
@@ -228,31 +245,19 @@ class PLSE_Metabox {
                 $this->options_data->get_options_fields()
             );
 
-            // find the schema that are specified for this post type or category
-
-            // TODO: Will have to look at what the global plugin finds
-
-            // get the Schema definitions, and read the field list
-            ////////////////////////////
-            //$schema_metabox = $this->load_schema_fields( PLSE_SCHEMA_GAME );
-            //echo "SSSSSSSSSCCCCCCCCCCCCCCCHHHHEMAAAA:";
-            //print_r( $schema_metabox );
-            ///////////////////////////
             // get a list of all available schema classes in the /schema directory
             $schema_list = $this->get_available_schemas();
-            //////////////////print_r( $schema_list );
 
-            // check if any of these schema are defined for our CPT or categories
-            // if so, create a metabox. We're using the options data class, 
-            // PLSE_Options_Data, not PLSE_Options
+            // determine which Schema metaboxes should be loaded
             foreach ( $schema_list as $schema_label ) {
 
+                // Check if Schema is active, and if we have a CPT or category requiring a Schema
                 if ( $this->check_if_metabox_needed( $schema_label ) ) {
 
                     $this->metabox_register( 
                         $schema_label, 
                         $this->load_schema_fields( $schema_label ), 
-                        'nothing...'
+                        $schema_label // additional argument passed
                     );
 
                 }
@@ -281,7 +286,7 @@ class PLSE_Metabox {
      * @access   public
      * @param    string   $schema_label     the name of the Schema
      * @param    array    $schema_fields    the data for the metabox and its fields
-     * @paeram   string   $msg              additional information about why the box is being rendered
+     * @param    string   $msg              additional information about why the box is being rendered
      */
     public function metabox_register ( $schema_label, $schema_data, $msg ) {
 
@@ -313,9 +318,13 @@ class PLSE_Metabox {
 
     }
 
+    /**
+     * Render an individual metabox.
+     * 
+     * @since    1.0.0
+     * @access   public
+     */
     public function render_metabox ( $post, $args ) {
-
-        echo "IIIIIIIIIIIIRENDER METABOXXXXXXXXXXXXX";
 
         // Note our passed parameters were merged into the default $args callback
         $schema_label = $args['args']['schema_label'];
