@@ -369,19 +369,30 @@ class PLSE_Options_Data {
      */
 
     /**
-     * Get Settings API options, grouped by Schema
+     * Get Settings API options arrat, grouped by Schema
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @return   array  $this->options the entire options array defining global Schema data
      */
     public function get_options () {
         return $this->options;
     }
 
+    /**
+     * Get Settings API option for activating/deactiving Schema in plugin options.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @return   array $this->options_toggle a list of checkbox values for activating/deactivating Schema
+     */
     public function get_toggles () {
         return $this->options_toggle;
     }
 
 
     /**
-     * Unwrap individual fields out of the data object
+     * Unwrap individual fields for all Schema out of the data object.
      * 
      * @since    1.0.0
      * @access   public
@@ -400,6 +411,13 @@ class PLSE_Options_Data {
         return $field_list;
     }
 
+    /**
+     * Unwrap all checkbox toggle fields for Schemas out of the data object.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @return   array    $field_list a list of the checkbox field values
+     */
     public function get_toggles_fields () {
 
         $field_list = array();
@@ -413,40 +431,51 @@ class PLSE_Options_Data {
         return $field_list;
     }
 
+    /**
+     * Get the options for a specific Schema.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @return   array   $this->options[SCHEMA]
+     */
     public function get_options_by_schema ( $schema_label ) {
-        $s = strtoupper( $schema_label );
+        $s = $this->init->slug_to_label( $schema_label );
         return $this->options[ $s ];
     }
 
     /**
-     * ask for data toggle by schema
+     * ask for data toggle by Schema.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @return   string   $this->options_toggle[SCHEMA]
      */
     public function get_toggles_by_schema ( $schema_label ) {
-        $s = strtoupper( $schema_label );
+        $s = $this->init->slug_to_label( $schema_label );
         return $this->options_toggle[ $s ];
     }
 
     /**
-     * Get an options section <div> slug.
+     * Get an options Schema <div> slug.
      * 
      * @since    1.0.0
      * @access   public
      * @return   string   $this->options[SCHEMA]['section_box']
      */
-    public function get_section_slug ( $section_label ) {
-        $s = strtoupper( $section_label );
+    public function get_section_box_slug ( $schema_label ) {
+        $s = $this->init->slug_to_label( $schema_label );
         return $this->options[ $s ]['section_box'];
     }
 
     /**
-     * Get the slug for the section toggle (activate/deactivate Schema checkbox) in options
+     * Get the slug for the Schema checkbox toggle (activate/deactivate Schema) in options
      * 
      * @since    1.0.0
      * @access   public
      * @return   string   $this->options_toggle[SCHEMA]['section_box]
      */
-    public function get_section_toggle_slug ( $section_label ) {
-        $s = strtoupper ( $section_label );
+    public function get_section_toggle_slug ( $schema_label ) {
+        $s = $this->init->slug_to_label( $schema_label );
         return $this->options_toggle[ $s ]['section_box'];
     }
 
@@ -457,27 +486,27 @@ class PLSE_Options_Data {
      */
 
     /**
-     * Check if the section has a panel (not true for hidden field groups).
+     * Check if the Schema has a panel (not true for hidden field groups).
      * 
      * @since    1.0.0
      * @access   public
      * @return   boolean    if the panel has a tab return true, else false
      */
-    public function section_has_panel_tab ( $section_label ) {
-        $s = strtoupper( $section_label );
+    public function section_has_panel_tab ( $schema_label ) {
+        $s = $this->init->slug_to_label( $schema_label );
         if ( $this->options[ $s ]['tab'] ) return true;
         else return false;
     }
 
     /**
-     * Check to see if the section panel has a checkbox.
+     * Check to see if the Schema panel has a checkbox.
      * 
      * @since    1.0.0
      * @access   public
      * @return   boolean    if the panel has an activate/deactive checkbox return true, else false
      */
-    public function section_has_toggle ( $section_label ) {
-        $s = strtoupper( $section_label );
+    public function section_has_toggle ( $schema_label ) {
+        $s = $this->init->slug_to_label( $schema_label );
         if ( isset( $this->options_toggle[ $s ]['section_box'] ) ) return true;
         else return false;
     }
@@ -501,7 +530,8 @@ class PLSE_Options_Data {
      * @return   boolean   if Schema is active, return true, else return false
      */
     public function check_if_schema_active ( $schema_label ) {
-        $s = strtoupper( $schema_label );
+        //$s = strtoupper( $schema_label );
+        $s = $this->init->slug_to_label( $schema_label );
         if ( ! isset( $this->options_toggle[ $s ] ) ) return true;
         if ( ! isset( $this->options_toggle[ $s ]['fields']['used']['slug'] ) ) return false;
         else if ( get_option( $this->options_toggle[ $s ]['fields']['used']['slug'] ) == $this->init->get_checkbox_on() ) return true; 
@@ -512,14 +542,100 @@ class PLSE_Options_Data {
      * Check plugin options to see if a particular CPT and/or category (from the 
      * current post) has been assigned a Schema.
      */
-    public function check_if_schema_assigned_cpt ( $schema_label, string $cpt_slug ) {
-        // TODO:
-        return true;
+    public function check_if_schema_assigned_cpt ( $schema_label ) {
+        
+        $post = $this->init->get_post();
+        $s = $this->init->slug_to_label( $schema_label );
+        //$s = strtoupper( $schema_label );
+
+        // get the slug, retrieve option values of CPTs assigned to this Schema
+        $slug = $this->options[ $s ]['fields']['cpt']['slug'];
+
+        if ( ! $slug ) return false;
+
+        // check the CPTs and Categories which have been associated with this Schema
+        $cpts = get_option( $slug );
+
+        // check custom post type
+        if ( $cpts ) {
+
+            // get the sub-array from get_option() returned value
+            $cpts_arr = $cpts[ $slug ];
+
+            if ( count( $cpts_arr ) ) {
+
+                // is_singular() may not work (only works when user viewing post), so check manually
+                $post_cpt = $this->init->get_post_cpt();
+                foreach ( $cpts_arr as $cpt ) {
+                    if ( $post_cpt == $cpt ) return true;
+                }
+
+            }
+
+        }
+
+        return false;
     }
 
-    public function check_if_schema_assigned_cat ( $schema_label, string $cat_slug ) {
-        // TODO:
-        return true;
+    /**
+     * Check if a category for the post was assigned a Schema.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @return   boolean    if Schema associated with post category, return true, else false
+     */
+    public function check_if_schema_assigned_cat ( $schema_label ) {
+
+        $post = $this->init->get_post();
+        $s = $this->init->slug_to_label( $schema_label );
+        //$s = strtoupper( $schema_label );
+
+        // get the slug, retrieve option values of CPTs assigned to this Schema
+        $slug = $this->options[ $s ]['fields']['cat']['slug'];
+
+        if ( ! $slug ) return false;
+
+        // check the CPTs and Categories which have been associated with this Schema
+        $cats = get_option( $slug );
+
+        // check categories of Page and Post (we defined pages to have categories in PLSE_Init)
+        if ( $cats ) {
+
+            $cats_arr = $cats[ $slug ];
+
+            if ( count( $cats_arr ) ) {
+               /// echo "XXXXXXFOUND USER CATS ARRAY...\n";
+
+                // check page and post categories
+                if ( has_category( $cats_arr, $post ) ) {
+                 ///   echo "XXXXXFOUND A User-Defined CATEGORY using has_category()....\n";
+                    return true;
+                }
+
+                // if post is a CPT, check any assigned custom taxonomy
+                $taxonomy_names = get_object_taxonomies( $post->post_type );
+                foreach ( $taxonomy_names as $tax_name ) {
+                    if ( is_taxonomy_hierarchical( $tax_name ) ) { // eliminates tags
+                        /////////echo "\nLOOKING IN HIERARCHIAL TAXONOMY";
+                        $terms = get_the_terms( $post, $tax_name );
+                        if ( $terms ) {
+                            foreach($terms as $term) {
+                                foreach( $cats_arr as $cat )
+                                if ( $term->name == $cat || 
+                                    $term->name == $post->post_type ) {
+                                    ////////echo "\nXXXXXXXXCUSTOM TAXONOMY MATCH";
+                                    return true;
+                                } //if
+                            } // foreach
+                        } // if
+                    } // if
+                } // foreach
+            } // else
+        }
+
+        ////////echo "\n******************NO MATCH.................\n";
+        return false;
+
     }
 
     /**

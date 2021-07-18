@@ -85,6 +85,8 @@ class PLSE_Metabox {
         // utilities
         $this->util = PLSE_Util::getInstance();
 
+        $this->init = PLSE_Init::getInstance();
+
         // shared field definitions, Schema data is loaded separately
         $this->options_data = PLSE_Options_Data::getInstance();
 
@@ -129,7 +131,8 @@ class PLSE_Metabox {
 
             // strip out non-schema substrings
             if ( $entry != "." && $entry != ".." ) {
-                $schemas[] = strtoupper( preg_replace( $patterns, $replacements, $entry ) );
+                //$schemas[] = strtoupper( preg_replace( $patterns, $replacements, $entry ) );
+                $schemas[] = $this->init->slug_to_label( preg_replace( $patterns, $replacements, $entry ) );
             }
 
         }
@@ -140,43 +143,9 @@ class PLSE_Metabox {
 
     }
 
-    /**
-     * Check if a Schema file has been defined. 
-     * If Schema: 'game' or 'GAME', look for 'plse-schema-game.php'
-     * Independent of the fields data defined in plse-options-data.php
-     * 
-     * @since    1.0.0
-     * @access   public
-     * @return   boolean    if a file exists with 'plse-schema-xxx.php' return true, else return false
-     */
-    public function has_schema ( $schema_label ) {
-
-        $dir = plugin_dir_path( dirname( __FILE__ ) ) . $this->schema_dir . '/';
-
-        $s = strtolower( $schema_label ) . '.php';
-
-        $handle = opendir( $dir );
-
-        while ( false !== ( $entry = readdir( $handle ) ) ) { 
-
-            if ( $entry != '.' && $entry != '..' ) {
-
-                if ( strpos( $entry, $s ) !== false ) {
-                    closedir ( $handle );
-                    return true;
-                }
-
-            }
-
-        }
-
-        closedir( $handle );
-        return false;
-
-    }
 
     /**
-     * Based on required schema, get data from the Schema class for the metabox.
+     * Based on required Schema, get data from the Schema class for the metabox.
      * 
      * @since    1.0.0
      * @access   public
@@ -193,29 +162,37 @@ class PLSE_Metabox {
             $class_path = plugin_dir_path( dirname( __FILE__ ) ) . $this->schema_dir . '/'. $this->schema_file_prefix . $schema_label . '.php';
 
             if ( file_exists( $class_path ) ) {
-                require_once $class_path; // now the class exists
-                return $class_name::$schema_fields; // read static public member variable
+                require $class_path; // now the class exists
+                //return $class_name::$schema_fields; // read static public member variable
             }
 
         }
 
-        return null;
+        return $class_name::$schema_fields; // read static public member variable
 
     }
 
     /**
      * Check if a metabox should be drawn (Schema assigned by post type or category).
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @return   boolean   if a metabox needed for Schema, return true, else false
      */
     public function check_if_metabox_needed ( $schema_label ) {
 
         // check if the Schema is active, being used
         if ( $this->options_data->check_if_schema_active( $schema_label ) ) {
 
-            // test cpt types associated with the Schema
+            // test Custom Post Types types associated with the Schema
+            if ( $this->options_data->check_if_schema_assigned_cpt( $schema_label ) ) {
+                return true;
+            }
 
             // test categories associated with the Schema
-
-            return true;
+            if ( $this->options_data->check_if_schema_assigned_cat( $schema_label ) ) {
+                return true;
+            }
 
         }
 
@@ -223,8 +200,13 @@ class PLSE_Metabox {
     }
 
     /**
-     * Set up metaboxes
+     * Initialize metabox display
+     * - enqueue scripts
+     * - set up metaboxes, determining which should be shown
      * 'admin_init' hook
+     * 
+     * @since    1.0.0
+     * @access   public
      */
     public function setup_metaboxes () {
 
@@ -245,7 +227,7 @@ class PLSE_Metabox {
                 $this->options_data->get_options_fields()
             );
 
-            // get a list of all available schema classes in the /schema directory
+            // get a list of all defined schema classes in the /schema directory
             $schema_list = $this->get_available_schemas();
 
             // determine which Schema metaboxes should be loaded
@@ -253,6 +235,13 @@ class PLSE_Metabox {
 
                 // Check if Schema is active, and if we have a CPT or category requiring a Schema
                 if ( $this->check_if_metabox_needed( $schema_label ) ) {
+
+                    /*
+                     * NOTE:
+                     * NOTE:
+                     * NOTE: if there is an error here ( for example, the 
+                     * schema/plse-schema-xxx.php file is not available), can't display ERROR
+                     */
 
                     $this->metabox_register( 
                         $schema_label, 
@@ -266,10 +255,10 @@ class PLSE_Metabox {
 
          } );
 
-        //add_action( 'admin_notices',   [ $this, 'metabox_show_errors' ], 12   );
-        //add_action( 'pre_post_update', [ $this, 'metabox_before_save' ], 1, 2);
-        //add_action( 'save_post',       [ $this, 'metabox_save'     ],  2, 2  );
-        //add_action( 'wp_insert_post',  [ $this, 'metabox_after_save' ], 12, 4 );
+        add_action( 'admin_notices',   [ $this, 'metabox_show_errors' ], 12   );
+        add_action( 'pre_post_update', [ $this, 'metabox_before_save' ], 1, 2);
+        add_action( 'save_post',       [ $this, 'metabox_save'     ],  2, 2  );
+        add_action( 'wp_insert_post',  [ $this, 'metabox_after_save' ], 12, 4 );
 
     }
 
@@ -333,16 +322,11 @@ class PLSE_Metabox {
         $value = null;
 
         // create the metabox
-        echo '<div class="plse-meta-containers">';
+        echo '<div class="plse-meta-container">';
         if ( $msg ) echo '<p>' . __( 'Schema Added due to assignments:' ) . $msg . '</p>';
         echo '<ul class="plse-meta-list">';
 
         // add nonce
-
-
-        // create the fields
-
-        echo '</ul>';
 
         // loop through each Schema field
         foreach ( $fields as $field ) {
@@ -372,6 +356,9 @@ class PLSE_Metabox {
             echo '</li>';
 
         }
+
+        
+        echo '</ul>';
 
         // close the box
         echo '</div>';
@@ -420,22 +407,21 @@ class PLSE_Metabox {
      * @param    string    $value serialized or unserialized field value
      */
     public function render_text_field ( $args, $value ) {
-        // TODO:
         return $this->render_simple_field( $args, $value, 'text' );
     }
 
     public function render_postal_field ( $args, $value ) {
-        // TODO:
+        // TODO: TEST VALUE FOR POSTAL
         return $this->render_simple_field( $args, $value, 'text' );
     }
 
     public function render_phone_field ( $args, $value ) {
-        //TODO:
+        //TODO: TEST VALUE FOR PHONE
         return $this->render_simple_field( $args, $value, 'tel' );
     }
 
     public function render_email_field ( $args, $value ) {
-        //TODO:
+        //TODO: TEST VALUE FOR EMAIL
         return $this->render_simple_field( $args, $value, 'email' );
 
     }
@@ -446,6 +432,7 @@ class PLSE_Metabox {
     }
 
     public function render_textarea_field ( $args, $value ) {
+        // TODO: check value type
         $value = ( $args['value_type'] == 'serialized' ) ? serialize( $value ) : $value;
         echo '<textarea id="' . sanitize_key( $args['slug'] ) . '" name="' . sanitize_key( $args['slug'] ) .'" rows="5" cols="60">' . esc_attr( $value ) . '</textarea>';
 
@@ -453,12 +440,17 @@ class PLSE_Metabox {
 
     public function render_date_field ( $args, $value ) {
         //TODO:
-        echo "DATE FIELD...............";
+        $value = ( $args['value_type'] == 'serialized' ) ? serialize( $value ) : $value;
+        echo '<input type="date" name="' . $value . '" value="' . sanitize_key( $args['slug'] ) . '">';
     }
 
+    /**
+     * Time field, value always HH:MM
+     */
     public function render_time_field ( $args, $value ) {
-        //TODO:
-        echo "TIME FIELD...............";
+        //TODO: value is HH:MM:SS
+        $value = ( $args['value_type'] == 'serialized' ) ? serialize( $value ) : $value;
+        echo '<input type="time" id="appt" name="' . sanitize_key( $arg['slug' ] ) . '" min="00:00" max="24:00" value="' . $esc_attr( $value ) . '">';
     }
 
     /**
@@ -471,28 +463,26 @@ class PLSE_Metabox {
      * @param    mixed    $value  value of field (may have multiple features)
      */
     public function render_datetime_field ( $args, $value ) {
+
         $value = ( $args['value_type'] == 'serialized' ) ? serialize( $value ) : $value;
         // TODO:
         echo '<div class="plse-datetimepicker">';
-        echo '<input type="date" id="date" value="2018-07-03"><span></span>';
-        echo '<input type="time" id="time" value="08:00">';
+        echo '<input type="date" id="date" name="" value="2018-07-03"><span></span>';
+        echo '<input type="time" id="time" name="" value="08:00">';
         echo '</div>';
 
-        echo '<div class="plse-datetimepicker-info">
-        <strong>Compatibility check:</strong>
-        Date "<span id="date-output"></span>",
-        Time "<span id="time-output"></span>"
-        </div>';
     }
 
     public function render_daterange_field ( $args, $value ) {
-        // TODO:
-        echo "DATERANGE............";
+        // TODO: PROBABLY DON'T NEED THIS
     }
 
     public function render_checkbox_field ( $args, $value ) {
         //TODO:
         echo "CHECKBOX FIELD...............";
+        echo '<input style="display:block;" type="checkbox" id="' . $slug . '" name="' . $slug . '"';
+        if ( $option == $this->ON ) echo ' CHECKED';
+        echo ' />';	
     }
 
     public function render_multi_cpt_field ( $args, $value ) {
@@ -510,15 +500,24 @@ class PLSE_Metabox {
         $plse_init = PLSE_Init::getInstance();
         $slug = $args['slug'];
 
+        echo '<div class="plse-meta-image-col">';
+
         if ( $value ) {
-            echo '<img id="' . sanitize_key( $slug ) . '-img-id" src="' . esc_url( $value ) . '" width="128" height="128">';
+            echo '<img class="plyo-schema-extender-img-box" id="' . sanitize_key( $slug ) . '-img-id" src="' . esc_url( $value ) . '" width="128" height="128">';
         } else {
-            echo '<img id="'. sanitize_key( $slug ) . '-img-id" src="' . $plse_init->get_default_placeholder_icon_url() . '" width="128" height="128">';
+            echo '<img class="plyo-schema-extender-img-box" id="'. sanitize_key( $slug ) . '-img-id" src="' . $plse_init->get_default_placeholder_icon_url() . '" width="128" height="128">';
         }
+
+        echo '</div><div class="plse-meta-upload-col">';
+
+        echo '<div>' . __( 'Image URL in WordPress' ) . '</div>';
+        echo '<div>';
 
         // media library button (ajax)
         echo '<input type="text" name="' . sanitize_key( $slug ) . '" id="' . sanitize_key( $slug ) . '" value="' . $value . '">';
         echo '<input type="button" class="button plse-media-button" data-media="'. $slug . '" value="Upload Image" />';
+
+        echo '</div></div>';
 
     }
 
@@ -529,6 +528,8 @@ class PLSE_Metabox {
      */
 
     public function metabox_before_save () {
+
+        // use http://rachievee.com/how-to-intercept-post-publishing-based-on-post-meta/
 
     }
 

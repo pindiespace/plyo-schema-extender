@@ -33,6 +33,8 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
      */
     public $context;
 
+    public $schema_slug = PLSE_SCHEMA_GAME;
+
     /** 
      * information for creating metabox 
      * 
@@ -115,7 +117,11 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
      * @param string $ptype A Custom Post Type flag to include this Schema.
      */
     public function __construct( WPSEO_Schema_Context $context ) {
-        $this->util = PLSE_Util::getInstance();
+
+        // shared field definitions, Schema data is loaded separately
+        $this->options_data = PLSE_Options_Data::getInstance();
+
+        $this->init = PLSE_Init::getInstance();
         $this->context = $context;
     }
 
@@ -155,9 +161,23 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
      * 
      * @since    1.0.0
      * @access   public
-     * @return   bool    if schema should be added, return true, else false
+     * @return   bool    if Schema should be added, return true, else false
      */
     public function is_needed () {
+
+        $schema_label = $this->init->slug_to_label( $this->schema_slug );
+
+        $post = get_post( $this->context->id );
+
+        if( $post ) {
+            $this->post = $post;
+
+            if ( $this->options_data->check_if_schema_assigned_cpt ( $schema_label ) && 
+                $this->options_data->check_if_schema_assigned_cat( $schema_label ) ) {
+                return true;
+            }
+
+        }
 
         return false;
 

@@ -51,7 +51,7 @@
     background-color:#ddd;
 }
 
-/* h2 title inside box built by Settings API */
+/* h2 title inside box built by Settings API on plugin options page */
 .plyo-schema-extender-box h2 {
     color: #333;
 }
@@ -62,6 +62,57 @@
     border: 1px solid black;
     border-radius: 4px;
 }
+
+
+/* formats multi-select scrollboxes */
+.plse-option-select {
+    width: 100%;
+}
+
+.plse-option-select-description {
+    display:inline-block;
+    background-color: #eee;
+}
+
+.plse-option-select-dropdown {
+    display:inline-block;
+}
+
+/* metabox container, similar to Yoast */
+.plse-meta-container {
+    max-width: 600px;
+    width: 100%;
+    min-height: 100%;
+    height: auto;
+    vertical-align: top;
+    border: 1px solid rgba(0,0,0,.2);
+}
+
+.plse-meta-list li {
+    list-style-type: none!important; /* Remove bullets */
+    margin: 5px;
+    border-radius: 2px;
+    background-color: #efefef;
+    padding: 8px 4px 8px 4px;
+}
+
+.plse-meta-list label {
+    display:block;
+}
+
+.plse-meta-image-col {
+    display:inline-block;
+    width:145px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.plse-meta-upload-col {
+    display: inline-block;
+    text-align: left;
+    vertical-align: middle;
+}
+
 
 /* 
  * tab navigation system

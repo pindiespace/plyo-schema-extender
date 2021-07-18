@@ -268,21 +268,14 @@ class PLSE_Options {
                     echo '<hr>';
                 }
 
-                // TODO:
-                // TODO: WRONG DIV NUM CAUSING FOOTER TO JUMP
-                // TODO:
-
                 // show the data group fields (which can be hidden with checkbox)
                 echo '<!--inside a mask-->';
                 echo '<div class="plse-panel-mask" style="display:' . $panel_display . '">';
                 echo '<div>' ."\n";
                 echo "TABSEL IS A:" . $tab_href;
-                do_settings_sections( $this->options_data->get_section_slug( $key ) );
+                do_settings_sections( $this->options_data->get_section_box_slug( $key ) );
                 echo '</div>';
                 echo '</div>' . "\n";
-
-                ////do_settings_sections( $this->options_data->get_section_slug( $key ) );
-                ////echo 'count2:' . $count;
 
                 echo '</div>' . "\n"; // panel style
                 
@@ -344,7 +337,7 @@ class PLSE_Options {
         <!-- page tabs, hidden field and section here -->
         <?php 
         echo '<div class="' . $panel_style . '" style="display:none">' ."\n";
-            do_settings_sections( $this->options_data->get_section_slug( 'HIDDEN' ) );
+            do_settings_sections( $this->options_data->get_section_box_slug( 'HIDDEN' ) );
         echo "</div>\n"; 
 
         echo $this->setup_tabs();
@@ -653,7 +646,8 @@ class PLSE_Options {
         $slug = $args[0];
         $state = $args[1];
         $options = get_option( $slug );
-        $dropdown = '<select multiple name="' . $slug .'[' . $slug . '][]" class="cpt-dropdown" >' . "\n";
+
+        $dropdown = '<div class="plse-option-select"><select multiple name="' . $slug .'[' . $slug . '][]" class="cpt-dropdown" >' . "\n";
 
         foreach ( $cpts as $cpt ) {
             $dropdown .= '<option value="' . $cpt->rewrite['slug'] . '" ';
@@ -673,6 +667,8 @@ class PLSE_Options {
         }
         $dropdown .= '</select>' . "\n";
 
+        $dropdown .= '<p class="plse-option-select-description">' . __( '(Control-Click to deselect)'). '</p></div>' . "\n";
+
         echo $dropdown;
 
     }
@@ -691,7 +687,7 @@ class PLSE_Options {
         $slug = $args[0];
         $state = $args[1];
         $options = get_option( $slug );
-        $dropdown = '<select multiple name="' . $slug .'[' . $slug . '][]" class="cpt-dropdown">' . "\n";
+        $dropdown = '<div class="plse-option-select"><select multiple name="' . $slug .'[' . $slug . '][]" class="cpt-dropdown">' . "\n";
         foreach ( $cats as $cat ) {
             $dropdown .= '<option value="' . $cat->slug . '" ';
             // highlight stored options in dropdown
@@ -709,6 +705,9 @@ class PLSE_Options {
             $dropdown .= '>' . $cat->name . '</option>' . "\n";
         }
         $dropdown .= '</select>' . "\n";
+
+        $dropdown .= '<p class="plse-option-select-description">' . __( '(Control-Click to deselect)'). '</p></div>' . "\n";
+
 
         echo $dropdown;
     }

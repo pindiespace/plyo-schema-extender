@@ -276,6 +276,114 @@ class PLSE_Init {
      * -----------------------------------------------------------------------
      */
 
+
+    /**
+     * Check if a Schema file has been defined. 
+     * If Schema: 'game' or 'GAME', look for 'plse-schema-game.php'
+     * Independent of the fields data defined in plse-options-data.php
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    string     $schema_label    the slug or label for the schema ('game' or 'GAME')
+     * @return   boolean    if a file exists with 'plse-schema-xxx.php' return true, else return false
+     */
+    public function check_if_schema_defined ( $schema_label ) {
+
+        $dir = plugin_dir_path( dirname( __FILE__ ) ) . $this->schema_dir . '/';
+
+        $s = strtolower( $schema_label ) . '.php';
+
+        $handle = opendir( $dir );
+
+        while ( false !== ( $entry = readdir( $handle ) ) ) { 
+
+            if ( $entry != '.' && $entry != '..' ) {
+
+                if ( strpos( $entry, $s ) !== false ) {
+                    closedir ( $handle );
+                    return true;
+                }
+
+            }
+
+        }
+
+        closedir( $handle );
+        return false;
+
+    }
+
+    /**
+     * Convert slug (e.g. 'game') to label (e.g. 'GAME' )
+     */
+    public function slug_to_label ( $slug ) {
+        return strtoupper( $slug );
+    }
+
+    /**
+     * Convert label (e.g. 'GAME') to slug (e.g. 'game')
+     */
+    public function label_to_slug ( $label ) {
+        return strtolower( $label );
+    }
+
+    /**
+     * Get the current post type
+     * TODO: currently not used
+     * @since    1.0.0
+     * @access   public
+     * @returns  string     post_type as a text string
+     */
+    public function get_post () {
+
+        global $post, $current_screen;
+
+        // we have a post so we can just get the post type from that
+        if ( $post && $post->post_type ) return $post;
+
+        // check the global $current_screen object - set in sceen.php
+        elseif ( $current_screen && $current_screen->post_type ) return $current_screen;
+
+        // if current page is post.php and post isset(), query for its post type 
+        elseif ( $pagenow === 'post.php'  && isset( $_GET['post'] ) ) {
+            $post_id = $_GET['post'];
+            return get_post( $post_id );
+        }
+
+        // post type unknown
+        return null;
+
+      }
+
+    /**
+     * Get the type of the current post.
+     */
+    public function get_post_cpt () {
+
+        // check the global $typenow - set in admin.php
+        global $typenow;
+        if ( $typenow ) return $typenow;
+
+        // check the global post
+        $post = $this->get_post();
+        if ( $post ) return $post->post_type;
+
+        // try to pick it up from the query string
+        if ( ! empty( $_GET['post'] ) ) {
+            $post = get_post( $_GET['post'] );
+            $typenow = $post->post_type;
+        }
+
+        // try to pick it up from the quick edit AJAX post
+        elseif ( ! empty( $_POST['post_ID'] ) ) {
+            $post = get_post( $_POST['post_ID'] );
+            $typenow = $post->post_type;
+        }
+
+        return $typenow;
+
+    }
+
     /**
      * Get the full Custom Post Type List (non-built-in)
      * by setting to 'public' we ignore the pb_* post types
