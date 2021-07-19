@@ -9,41 +9,60 @@
     box-sizing: border-box;
 }
 
+/*
+ * STYLES USED IN OPTIONS AND METABOXES
+ */
+
+/* surrounds some images in the UI */
+.plse-upload-img-box {
+    margin: 6px;
+    border: 1px solid black;
+    border-radius: 4px;
+}
+
+/*
+ * STYLES USED IN PLUGIN OPTIONS PAGE
+ */
+
 /* the header with the title and logo */
-.plyo-schema-extender-row {
+.plse-options-row {
     display: table;
     border-spacing: 5pt;
 }
 
 /* a column in the row */
-.plyo-schema-extender-col {
+.plse-options-col {
     display: table-cell;
 }
 
 /* alignment of inline elements */
-.plyo-schema-extender-valign {
+.plse-options-valign {
     text-align: left;
     align-items: left;
     vertical-align: middle; 
 }
 
 /* h2 style */
-.plyo-schema-extender-h2 {
+.plse-options-h2 {
     font-family: "Open Sans", Arial, Helvetica, sans-serif;
     font-size: 24px;
     margin-bottom:0.6em;
 }
 
 /* paragraphs within a colum */
-.plyo-schema-extender-col p {
+.plse-options-col p {
   margin-top:0;
   border-radius: 4px;
   padding:0.7em;
   background-color: #f9f9f9;
 }
 
+/*
+ * BOX WITH OPTIONS
+ */
+
 /* the box inside the tabs */
-.plyo-schema-extender-box {
+.plse-panel-box {
     margin: 1em;
     padding: 1em;
     border: 1px solid #aaa;
@@ -52,17 +71,28 @@
 }
 
 /* h2 title inside box built by Settings API on plugin options page */
-.plyo-schema-extender-box h2 {
+.plse-panel-box h2 {
     color: #333;
 }
 
-/* surrounds some images in the UI */
-.plyo-schema-extender-img-box {
-    margin: 6px;
-    border: 1px solid black;
-    border-radius: 4px;
+/* wraps complex fields, like the upload image box */
+.plse-option-wrapper {
+    width: 100%;
 }
 
+/* text-like field (text, email, postal) */
+.plse-option-input {
+    display: block;
+}
+
+/* formatting text <label> next to field */
+.plse-option-description {
+    display: inline-block;
+    margin-left: 4px;
+    border-radius: 6px 6px 0 0;
+    padding: 2px 4px 0 4px;
+    background-color: #efefef;
+}
 
 /* formats multi-select scrollboxes */
 .plse-option-select {
@@ -71,12 +101,18 @@
 
 .plse-option-select-description {
     display:inline-block;
+    padding: 2px 4px 2px 2px;
+    border-radius: 0 6px 6px 0;
     background-color: #eee;
 }
 
 .plse-option-select-dropdown {
     display:inline-block;
 }
+
+/*
+ * META FIELDS
+ */
 
 /* metabox container, similar to Yoast */
 .plse-meta-container {
@@ -124,19 +160,19 @@
     padding: 1em;
 }
 
-.plyo-schema-extender-tab-nav {
+.plse-tab-nav {
     margin-left: 1rem;
 }
-.plyo-schema-extender-tab-nav ul {
+.plse-tab-nav ul {
     margin: 0;
     padding: 0;
 }
-.plyo-schema-extender-tab-nav ul li {
+.plse-tab-nav ul li {
     float: left;
     list-style: none;
     margin-bottom:0; /* override default WP admin menu stylng */
 }
-  .plyo-schema-extender-tab-nav ul li a {
+  .plse-tab-nav ul li a {
     display: block;
     position: relative;
     margin-right: -1rem;
@@ -149,28 +185,28 @@
     background: none;
     outline: none;
   }
-  .plyo-schema-extender-tab-nav ul li a.open {
+  .plse-tab-nav ul li a.open {
     z-index: 9;
   }
-  .plyo-schema-extender-tab-nav ul li a:hover {
+  .plse-tab-nav ul li a:hover {
     z-index: 10;
     color: #fff;
   }
-  .plyo-schema-extender-tab-nav ul li a:hover.tab1::before {
+  .plse-tab-nav ul li a:hover.tab1::before {
     background: #3e3e3e;
   }
-  .plyo-schema-extender-tab-nav ul li a:hover.tab2::before {
+  .plse-tab-nav ul li a:hover.tab2::before {
     background: rgb(197, 134, 18);
   }
-  .plyo-schema-extender-tab-nav ul li a:hover.tab3::before {
+  .plse-tab-nav ul li a:hover.tab3::before {
     background: rgb(0, 93, 0);
   }
-  .plyo-schema-extender-tab-nav ul li a:hover.tab4::before {
+  .plse-tab-nav ul li a:hover.tab4::before {
     background: #55416d;
   }
 
   /* rotates the chevron icon */
-  .plyo-schema-extender-tab-nav ul li a::before {
+  .plse-tab-nav ul li a::before {
     content: '';
     z-index: -1;
     position: absolute;
@@ -188,19 +224,19 @@
 }
 
 /* open */
-.plyo-schema-extender-tab-nav ul li a.tab1.open::before {
+.plse-tab-nav ul li a.tab1.open::before {
     background: gray;
 }
 
-.plyo-schema-extender-tab-nav ul li a.tab2.open::before {
+.plse-tab-nav ul li a.tab2.open::before {
     background: orange;
 }
 
-.plyo-schema-extender-tab-nav ul li a.tab3.open::before {
+.plse-tab-nav ul li a.tab3.open::before {
     background: green;
 }
 
-.plyo-schema-extender-tab-nav ul li a.tab4.open::before {
+.plse-tab-nav ul li a.tab4.open::before {
     background: purple;
 }
 

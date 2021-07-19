@@ -129,7 +129,9 @@ class PLSE_Options_Data {
                 'tabsel' => array( // remember tab selection
                     'slug' => PLSE_OPTIONS_SLUG . 'tabsel',
                     'title' => 'Tab selection',
-                    'type' => PLSE_INPUT_TYPES['HIDDEN']
+                    'type' => PLSE_INPUT_TYPES['HIDDEN'],
+                    'label' => '', // <label>
+                    'title' => ''  // appears on mouseover
                 ),
 
             )
@@ -147,21 +149,27 @@ class PLSE_Options_Data {
             'fields' => array(
 
                 'phone' => array(
-                    'slug'  => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_GENERAL . '-phone-field',
-                    'title' => 'Organization Phone (if different from Wordpress Admin):',
-                    'type'  => PLSE_INPUT_TYPES['PHONE']
+                    'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_GENERAL . '-phone-field',
+                    'title'  => 'Organization Phone (if different from Wordpress Admin):',
+                    'type'   => PLSE_INPUT_TYPES['PHONE'],
+                    'label' => 'Phone format: xxx-xxx-xxxx',
+                    'title' => 'US and international phone numbers may be entered'
                 ),
 
                 'email' => array(
-                    'slug'  => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_GENERAL . '-email-field',
-                    'title' => 'Organization Email contact (if different from Wordpress Admin):',
-                    'type'  => PLSE_INPUT_TYPES['EMAIL']
+                    'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_GENERAL . '-email-field',
+                    'title'  => 'Organization Email contact (if different from Wordpress Admin):',
+                    'type'   => PLSE_INPUT_TYPES['EMAIL'],
+                    'label'  => 'Email format: xxxx@novyunlimited.com',
+                    'title'  => 'Provide a valid contact email for your organization'
                 ),
     
                 'contact_url' => array(
-                    'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_GENERAL . '-contact-url-field',
-                    'title' => 'Contact URL for organization on website',
-                    'type' => PLSE_INPUT_TYPES['URL']
+                    'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_GENERAL . '-contact-url-field',
+                    'title'  => 'Contact URL for organization on website',
+                    'type'   => PLSE_INPUT_TYPES['URL'],
+                    'label'  => 'URL format: https://domain/page',
+                    'title'  => 'Provide the web address of the contact page for your organization'
                 )
 
             )
@@ -179,33 +187,43 @@ class PLSE_Options_Data {
             'fields' => array(
 
                 'street' => array(
-                    'slug'  => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_ADDRESS . '-street-field',
-                    'title' => 'Organization Street Address (uses Yoast Local SEO if present)',
-                    'type'  => PLSE_INPUT_TYPES['TEXT']
+                    'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_ADDRESS . '-street-field',
+                    'title'  => 'Organization Street Address (uses Yoast Local SEO if present)',
+                    'type'   => PLSE_INPUT_TYPES['TEXT'],
+                    'label'  => 'Address and street:',
+                    'title'  => 'US and international street addresses are ok'
                 ),
 
                 'city' => array(
-                    'slug'  => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_ADDRESS . '-city-field',
-                    'title' => 'Organization City (uses Yoast Local SEO if present)',
-                    'type'  => PLSE_INPUT_TYPES['TEXT']
+                    'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_ADDRESS . '-city-field',
+                    'title'  => 'Organization City (uses Yoast Local SEO if present)',
+                    'type'   => PLSE_INPUT_TYPES['TEXT'],
+                    'label'  => 'Full name of city:',
+                    'title'  => 'Use the full name of the city (not an abbreviation)'
                 ),
 
                 'state' => array(
-                    'slug'  => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_ADDRESS . '-state-field',
-                    'title' => 'Organization State or region (uses Yoast Local SEO if present)',
-                    'type'  => PLSE_INPUT_TYPES['TEXT']
+                    'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_ADDRESS . '-state-field',
+                    'title'  => 'Organization State or region (uses Yoast Local SEO if present)',
+                    'type'   => PLSE_INPUT_TYPES['TEXT'],
+                    'label'  => 'Full name or abbreviation:',
+                    'title'  => 'supply the state, province, regional location'
                 ),
 
                 'country' => array(
-                    'slug'  => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_ADDRESS . '-country-field',
-                    'title' => 'Organization Country (uses Yoast Local SEO if present)',
-                    'type'  => PLSE_INPUT_TYPES['TEXT']
+                    'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_ADDRESS . '-country-field',
+                    'title'  => 'Organization Country (uses Yoast Local SEO if present)',
+                    'type'   => PLSE_INPUT_TYPES['TEXT'],
+                    'label'  => 'Full name or abbreviation:',
+                    'title'  => 'Full name of country is best for Schema'
                 ),
 
                 'postal' => array(
-                    'slug'  => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_ADDRESS . '-postal-field',
-                    'title' => 'Organization Postal Code (uses Yoast Local SEO if present)',
-                    'type'  => PLSE_INPUT_TYPES['POSTAL']
+                    'slug'  =>  PLSE_OPTIONS_SLUG . PLSE_SCHEMA_ADDRESS . '-postal-field',
+                    'title' =>  'Organization Postal Code (uses Yoast Local SEO if present)',
+                    'type'  =>  PLSE_INPUT_TYPES['POSTAL'],
+                    'label' => 'Complete postal code:',
+                    'title' => 'US or international postal codes ok, but should be alphanumeric'
                 )
 
             )
@@ -225,39 +243,48 @@ class PLSE_Options_Data {
 
                 // cpt dropdown
                 'cpt' => array(
-                    'slug'  => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . PLSE_CPT_SLUG,
-                    'title' => 'Custom Post Types using Service Schema',
-                    'type'  => PLSE_INPUT_TYPES['CPT']
+                    'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . PLSE_CPT_SLUG,
+                    'title'  => 'Custom Post Types using Service Schema',
+                    'type'   => PLSE_INPUT_TYPES['CPT'],
+                    'label'  => 'CTL-Click to deselect',
+                    'title'  => 'Clicking a Custom Post Type will add the Schema to all posts under that CPT'
                 ),
 
                 // cat dropdown
                 'cat' => array(
-                    'slug'  => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . PLSE_CAT_SLUG,
-                    'title' => 'Categories using Service Schema',
-                    'type'  => PLSE_INPUT_TYPES['CAT']
+                    'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . PLSE_CAT_SLUG,
+                    'title'  => 'Categories using Service Schema',
+                    'type'   => PLSE_INPUT_TYPES['CAT'],
+                    'label'  => 'CTL-Click to deselect',
+                    'title'  => 'Clicking one of the listed categories will add the Schema to all posts using the category'
                 ),
 
                 // service type
                 'service_type' => array(
-                    'slug'  => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-type-field',
-                    'title' => 'Service Type (e.g. "Game PR):"',
-                    'type'  => PLSE_INPUT_TYPES['TEXT']
+                    'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-type-field',
+                    'title'  => 'Service Type (e.g. Game Public Relations):"',
+                    'type'   => PLSE_INPUT_TYPES['TEXT'],
+                    'label' => 'Descriptive type:'
                 ),
 
                 'logo' => array(
-                    'slug'  => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-logo',
-                    'title' => 'Service brand logo or icon (global to site)',
-                    'type'  => PLSE_INPUT_TYPES['IMAGE'],
-                    'width' => '120',
-                    'height'=> '120'
+                    'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-logo',
+                    'title'  => 'Service brand logo or icon (global to site)',
+                    'type'   => PLSE_INPUT_TYPES['IMAGE'],
+                    'width'  => '120',
+                    'height' => '120',
+                    'label'  => 'Visual Brand or trademark',
+                    'title'  => 'This should be the copyrighted or trademarked brand image'
                 ),
 
                 'image' => array(
-                    'slug'  => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-image',
-                    'title' => 'Image of Service (distinct from brand logo, global to site)',
-                    'type'  => PLSE_INPUT_TYPES['IMAGE'],
-                    'width' => '240',
-                    'height'=> '120'
+                    'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-image',
+                    'title'  => 'Image of Service (distinct from brand logo, global to site)',
+                    'type'   => PLSE_INPUT_TYPES['IMAGE'],
+                    'width'  => '240',
+                    'height' => '120',
+                    'label'  => 'Image showing service',
+                    'title'  => 'This should show a service being supplied or used'
                 )
 
             )
@@ -277,31 +304,41 @@ class PLSE_Options_Data {
 
                 // cpt
                 'cpt' => array(
-                    'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_GAME . PLSE_CPT_SLUG,
-                    'title' => 'Custom Post Types using Game Schema',
-                    'type' => PLSE_INPUT_TYPES['CPT']
+                    'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_GAME . PLSE_CPT_SLUG,
+                    'title'  => 'Custom Post Types using Game Schema',
+                    'type'   => PLSE_INPUT_TYPES['CPT'],
+                    'label'  => 'Select Multiple',
+                    'title'  => 'Clicking a Custom Post Type will add the Schema to all posts under that CPT'
                 ),
 
                 // cat
                 'cat' => array(
-                    'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_GAME . PLSE_CAT_SLUG,
-                    'title' => 'Categories using Game Schema',
-                    'type' => PLSE_INPUT_TYPES['CAT']
+                    'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_GAME . PLSE_CAT_SLUG,
+                    'title'  => 'Categories using Game Schema',
+                    'type'   => PLSE_INPUT_TYPES['CAT'],
+                    'label'  => 'Select Multiple',
+                    'title'  => 'Clicking one of the listed categories will add the Schema to all posts using the category'
+
                 ),
 
                 // genre
                 'genre' => array(
-                    'slug' => 'plse-' . PLSE_SCHEMA_GAME . '-type-field',
-                    'title' => 'Game Genre (e.g. "Platformer):"',
-                    'type' => PLSE_INPUT_TYPES['TEXT']
+                    'slug'   => 'plse-' . PLSE_SCHEMA_GAME . '-type-field',
+                    'title'  => 'Game Genre (e.g. "Platformer):"',
+                    'type'   => PLSE_INPUT_TYPES['TEXT'],
+                    'label'  => 'Industry Genre (e.g. platformer):',
+                    'title'  => 'Use a common game genre'
+
                 ),
 
                 'image' => array(
-                    'slug'  => 'plse-' . PLSE_SCHEMA_GAME . '-image',
-                    'title' => 'Image of Game (global to site)',
-                    'type'  => PLSE_INPUT_TYPES['IMAGE'],
-                    'width' => '240',
-                    'height'=> '120'
+                    'slug'   => 'plse-' . PLSE_SCHEMA_GAME . '-image',
+                    'title'  => 'Image of Game (global to site)',
+                    'type'   => PLSE_INPUT_TYPES['IMAGE'],
+                    'width'  => '240',
+                    'height' => '120',
+                    'label'  => 'Image of Game',
+                    'title'  => 'Show a screenshot from the game'
                 )
 
             )
@@ -320,16 +357,18 @@ class PLSE_Options_Data {
             'fields' => array(
                 // cpt
                 'cpt' => array(
-                    'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_EVENT . PLSE_CPT_SLUG,
-                    'title' => 'Custom Post Types using Event Schema',
-                    'type' => PLSE_INPUT_TYPES['CPT']
+                    'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_EVENT . PLSE_CPT_SLUG,
+                    'title'  => 'Custom Post Types using Event Schema',
+                    'type'   => PLSE_INPUT_TYPES['CPT'],
+                    'label' => 'Select Multiple'
                 ),
 
                 // cat
                 'cat' => array(
-                    'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_EVENT . PLSE_CAT_SLUG,
-                    'title' => 'Categories using Event Schema',
-                    'type' => PLSE_INPUT_TYPES['CAT']
+                    'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_EVENT . PLSE_CAT_SLUG,
+                    'title'  => 'Categories using Event Schema',
+                    'type'   => PLSE_INPUT_TYPES['CAT'],
+                    'label' => 'Select Multiple'
                 )
 
             )

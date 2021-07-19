@@ -415,7 +415,7 @@ class PLSE_Metabox {
         return $this->render_simple_field( $args, $value, 'text' );
     }
 
-    public function render_phone_field ( $args, $value ) {
+    public function render_tel_field ( $args, $value ) {
         //TODO: TEST VALUE FOR PHONE
         return $this->render_simple_field( $args, $value, 'tel' );
     }
@@ -503,9 +503,9 @@ class PLSE_Metabox {
         echo '<div class="plse-meta-image-col">';
 
         if ( $value ) {
-            echo '<img class="plyo-schema-extender-img-box" id="' . sanitize_key( $slug ) . '-img-id" src="' . esc_url( $value ) . '" width="128" height="128">';
+            echo '<img class="plse-upload-img-box" id="' . sanitize_key( $slug ) . '-img-id" src="' . esc_url( $value ) . '" width="128" height="128">';
         } else {
-            echo '<img class="plyo-schema-extender-img-box" id="'. sanitize_key( $slug ) . '-img-id" src="' . $plse_init->get_default_placeholder_icon_url() . '" width="128" height="128">';
+            echo '<img class="plse-upload-img-box" id="'. sanitize_key( $slug ) . '-img-id" src="' . $plse_init->get_default_placeholder_icon_url() . '" width="128" height="128">';
         }
 
         echo '</div><div class="plse-meta-upload-col">';

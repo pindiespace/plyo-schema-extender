@@ -73,7 +73,7 @@ class PLSE_Options {
      * @access   private
      * @var      string    $panel_class
      */
-    private $panel_class = 'plyo-schema-extender-box';
+    private $panel_class = 'plse-panel-box';
 
     /**
      * Initialize the class and set its properties.
@@ -211,7 +211,7 @@ class PLSE_Options {
         $schema = $this->options_data->get_options();
         $count = 1;
 
-        $tabstring = '<nav class="plyo-schema-extender-tab-nav" role="navigation">' . "\n" . "<ul>\n";
+        $tabstring = '<nav class="plse-tab-nav" role="navigation">' . "\n" . "<ul>\n";
 
         foreach ( $schema as $section ) {
             if ( $section['tab_title'] ) { // ignore hidden field blocks
@@ -300,7 +300,7 @@ class PLSE_Options {
     public function setup_options_page () {
 
         // css style for panel
-        $panel_style = 'plyo-schema-extender-box';
+        $panel_style = $this->panel_class;
 
         // define the default panel style for toggling active/inactive
         $panel_display = 'none';
@@ -311,17 +311,17 @@ class PLSE_Options {
         // wraps the whole page
         echo '<div class="plyo-schema-extender">' . "\n";
         // page headers
-        echo '<div class="plyo-schema-extender-row">' . "\n";
-            echo '<div class="plyo-schema-extender-col">' . $this->init->get_logo() . '</div>';
-            echo '<div class="plyo-schema-extender-col plyo-schema-extender-valign">';
-            echo '<h2 class="plyo-schema-extender-h2">' . PLSE_SCHEMA_EXTENDER_NAME . '</h2>'; 
+        echo '<div class="plse-options-row">' . "\n";
+            echo '<div class="plse-options-col">' . $this->init->get_logo() . '</div>';
+            echo '<div class="plse-options-col plse-options-valign">';
+            echo '<h2 class="plse-options-h2">' . PLSE_SCHEMA_EXTENDER_NAME . '</h2>'; 
                 echo '<p>' . PLSE_SCHEMA_OPTIONS_DESCRIPTION . '</p>';
                 echo '</div>';
             echo '</div>' . "\n";
 
 
                  // begin the form
-            echo '<form id="plyo-schema-extender-form" method="post" action="options.php">';
+            echo '<form id="plse-options-form" method="post" action="options.php">';
 
             settings_fields( $this->option_group ); // options, also auto-generates the nonce
 
@@ -382,19 +382,7 @@ class PLSE_Options {
 
             // add fields to the section
             foreach ( $fields as $field ) {
-
-                switch ( $field['type'] ) {
-
-                    case PLSE_INPUT_TYPES['IMAGE']:
-                        $this->init_field( $section, $field, $state, $field['width'], $field['height'] );
-                        break;
-
-                    default: 
-                        $this->init_field( $section, $field, $state );
-                        break;
-
-                }
-
+                $this->init_field( $section, $field, $state );
             }
 
         }
@@ -436,12 +424,29 @@ class PLSE_Options {
      * @param    array    $p1       additional parameter, e.g. 'width' for IMG
      * @param    array    $p2       additional parameter, e.g. 'height' for IMG
      */
-    public function init_field ( $section, $field, $state = '', $p1 = '', $p2 = '' ) {
+    public function init_field ( $section, $field, $state = '', $p1 = '', $p2 = '', $p3 = '' ) {
 
         $render_callback = 'render_' . $field['type'] . '_field';
         $validation_callback = 'validate_' . $field['type'] . '_field';
 
-        // add_settings_field prevents script loading!!!!!!!!!!!!!!
+        /*
+         * Different field types are pass different elements of the $field object, 
+         * depending on their display
+         */
+
+        $args = array();
+
+        switch ( $field['type'] ) {
+
+            case PLSE_INPUT_TYPES['IMAGE']:
+                $args = [ $field['slug'], $state, $field['width'], $field['height'], $field['label'], $field['title'] ];
+                break;
+
+            default:
+                $args = [ $field['slug'], $state, $field['label'], $field['title'] ];
+                break;
+
+        }
 
         // add the field
         add_settings_field(
@@ -450,7 +455,8 @@ class PLSE_Options {
             [ $this, $render_callback ], // RENDER CALLBACK
             $section['section_box'],
             $section['section_slug'], // label for general settings section
-            [ $field['slug'], $state, $p1, $p2 ] // callback function passed additional parameters
+            $args
+            //[ $field['slug'], $state, $p1, $p2, $p3 ] // callback function $args passed additional parameters
         );
 
         // register setting and validation callback
@@ -516,9 +522,10 @@ class PLSE_Options {
     public function render_hidden_field ( $args ) {
         $slug = $args[0];
         $state = $args[1];
+        $title = $args[2];
         $option = get_option( $slug );
         echo '<label style="display:block;" for="' . $slug . '">' . esc_html_e( 'Descriptive name of type of schema.') . '</label>';
-        echo '<input style="display:block;" type="hidden" id="' . $slug . '" name="' . $slug . '" value="' . $option . '" />';	
+        echo '<input type="hidden" id="' . $slug . '" name="' . $slug . '" value="' . $option . '" />';	
     }
 
     /**
@@ -530,9 +537,77 @@ class PLSE_Options {
     public function render_text_field ( $args ) {
         $slug = $args[0];
         $state = $args[1];
+        $format = $args[2];
+        $title = $args[3];
         $option = get_option( $slug );
-        echo '<label style="display:block;" for="' . $slug . '">' . esc_html_e( 'Descriptive text.') . '</label>';
-        echo '<input style="display:block;" type="text" id="' . $slug . '" name="' . $slug . '" value="' . $option . '" />';	
+        echo '<label class="plse-option-description" for="' . $slug . '">' . esc_html( $format ) . '</label>';
+        echo '<input title="'. $title .'" class="plse-option-input" type="text" id="' . $slug . '" name="' . $slug . '" size="40" value="' . $option . '" />';	
+
+    }
+
+    /**
+     * Render a postal field.
+     * @since    1.0.0
+     * @access   public
+     * @param    string    $slug name of field
+     */
+    public function render_postal_field ( $args ) {
+        $slug = $args[0];
+        $state = $args[1];
+        $format = $args[2];
+        $title = $args[3];
+        $option = get_option( $slug );
+        echo '<label class="plse-option-description" for="' . $slug . '">' . esc_html( $format ) . '</label>';
+        echo '<input title="'. $title .'" class="plse-option-input" type="text" id="' . $slug . '" name="' . $slug . '" value="' . $option . '" />';	
+    }
+
+    /**
+     * Render phone input field
+     * @since    1.0.0
+     * @access   public
+     * @param    string    $slug name of field
+     */
+    public function render_tel_field ( $args ) {
+        $slug = $args[0];
+        $state = $args[1];
+        $format = $args[2];
+        $title = $args[3];
+        $option = get_option( $slug );
+        echo '<label class="plse-option-description" for="' . $slug . '">' . esc_html( $format ) . '</label>';
+        echo '<input title="'. $title .'" class="plse-option-input" type="tel" id="' . $slug . '" name="' . $slug . '" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" size="30" value="' . esc_html( $option ) . '" />';	
+    }
+
+    /**
+     * render email input field
+     * @since    1.0.0
+     * @access   public
+     * @param    string    $slug    name of field
+     */
+    public function render_email_field ( $args ) {
+        $slug = $args[0];
+        $state = $args[1];
+        $format = $args[2];
+        $title = $args[3];
+        $option = get_option( $slug );
+        echo '<label class="plse-option-description" for="' . $slug . '">' . esc_html( $format ) . '</label>';
+        echo '<input title="'. $title .'" class="plse-option-input" type="email" id="' . $slug . '" name="' . $slug . '" pattern=".+@novyunlimited.com" size="40" value="' . esc_html( $option ) . '" />';	
+    }
+
+    /**
+     * Render URL input field
+     * @since    1.0.0
+     * @access   public
+     * @param    string    $slug name of field
+     */
+    public function render_url_field ( $args ) {
+        $slug = $args[0];
+        $state = $args[1];
+        $format = $args[2];
+        $title = $args[3];
+        $option = get_option( $slug );
+        echo '<label class="plse-option-description" for="' . $slug . '">' . esc_html( $format ) . '</label>';
+        echo '<input title="'. $title .'" class="plse-option-input" type="url" id="' . $slug . '" name="' . $slug . '" pattern="https://.*" size="60" value="' . esc_url( $option ) . '" required/>';	
+
     }
 
     /**
@@ -548,63 +623,6 @@ class PLSE_Options {
         echo '<label style="display:block;" for="' . $slug . '">' . esc_html_e( 'Descriptive text.') . '</label>';
         echo '<input style="display:block;" type="date" id="' . $slug . '" name="' . $slug . '" value="' . $option . '" />';	
     }
-
-    /**
-     * Render a postal field.
-     * @since    1.0.0
-     * @access   public
-     * @param    string    $slug name of field
-     */
-    public function render_postal_field ( $args ) {
-        $slug = $args[0];
-        $state = $args[1];
-        $option = get_option( $slug );
-        echo '<label style="display:block;" for="' . $slug . '">' . esc_html_e( 'Formatted Postal Code.') . '</label>';
-        echo '<input style="display:block;" type="text" id="' . $slug . '" name="' . $slug . '" value="' . $option . '" />';	
-    }
-
-    /**
-     * Render phone input field
-     * @since    1.0.0
-     * @access   public
-     * @param    string    $slug name of field
-     */
-    public function render_phone_field ( $args ) {
-        $slug = $args[0];
-        $state = $args[1];
-        $option = get_option( $slug );
-        echo '<label style="display:block;" for="' . $slug . '">' . esc_html_e( 'Phone format: xxx-xxx-xxxx' ) . '</label>';
-        echo '<input style="display:block;" type="tel" id="' . $slug . '" name="' . $slug . '" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" value="' . esc_html( $option ) . '" />';	
-    }
-
-    /**
-     * render email input field
-     * @since    1.0.0
-     * @access   public
-     * @param    string    $slug    name of field
-     */
-    public function render_email_field ( $args ) {
-        $slug = $args[0];
-        $state = $args[1];
-        $option = get_option( $slug );
-        echo '<label style="display:block;" for="' . $slug . '">' . esc_html_e( 'Email format: xxxx@novyunlimited.com' ) . '</label>';
-        echo '<input style="display:block;" type="email" id="' . $slug . '" name="' . $slug . '" pattern=".+@novyunlimited.com" size="40" value="' . esc_html( $option ) . '" />';	
-    }
-
-    /**
-     * Render URL input field
-     * @since    1.0.0
-     * @access   public
-     * @param    string    $slug name of field
-     */
-    public function render_url_field ( $args ) {
-        $slug = $args[0];
-        $state = $args[1];
-        $option = get_option( $slug );
-        echo '<label style="display:block;" for="' . $slug . '">' . esc_html_e( 'URL format: https://domain/page' ) . '</label>';
-        echo '<input style="display:block;" type="url" id="' . $slug . '" name="' . $slug . '" pattern="https://.*" size="60" value="' . esc_url( $option ) . '" required/>';	
-    }
-
 
     /**
      * Render checkbox
@@ -645,6 +663,7 @@ class PLSE_Options {
 
         $slug = $args[0];
         $state = $args[1];
+        $format = $args[2];
         $options = get_option( $slug );
 
         $dropdown = '<div class="plse-option-select"><select multiple name="' . $slug .'[' . $slug . '][]" class="cpt-dropdown" >' . "\n";
@@ -667,7 +686,9 @@ class PLSE_Options {
         }
         $dropdown .= '</select>' . "\n";
 
-        $dropdown .= '<p class="plse-option-select-description">' . __( '(Control-Click to deselect)'). '</p></div>' . "\n";
+        // add formatting text
+        $dropdown .= '<label class="plse-option-select-description" for="">' . $format . '<br>' . __( '(CTL-Click to deselect)') . '</label>';
+        $dropdown .= '</div>';
 
         echo $dropdown;
 
@@ -686,6 +707,7 @@ class PLSE_Options {
 
         $slug = $args[0];
         $state = $args[1];
+        $format = $args[2];
         $options = get_option( $slug );
         $dropdown = '<div class="plse-option-select"><select multiple name="' . $slug .'[' . $slug . '][]" class="cpt-dropdown">' . "\n";
         foreach ( $cats as $cat ) {
@@ -706,8 +728,8 @@ class PLSE_Options {
         }
         $dropdown .= '</select>' . "\n";
 
-        $dropdown .= '<p class="plse-option-select-description">' . __( '(Control-Click to deselect)'). '</p></div>' . "\n";
-
+        $dropdown .= '<label class="plse-option-select-description" for="">' . $format . '<br>' . __( '(CTL-Click to deselect)') . '</label>';
+        $dropdown .= '</div>';
 
         echo $dropdown;
     }
@@ -725,23 +747,37 @@ class PLSE_Options {
         $state = $args[1];
         $width = $args[2];
         $height = $args[3];
+        $label  = $args[4];
+        $title  = $args[5];
         $option = esc_attr( get_option ( $slug ) );
 
         // current image (default to plugin blank if not set)
         $plse_init = PLSE_Init::getInstance();
 
+        echo '<div class="plse-option-wrapper">';
+        echo '<div class="plse-meta-image-col">';
+
         // show the image specified by the URL accessed via $slug
         if ( $option ) {
-            echo '<img id="' . $slug . '-img-id" src="' . $option . '" width="128" height="128">';
+            echo '<img title="' . $title . '" class="plse-upload-img-box" id="' . $slug . '-img-id" src="' . $option . '" width="128" height="128">';
         } else {
-            echo '<img id="'. $slug . '-img-id" src="' . $plse_init->get_default_placeholder_icon_url() . '" width="128" height="128">';
+            echo '<img title="' . $title .'" class="plse-upload-img-box" id="'. $slug . '-img-id" src="' . $plse_init->get_default_placeholder_icon_url() . '" width="128" height="128">';
         }
+        echo '</div>';
+        echo '<div class="plse-meta-upload-col">';
+
+        echo '<div>' . __( 'Image URL in WordPress:' ) . '</div>';
+        echo '<div>';
 
         // media library button (ajax), $slug is the key, $option if the value of the image URL
         echo '<input type="text" name="' . $slug . '" id="' . $slug . '" name="' . $slug . '" value="' . $option . '">';
 
         // button used by WP mediaUploader
-        echo '<input type="button" class="button plse-media-button" data-media="'. $slug . '" value="Upload Image" />';
+        echo '<label for="' . $slug . '">';
+        echo '<input title="' . $title . '" type="button" class="button plse-media-button" data-media="'. $slug . '" value="Upload Image" />';
+        echo '</label>';
+        echo '</div></div>';
+        echo '</div>';
 
     }
 

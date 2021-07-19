@@ -13,7 +13,7 @@
 
         // if tabs are present, we are on the plugin options page
 
-        var tabs = $('.plyo-schema-extender-tab-nav').find('a');
+        var tabs = $('.plse-tab-nav').find('a');
 
 
         if (tabs) {
@@ -50,10 +50,10 @@
                 // strip non-numeric ('tab3' to '3')
                 //var num = e.target.id.replace(/\D/g,'');
 
-                //console.log("BOB:" + num);
+                console.log("TARGET:" + e.target.id);
 
                 // save status (which tab is open = tab #ID) into hidden options field, used by Options API
-                var tabsel = $('.plyo-schema-extender-box #plse-settings-tabsel').val(e.target.id);
+                var tabsel = $('#plse-settings-tabsel').val(e.target.id);
 
             });
 
@@ -225,7 +225,7 @@
          * detect unsaved changes on the option forms
          * ----------------------------------------------------
          */
-        var theform = jQuery('#plyo-schema-extender-form')[0]; // first form only
+        var theform = jQuery('#plse-options-form')[0]; // first form only
 
             var needToConfirm = false;
 
