@@ -310,6 +310,7 @@ class PLSE_Options {
 
         // wraps the whole page
         echo '<div class="plyo-schema-extender">' . "\n";
+
         // page headers
         echo '<div class="plse-options-row">' . "\n";
             echo '<div class="plse-options-col">' . $this->init->get_logo() . '</div>';
@@ -728,7 +729,7 @@ class PLSE_Options {
         }
         $dropdown .= '</select>' . "\n";
 
-        $dropdown .= '<label class="plse-option-select-description" for="">' . $format . '<br>' . __( '(CTL-Click to deselect)') . '</label>';
+        $dropdown .= '<label class="plse-option-select-description" for="">' . $format . '<br>' . __( '(CTL-Click to for select and deselect)') . '</label>';
         $dropdown .= '</div>';
 
         echo $dropdown;

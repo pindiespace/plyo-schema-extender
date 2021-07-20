@@ -414,5 +414,4 @@ class PLSE_Init {
         return $cats;
     }
 
-
 } // end of class

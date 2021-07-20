@@ -106,6 +106,10 @@ if ( ! defined( 'YOAST_PLUGIN' ) ) {
     define( 'YOAST_PLUGIN', 'wordpress-seo/wp-seo.php' );
 }
 
+if ( ! defined( 'YOAST_MENU_SLUG' ) ) {
+    define( 'YOAST_MENU_SLUG', 'wpseo_dashboard' );
+}
+
 /**
  * --------------------------------------------------------------------------
  * SLUG CONSTANTS
@@ -235,8 +239,41 @@ add_action( 'plugins_loaded', function () {
 
             // global fields used in plugin options, also used by metabox
             require_once PLSE_SCHEMA_EXTENDER_PATH . '/includes/admin/plse-options-data.php';
+
             // load options class
             require_once PLSE_SCHEMA_EXTENDER_PATH . '/includes/admin/plse-options.php';
+
+            /*
+             * Reorder menus. Put this plugin menu item right below the
+             * Yoast listing in the Admin menu.
+             */
+            add_filter('custom_menu_order', function() { return true; });
+            add_filter( 'menu_order', function ( $menu_order ) {
+
+                $yoast_pos = 0;
+                $plse_pos  = 0;
+
+                // find the position of Yoas
+                foreach ($menu_order as $key => $value ) {
+                    if ( $value == YOAST_MENU_SLUG ) {
+                        $yoast_pos = $key;
+                    }
+                    if ( $value == PLSE_SCHEMA_EXTENDER_SLUG ) {
+                        $plse_pos = $key;
+                    }
+                }
+                // move an array element to a new index
+                function move_element(&$array, $a, $b) {
+                    $out = array_splice($array, $a, 1);
+                    array_splice($array, $b, 0, $out);
+                }
+                move_element( $menu_order, $plse_pos, $yoast_pos + 1 );
+
+                return $menu_order;
+
+            } );
+
+            // load admin options
             $plse_options = PLSE_Options::getInstance();
             //add_action('admin_menu', [ $plse_options, 'setup_options_menu'] );
 
@@ -250,7 +287,7 @@ add_action( 'plugins_loaded', function () {
             }
 
         }
-       
+
     }
 
 } );

@@ -246,7 +246,7 @@ class PLSE_Options_Data {
                     'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . PLSE_CPT_SLUG,
                     'title'  => 'Custom Post Types using Service Schema',
                     'type'   => PLSE_INPUT_TYPES['CPT'],
-                    'label'  => 'CTL-Click to deselect',
+                    'label'  => 'Select Multiple ok',
                     'title'  => 'Clicking a Custom Post Type will add the Schema to all posts under that CPT'
                 ),
 
@@ -255,7 +255,7 @@ class PLSE_Options_Data {
                     'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . PLSE_CAT_SLUG,
                     'title'  => 'Categories using Service Schema',
                     'type'   => PLSE_INPUT_TYPES['CAT'],
-                    'label'  => 'CTL-Click to deselect',
+                    'label'  => 'Select Multiple ok',
                     'title'  => 'Clicking one of the listed categories will add the Schema to all posts using the category'
                 ),
 
@@ -307,7 +307,7 @@ class PLSE_Options_Data {
                     'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_GAME . PLSE_CPT_SLUG,
                     'title'  => 'Custom Post Types using Game Schema',
                     'type'   => PLSE_INPUT_TYPES['CPT'],
-                    'label'  => 'Select Multiple',
+                    'label'  => 'Select Multiple ok',
                     'title'  => 'Clicking a Custom Post Type will add the Schema to all posts under that CPT'
                 ),
 
@@ -316,7 +316,7 @@ class PLSE_Options_Data {
                     'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_GAME . PLSE_CAT_SLUG,
                     'title'  => 'Categories using Game Schema',
                     'type'   => PLSE_INPUT_TYPES['CAT'],
-                    'label'  => 'Select Multiple',
+                    'label'  => 'Select Multiple ok',
                     'title'  => 'Clicking one of the listed categories will add the Schema to all posts using the category'
 
                 ),
