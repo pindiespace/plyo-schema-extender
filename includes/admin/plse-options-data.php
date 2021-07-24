@@ -108,7 +108,10 @@ class PLSE_Options_Data {
     );
 
     /** 
-     * information for creating plugin options fields
+     * Information for creating plugin options fields in the Admin menu. 
+     * 
+     * - These are global fields which will be associated with ALL Schema.
+     * - Individual fields for each Schema are defined in /schema/plse-schema-xxx.php
      * 
      * @since    1.0.0
      * @access   private

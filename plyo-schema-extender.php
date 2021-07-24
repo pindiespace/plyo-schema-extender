@@ -178,6 +178,7 @@ if ( ! defined( 'PLSE_INPUT_TYPES' ) ) {
     define( 'PLSE_INPUT_TYPES', array(
         'HIDDEN' => 'hidden',
         'TEXT' => 'text',
+        'TEXTAREA' => 'textarea',
         'DATE' => 'date',
         'TIME' => 'time',
         'DATETIME' => 'datetime',
@@ -220,9 +221,6 @@ if ( ! defined( 'PLSE_CAT_SLUG' ) ) {
 require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 
 add_action( 'plugins_loaded', function () {
-
-    // utilities
-    require_once PLSE_SCHEMA_EXTENDER_PATH . '/includes/plse-util.php';
 
     // initialize and decide what to load, or display error message
     require_once PLSE_SCHEMA_EXTENDER_PATH . '/includes/plse-init.php';

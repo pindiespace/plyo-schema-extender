@@ -15,7 +15,7 @@ use Yoast\WP\SEO\Context\Meta_Tags_Context;
  * @license    GPL-2.0+
  * @link       https://plyojump.com
  */
-class PLSE_Schema_Game extends Abstract_Schema_Piece {
+class PLSE_Schema_Event extends Abstract_Schema_Piece {
 
     /**
      * A value object with context variables.
@@ -24,7 +24,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
      */
     public $context;
 
-    public $schema_slug = PLSE_SCHEMA_GAME;
+    public $schema_slug = PLSE_SCHEMA_EVENT;
 
     /** 
      * information for creating metabox 
@@ -34,37 +34,37 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
      * @var      array    $schema_fields    data fields associated with this Schema
      */
     public static $schema_fields = array(
-        'slug'  => 'plse-meta-game',
-        'title' => 'Plyo Schema Extender - Game',
-        'message' => 'Use this box to add fields to create a Game Schema',
-        'nonce' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME .'-metabox-nonce',
+        'slug'  => 'plse-meta-event',
+        'title' => 'Plyo Schema Extender - Event',
+        'message' => 'Use this box to add fields to create an Event',
+        'nonce' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT .'-metabox-nonce',
 
         // fields in the metabox, set for each post
         'fields' => array(
 
-            'game_name' => array(
-                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-name',
-                'label' => 'Game Name:',
-                'title' => 'Official name of the game',
+            'event_name' => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-name',
+                'label' => 'Event Name:',
+                'title' => 'Official name of the event',
                 'type'  => 'TEXT',
                 'required' => 'required',
                 'value_type'=>'normal',
                 'wp_data' => 'post_meta',
             ),
 
-            'game_url' => array(
-                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-url',
-                'label' => 'Game Website URL:',
-                'title' => 'Website, or page on website, that is home page for the game',
+            'event_url' => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-url',
+                'label' => 'Event URL:',
+                'title' => 'Website, or page on website, that is home page for this event',
                 'type'  => 'URL',
                 'required' => '',
                 'value_type'=>'normal',
                 'wp_data' => 'post_meta',
             ),
 
-            'game_image' => array(
-                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-image',
-                'label' => 'Game Image:',
+            'event_image' => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-image',
+                'label' => 'Event Image:',
                 'title' => 'Click button to upload image, or use one from Media Library',
                 'type'  => 'IMAGE',
                 'required' => '',
@@ -72,32 +72,32 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'wp_data' => 'post_meta',
             ),
 
-            'game_description' => array(
-                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-description',
-                'label' => 'Game Description:',
-                'title' => 'One-paragraph description of game setting, genre, gameplay',
+            'event_description' => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-description',
+                'label' => 'Event Description:',
+                'title' => 'One-paragraph description of the event',
                 'type'  => 'TEXTAREA',
                 'required' => '',
                 'value_type'=>'normal',
                 'wp_data' => 'post_meta',
             ),
 
-            'game_company_name' => array(
-                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-company_name',
-                'label' => 'Game Company Name:',
-                'title' => 'The company that created or produced the game',
-                'type'  => 'TEXT',
-                'required' => '',
+            'startDate' => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-startDate',
+                'label' => 'Start Date:',
+                'title' => 'Start Date for the Event',
+                'type'  => 'DATE',
+                'required' => 'required',
                 'value_type'=>'normal',
                 'wp_data' => 'post_meta',
             ),
 
-            'game_company_url' => array(
-                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-company_url',
-                'label' => 'Game Company URL:',
-                'title' => 'Website address, or address of page linking to the company',
-                'type'  => 'URL',
-                'required' => '',
+            'endDate' => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-startDate',
+                'label' => 'End Date:',
+                'title' => 'End Date for the event',
+                'type'  => 'DATE',
+                'required' => 'required',
                 'value_type'=>'normal',
                 'wp_data' => 'post_meta',
             ),

@@ -23,15 +23,6 @@ class PLSE_Init {
     static private $__instance = null;
 
     /**
-     * Store reference to shared PLSE_Util class.
-     *
-     * @since    1.0.0
-     * @access   private
-     * @var      PLSE_Util    $util    the PLSE_Util class.
-     */
-    private $util = null;
-
-    /**
      * Consolidate admin JS references
      * 
      * @since    1.0.0
@@ -79,8 +70,6 @@ class PLSE_Init {
      * @since    1.0.0
      */
     public function __construct() {
-
-        $this->util = PLSE_Util::getInstance();
 
         // internationalization
         $this->l10ni18n();
@@ -211,10 +200,6 @@ class PLSE_Init {
         $js = substr($js, 0, -1);
         $js .= "\n};\n";
 
-        //echo "\nSSSSSSSSSSSSSSSSSSCRIPT LABEL:" . $script_label;
-        //echo "\nVVVVVVVVVVVVVVVVVVVVVVVAR NAME:" . $script_var_name;
-        //echo "\nJJJJJJJJJJJJJJJJJS:" . $js;
-
         if ( $js ) {
             wp_add_inline_script( $script_label, $js, 'before' );
         }
@@ -272,10 +257,95 @@ class PLSE_Init {
 
     /**
      * -----------------------------------------------------------------------
-     * UTILITIES
+     * FIELD VALIDATIONS
      * -----------------------------------------------------------------------
      */
 
+    /**
+     * Field is required
+     */
+    public function is_required ( $in ) {
+        if ( empty( $value ) && $in['required'] == 'required') {
+           return true;
+        }
+        return false;
+    }
+
+    /**
+     * Phone number validation.
+     */
+    public function is_phone ( $in ) {
+        // sanitize
+        // check for phone format
+        $s = preg_replace( '/[\s\#0-9_\-\+\/\(\)\.]/', '', $in );
+        if ( strlen( $s ) ) {
+           return false; // empty
+        }
+        return true;
+    }
+
+    public function is_postal ( $in ) {
+        $s = preg_replace( '/[\s\-A-Za-z0-9]/', '', $out );
+        if ( strlen( $s ) ) {
+            return false;
+        }
+        return true;
+    }
+
+    public function is_url ( $in ) {
+        return filter_var( $in, FILTER_VALIDATE_URL );
+    }
+
+    //public function is_active_url ( $in ) {
+    //    $url = parse_url($in);
+    //    if ( ! isset( $in["host"] ) ) return false;
+    //    return ! ( gethostbyname( $in["host"] ) == $url["host"] );
+    //}
+
+    /**
+     * Check if the URL is active, or has a 301, 302 redirect
+     * {@link https://www.secondversion.com/blog/php-check-if-a-url-is-valid-exists/}
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    string    $url the URL string to test
+     * @return   boolean   if valid, return true, else false
+     */
+    function is_active_url( $url ) {
+
+        // break the URL into its components
+        if ( ! ( $url = @parse_url( $url ) ) ) return false;
+
+        // Check components for validity
+        $url['port']  = ( ! isset($url['port'])) ? 80 : (int)$url['port'];
+        $url['path']  = ( ! empty($url['path'])) ? $url['path'] : '/';
+        $url['path'] .= ( isset($url['query'])) ? "?$url[query]" : '';
+
+        // See if URL responds to a HTTP request (assume PHP version > 5)
+        if ( isset( $url['host'] ) AND $url['host'] != @gethostbyname( $url['host'] ) ) {
+            $headers = @implode( '', @get_headers( "$url[scheme]://$url[host]:$url[port]$url[path]" ) );
+            return (bool)preg_match( '#^HTTP/.*\s+[(200|301|302)]+\s#i', $headers );
+        }
+
+        return false;
+    }
+
+
+    public function is_date ( $in ) {
+        // TODO CHECK FORMATINCOMING
+        //checkdate ( $month, $day, $year )
+        return checkdate( $in['month'], $in['day'], $in['year'] );
+    }
+
+    public function is_time ( $in ) {
+        return strtotime( $in );
+    }
+
+    /**
+     * -----------------------------------------------------------------------
+     * UTILITIES
+     * -----------------------------------------------------------------------
+     */
 
     /**
      * Check if a Schema file has been defined. 
@@ -325,6 +395,14 @@ class PLSE_Init {
      */
     public function label_to_slug ( $label ) {
         return strtolower( $label );
+    }
+
+    /**
+     * Convert label to corresponding class slug
+     * 'GAME' to 'Game'
+     */
+    public function label_to_class_slug ( $label ) {
+        return ucfirst( strtolower( $label ) );
     }
 
     /**

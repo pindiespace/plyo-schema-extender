@@ -25,7 +25,7 @@ class PLSE_Options {
     static private $__instance = null;
 
     /**
-     * Store reference to shared PLSE_Util class.
+     * Store reference to shared PLSE_Init class.
      *
      * @since    1.0.0
      * @access   private
@@ -439,6 +439,10 @@ class PLSE_Options {
 
         switch ( $field['type'] ) {
 
+            case PLSE_INPUT_TYPES['TEXTAREA']:
+                $args = [ $field['slug'], $state, $field['rows'], $field['cols'], $field['label'], $field['title'] ];
+                break;
+
             case PLSE_INPUT_TYPES['IMAGE']:
                 $args = [ $field['slug'], $state, $field['width'], $field['height'], $field['label'], $field['title'] ];
                 break;
@@ -518,7 +522,7 @@ class PLSE_Options {
      * Render a hidden field.
      * @since    1.0.0
      * @access   public
-     * @param    string    $slug name of field
+     * @param    array    $args name of field, state, additional properties
      */
     public function render_hidden_field ( $args ) {
         $slug = $args[0];
@@ -533,7 +537,7 @@ class PLSE_Options {
      * Render a standard text field.
      * @since    1.0.0
      * @access   public
-     * @param    array    $args name of field, plus its state
+     * @param    array    $args name of field, state, additional properties
      */
     public function render_text_field ( $args ) {
         $slug = $args[0];
@@ -550,7 +554,7 @@ class PLSE_Options {
      * Render a postal field.
      * @since    1.0.0
      * @access   public
-     * @param    string    $slug name of field
+     * @param    array    $args name of field, state, additional properties
      */
     public function render_postal_field ( $args ) {
         $slug = $args[0];
@@ -566,7 +570,7 @@ class PLSE_Options {
      * Render phone input field
      * @since    1.0.0
      * @access   public
-     * @param    string    $slug name of field
+     * @param    array    $args name of field, state, additional properties
      */
     public function render_tel_field ( $args ) {
         $slug = $args[0];
@@ -582,7 +586,7 @@ class PLSE_Options {
      * render email input field
      * @since    1.0.0
      * @access   public
-     * @param    string    $slug    name of field
+     * @param    array    $args name of field, state, additional properties
      */
     public function render_email_field ( $args ) {
         $slug = $args[0];
@@ -598,7 +602,7 @@ class PLSE_Options {
      * Render URL input field
      * @since    1.0.0
      * @access   public
-     * @param    string    $slug name of field
+     * @param    array    $args name of field, state, additional properties
      */
     public function render_url_field ( $args ) {
         $slug = $args[0];
@@ -608,14 +612,32 @@ class PLSE_Options {
         $option = get_option( $slug );
         echo '<label class="plse-option-description" for="' . $slug . '">' . esc_html( $format ) . '</label>';
         echo '<input title="'. $title .'" class="plse-option-input" type="url" id="' . $slug . '" name="' . $slug . '" pattern="https://.*" size="60" value="' . esc_url( $option ) . '" required/>';	
+    }
 
+    /**
+     * Render a textarea field.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    array    $args name of field, state, additional properties
+     */
+    public function render_textarea_field ( $args ) {
+        $slug = $args[0];
+        $state = $args[1];
+        $rows = $args[2];
+        $cols = $args[3];
+        $format = $args[4];
+        $title = $args[5];
+        $option = get_option( $slug );
+        echo '<label class="plse-option-description" for="' . $slug . '">' . esc_html( $format ) . '</label>';
+        echo '<textarea title="' . $title . '" id="' . $slug . '" name="' . $slug .'" rows="' . $rows . '" cols="' . $cols . '"></textarea>';
     }
 
     /**
      * Render a date field.
      * @since    1.0.0
      * @access   public
-     * @param    array    $args name of field, plus its state
+     * @param    array    $args name of field, state, additional properties
      */
     public function render_date_field ( $args ) {
         $slug = $args[0];
@@ -629,7 +651,7 @@ class PLSE_Options {
      * Render checkbox
      * @since    1.0.0
      * @access   public
-     * @param    string    $slug name of field
+     * @param    array    $args name of field, state, additional properties
      */
     public function render_checkbox_field ( $args ) {
         $slug = $args[0];
@@ -649,7 +671,7 @@ class PLSE_Options {
      * {@link https://stackoverflow.com/questions/17987233/how-can-i-set-and-get-the-values-of-a-multiple-select-with-the-wordpress-setting}
      * @since    1.0.0
      * @access   public
-     * @param    string    $slug    slug for option storage
+     * @param    array    $args name of field, state, additional properties
      * 
      * TODO:
      * TODO: confirm Custom Post Type still exists
@@ -661,7 +683,6 @@ class PLSE_Options {
         // no dropdown if no Custom Post Types
         $cpts = $this->init->get_all_cpts();
         if ( ! $cpts ) return;
-
         $slug = $args[0];
         $state = $args[1];
         $format = $args[2];
@@ -699,13 +720,12 @@ class PLSE_Options {
      * Handle multi-select dropdown for categories
      * @since    1.0.0
      * @access   public
-     * @param    string    $slug slug for option storage
+     * @param    array    $args name of field, state, additional properties
      */
     public function render_cat_field ( $args ) {
         // no dropdown if categories don't exist
         $cats = $this->init->get_all_cats();
         if ( ! $cats ) return;
-
         $slug = $args[0];
         $state = $args[1];
         $format = $args[2];
@@ -740,7 +760,7 @@ class PLSE_Options {
      * render an upload image field
      * @since    1.0.0
      * @access   public
-     * @param    array    $args  arguments needed to render image field
+     * @param    array    $args name of field, state, additional properties
      */
     public function render_image_field ( $args ) {
 
@@ -796,8 +816,7 @@ class PLSE_Options {
      * @return   mixed      use apply_filters to return $in and $out
      */
     public function validate_hidden_field ( $in ) {
-        $out = $in = trim( $in );
-        $out = sanitize_text_field ( $out );
+        $out = $in = sanitize_text_field( trim( $in ) );
         if ( ! $out || empty( $out ) || strlen( $out ) != strlen( $in ) ) {
             add_settings_error(
                 $this->option_group,
@@ -819,20 +838,18 @@ class PLSE_Options {
      * @return   mixed      use apply_filters to return $in and $out
      */
     public function validate_phone_field ( $in ) {
-        $out = $in = trim ( $in );
-        $out = preg_replace( '/[\s\#0-9_\-\+\/\(\)\.]/', '', $in );
-        if ( strlen( $out ) ) {
-            $out = $in = sanitize_text_field( $in );
+        // sanitize
+        $out = $in = trim( sanitize_text_field( $in ) );
+        if( ! $this->init->is_phone( $out ) ) {
             add_settings_error(
                 $this->option_group,
                 'phone_validation_error',
-                '<span style="color:red">Error:</span> Invalid Phone, extra characters: ('.$out.'), please re-enter',
+                '<span style="color:red">Error:</span> ' . __( 'Invalid Phone (extra characters?): ('.$out.'), please re-enter' ),
                 'error'
             );
-        } else {
-            $out = $in;
         }
         return apply_filters( [ $this, 'validate_phone_field' ], $out, $in );
+
     }
 
     /**
@@ -843,18 +860,14 @@ class PLSE_Options {
      * @return   mixed      use apply_filters to return $in and $out
      */
     public function validate_postal_field ( $in ) {
-        $out = $in = trim( $in );
-        $out = preg_replace( '/[\s\-A-Za-z0-9]/', '', $in );
-        if ( strlen( $out ) ) {
-            $out = $in = sanitize_text_field( $in );
+        $out = $in = trim( sanitize_text_field ( $in ) );
+        if ( ! $this->init->is_postal( $out ) ) {
             add_settings_error(
                 $this->option_group,
                 'phone_validation_error',
                 '<span style="color:red">Error:</span> Invalid Postal Code, extra characters: ('.$out.'), please re-enter',
                 'error'
             );
-        } else {
-            $out = $in;
         }
         return apply_filters( [ $this, 'validate_postal_field' ], $out, $in );
     }
@@ -867,7 +880,7 @@ class PLSE_Options {
      * @return   mixed      use apply_filters to return $in and $out
      */
     public function validate_email_field ( $in ) {
-        $out = $in  = sanitize_email( $in );
+        $out = $in = sanitize_email( trim( $in ) );
         if ( ! is_email( $out ) ) {
             add_settings_error(
                 $this->option_group,
@@ -883,10 +896,9 @@ class PLSE_Options {
      * validate URL field
      */
     public function validate_url_field ( $in ) {
-        $out = $in = trim ( $in );
-        $out = esc_url_raw( $in , [ 'http', 'https' ] );
-        if ( $out != $in ) {
-            $out = $in = sanitize_text_field( $in );
+        $in = sanitize_text_field( trim( $in ) );
+        $out = esc_url( $in, [ 'http', 'https' ] );
+        if ( $out != $in || ! $this->init->is_url( $out ) ) {
             add_settings_error(
                 $this->option_group,
                 'url_validation_error',
@@ -906,7 +918,8 @@ class PLSE_Options {
      * @return   mixed      use apply_filters to return $in and $out
      */
     public function validate_checkbox_field ( $in ) {
-        $out = $in = sanitize_text_field(trim( $in ) );
+        $out = $in = sanitize_text_field( trim( $in ) );
+        // TODO: validation
         return apply_filters( [ $this, 'validate_checkbox_field' ], $out, $in );
     }
 
@@ -919,7 +932,8 @@ class PLSE_Options {
      */
     public function validate_cpt_field ( $in ) {
         $out = $in;
-        // sanitize_key()
+        // TODO: sanitize
+        // sanitize_key() or slug
         // return empty string if sanitize fails
         return apply_filters( [ $this, 'validate_multi_cpt_field' ], $out, $in );
     }
@@ -933,6 +947,7 @@ class PLSE_Options {
      */
     public function validate_cat_field ( $in ) {
         $out = $in;
+        // TODO: sanitize key or slug
         // Return the array processing any additional functions filtered by this action
         return apply_filters( [ $this, 'validate_multi_cat_field' ], $out, $in );
     }
@@ -946,18 +961,35 @@ class PLSE_Options {
      */
     public function validate_image_field ( $in ) {
         $out = $in;
+        // TODO: validate image
         // Return the array processing any additional functions filtered by this action
         return apply_filters( [ $this, 'validate_image_field' ], $out, $in );
     }
 
     public function validate_int_field ( $in ) {
-        // TODO:
-        return $in;
+        $out = sanitize_text_field( trim( $in ) );
+        if ( ! is_int( $out ) ) {
+            add_settings_error(
+                $this->option_group,
+                'int_validation_error',
+                '<span style="color:red">Error:</span> Invalid Integer ('.$out.'), please re-enter',
+                'error'
+            );
+        }
+        return apply_filters( [ $this, 'validate_int_field' ], $out, $in );
     }
 
     public function validate_float_field ( $in ) {
-        // TODO:
-        return $in;
+        $out = sanitize_text_field( trim( $in ) );
+        if ( ! is_float( $out ) ) {
+            add_settings_error(
+                $this->option_group,
+                'float_validation_error',
+                '<span style="color:red">Error:</span> Invalid Floating-point number ('.$out.'), please re-enter',
+                'error'
+            );
+        }
+        return apply_filters( [ $this, 'validate_int_field' ], $out, $in );
     }
 
     /**

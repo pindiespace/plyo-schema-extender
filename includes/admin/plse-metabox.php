@@ -23,15 +23,6 @@ class PLSE_Metabox {
     static private $__instance = null;
 
     /**
-     * Store reference to shared PLSE_Util class.
-     *
-     * @since    1.0.0
-     * @access   private
-     * @var      PLSE_Util    $util    the PLSE_Util class.
-     */
-    private $util = null;
-
-    /**
      * name of JS variable holding relevant PHP variables passed from this class by PLSE_Init.
      * 
      * @since    1.0.0
@@ -83,15 +74,17 @@ class PLSE_Metabox {
     public function __construct () {
 
         // utilities
-        $this->util = PLSE_Util::getInstance();
-
         $this->init = PLSE_Init::getInstance();
 
         // shared field definitions, Schema data is loaded separately
         $this->options_data = PLSE_Options_Data::getInstance();
 
-        add_action( 'admin_init', [ $this, 'setup_metaboxes' ] );
+        ////$s = get_user_setting('plse-user-setting-error');
+        ////if ($s == 'ERROR') {
         add_action( 'admin_notices',   [ $this, 'metabox_show_errors' ], 12   );
+        ////}
+
+        add_action( 'admin_init', [ $this, 'setup' ] );
 
     }
 
@@ -149,12 +142,12 @@ class PLSE_Metabox {
      * 
      * @since    1.0.0
      * @access   public
-     * @return   array    schema field data needed to create metabox
+     * @return   array|null    schema field data needed to create metabox, or null
      */
     public function load_schema_fields ( $schema_label ) {
 
         // upper-case the first letter, from 'game' to 'Game' to make the class name
-        $class_name = 'PLSE_Schema_' . ucfirst( $schema_label );
+        $class_name = 'PLSE_Schema_' . $this->init->label_to_class_slug( $schema_label );
 
         // load the appropriate class.
         if ( ! class_exists( $class_name ) ) {
@@ -163,12 +156,12 @@ class PLSE_Metabox {
 
             if ( file_exists( $class_path ) ) {
                 require $class_path; // now the class exists
-                //return $class_name::$schema_fields; // read static public member variable
+                return $class_name::$schema_fields; // read static public member variable
             }
 
         }
 
-        return $class_name::$schema_fields; // read static public member variable
+        return null; // read static public member variable
 
     }
 
@@ -199,6 +192,38 @@ class PLSE_Metabox {
         return false;
     }
 
+
+    /* 
+     * Enqueue our scripts and styles for the post area. 
+     * Separate from, mutually exclusive loading from admin options pages.
+     */
+    public function setup () {
+
+        add_action( 'admin_enqueue_scripts', [ $this, 'setup_scripts' ] );
+
+        // NOTE: 'save_post' needs to come BEFORE 'add_meta_boxes'
+        add_action( 'pre_post_update', [ $this, 'metabox_before_save' ], 1, 2);
+        add_action( 'save_post',       [ $this, 'metabox_save'     ],  2, 2  );
+        add_action( 'wp_insert_post',  [ $this, 'metabox_after_save' ], 12, 4 );
+        add_action( 'add_meta_boxes', [ $this, 'setup_metaboxes' ] );
+
+    }
+
+    public function setup_scripts () {
+
+        // load scripts common to PLSE_Settings and PLSE_Meta, get the label for where to position
+        $plse_init = PLSE_Init::getInstance();
+        $script_label = $plse_init->load_admin_scripts();
+
+        // use PLSE_Options to inject variables into JS specifically for PLSE_Meta media library button clicks 
+        $plse_init->load_js_passthrough_script( 
+            $script_label,
+            $this->meta_js_name,
+            $this->options_data->get_options_fields()
+        );
+
+    }
+
     /**
      * Initialize metabox display
      * - enqueue scripts
@@ -210,55 +235,31 @@ class PLSE_Metabox {
      */
     public function setup_metaboxes () {
 
-        /* 
-         * Enqueue our scripts and styles for the post area. 
-         * Separate from, mutually exclusive loading from admin options pages.
-         */
-        add_action( 'admin_enqueue_scripts', function ( $hook ) {
+        // get a list of all defined schema classes in the /schema directory
+        $schema_list = $this->get_available_schemas();
 
-            // load scripts common to PLSE_Settings and PLSE_Meta, get the label for where to position
-            $plse_init = PLSE_Init::getInstance();
-            $script_label = $plse_init->load_admin_scripts();
+        // determine which Schema metaboxes should be loaded
+        foreach ( $schema_list as $schema_label ) {
 
-            // use PLSE_Options to inject variables into JS specifically for PLSE_Meta media library button clicks 
-            $plse_init->load_js_passthrough_script( 
-                $script_label,
-                $this->meta_js_name,
-                $this->options_data->get_options_fields()
-            );
+            // Check if Schema is active, and if we have a CPT or category requiring a Schema
+            if ( $this->check_if_metabox_needed( $schema_label ) ) {
 
-            // get a list of all defined schema classes in the /schema directory
-            $schema_list = $this->get_available_schemas();
+                /*
+                 * NOTE:
+                 * NOTE:
+                 * NOTE: if there is an error here ( for example, the 
+                 * schema/plse-schema-xxx.php file is not available), can't display ERROR
+                 */
 
-            // determine which Schema metaboxes should be loaded
-            foreach ( $schema_list as $schema_label ) {
-
-                // Check if Schema is active, and if we have a CPT or category requiring a Schema
-                if ( $this->check_if_metabox_needed( $schema_label ) ) {
-
-                    /*
-                     * NOTE:
-                     * NOTE:
-                     * NOTE: if there is an error here ( for example, the 
-                     * schema/plse-schema-xxx.php file is not available), can't display ERROR
-                     */
-
-                    $this->metabox_register( 
-                        $schema_label, 
-                        $this->load_schema_fields( $schema_label ), 
-                        $schema_label // additional argument passed
-                    );
-
-                }
+                $this->metabox_register( 
+                    $schema_label, 
+                    $this->load_schema_fields( $schema_label ), 
+                    $schema_label // additional argument passed
+                );
 
             }
 
-         } );
-
-        add_action( 'admin_notices',   [ $this, 'metabox_show_errors' ], 12   );
-        add_action( 'pre_post_update', [ $this, 'metabox_before_save' ], 1, 2);
-        add_action( 'save_post',       [ $this, 'metabox_save'     ],  2, 2  );
-        add_action( 'wp_insert_post',  [ $this, 'metabox_after_save' ], 12, 4 );
+        }
 
     }
 
@@ -279,18 +280,15 @@ class PLSE_Metabox {
      */
     public function metabox_register ( $schema_label, $schema_data, $msg ) {
 
-        global $post;
+        // get the current post
+        $post = $this->init->get_post();
 
-        //echo "POST IS:";
-        //print_r( $post );
-
-        //echo "SCHEMA DATA:";
-        //print_r( $schema_data );
-
-        // pass to rendering function
+        // pass field information to the metabox rendering function
         $args = array(
             'schema_label' => $schema_label,
             'schema_fields' => $schema_data['fields'],
+            'nonce' => $schema_data['nonce'],
+            'slug' => $schema_data['slug'],
             'msg' => $msg
         );
 
@@ -312,6 +310,8 @@ class PLSE_Metabox {
      * 
      * @since    1.0.0
      * @access   public
+     * @param    WP_POST    $post    the current post
+     * @param    array      args     field data needed to render metabox
      */
     public function render_metabox ( $post, $args ) {
 
@@ -327,13 +327,16 @@ class PLSE_Metabox {
         echo '<ul class="plse-meta-list">';
 
         // add nonce
+        $nonce = $args['args']['nonce'];
+        $context = $args['args']['slug'];
+        wp_nonce_field( $context, $nonce );
 
         // loop through each Schema field
         foreach ( $fields as $field ) {
 
             // render the label as a list bullet
             echo '<li><label for="' . $field['slug'] . '">';
-            _e( $field['title'], PLSE_SCHEMA_EXTENDER_SLUG );
+            _e( $field['label'], PLSE_SCHEMA_EXTENDER_SLUG );
              echo '</label>';
 
             // render the field
@@ -350,14 +353,13 @@ class PLSE_Metabox {
             $method = 'render_' . PLSE_INPUT_TYPES[ $field['type'] ] . '_field';
 
             if ( method_exists( $this, $method ) ) { 
-                $this->$method( $field, $value ); 
+                $this->$method( $field, $value, $field['title'] ); 
             }
 
             echo '</li>';
 
         }
 
-        
         echo '</ul>';
 
         // close the box
@@ -368,8 +370,21 @@ class PLSE_Metabox {
     /**
      * --------------------------------------------------------------------------
      * RENDER METABOX FIELDS
+     * Strategy: Render, and validate. Check if there is an error in input.
      * --------------------------------------------------------------------------
      */
+
+    /**
+     * Add an error description next to the Schema field.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    string    $msg  error message
+     * @return   string    wrap the error message in HTML for display
+     */
+    public function add_error_to_field ( $msg = '' ) {
+        return '<span class="plse-input-err-msg">' . $msg . '</span>';
+    }
     
     /**
      * Render a hidden field (not the nonce).
@@ -380,12 +395,12 @@ class PLSE_Metabox {
      * @param    string    $value    serialized or unserialized field value
      */
     public function render_hidden_field ( $args, $value ) {
-        $value = ( $args['value_type'] == 'serialized' ) ? serialize( $value ) : $value;
         echo '<input type="hidden" id="' . sanitize_key( $args['slug'] ) . '" name="' . sanitize_key( $args['slug'] ) .'" value="' . esc_attr( $value ) . '" />';
     }
 
     /**
      * Render a simple input field (type: text, url, email )
+     * NOT directly called - Used by other fields
      * 
      * @since    1.0.0
      * @access   public
@@ -393,9 +408,10 @@ class PLSE_Metabox {
      * @param    string   $value   serialized or unserialized field value
      * @param    string   $type    type="xxx" for the field
      */
-    public function render_simple_field ( $args, $value, $type ) {
-        $value = ( $args['value_type'] == 'serialized' ) ? serialize( $value ) : $value;
-        echo '<input type="' . $type . '" id="' . sanitize_key( $args['slug'] ) . '" name="' . sanitize_key( $args['slug'] ) .'" size="40" value="' . esc_attr( $value ) . '" />';
+    public function render_simple_field ( $args, $value, $err = '' ) {
+        $type = $this->init->label_to_slug( $args['type'] );
+        echo '<input title="' . $args['title'] . '" type="' . $type . '" id="' . sanitize_key( $args['slug'] ) . '" name="' . sanitize_key( $args['slug'] ) .'" size="40" value="' . esc_attr( $value ) . '" />';
+        if ( $err )echo $err;
     }
 
     /**
@@ -407,41 +423,90 @@ class PLSE_Metabox {
      * @param    string    $value serialized or unserialized field value
      */
     public function render_text_field ( $args, $value ) {
-        return $this->render_simple_field( $args, $value, 'text' );
+        $err = '';
+        if ( empty( $value ) && $args['required'] == 'required') {
+            $err = $this->add_error_to_field( __( 'this field is required....') );
+        }
+        return $this->render_simple_field( $args, $value, $err );
     }
 
+    /**
+     * Postal code
+     */
     public function render_postal_field ( $args, $value ) {
-        // TODO: TEST VALUE FOR POSTAL
-        return $this->render_simple_field( $args, $value, 'text' );
+        $err = '';
+        if ( empty( $value ) && $args['required'] == 'required') {
+            $err = $this->add_error_to_field( __('this field is required....') );
+        }
+        if ( ! $this->init->is_postal( $value ) ) {
+            $err = $this->add_error_to_field( __( 'this is not a valid postal code' ) );
+        }
+        return $this->render_simple_field( $args, $value, $err );
     }
 
+    /**
+     * Telephone
+     */
     public function render_tel_field ( $args, $value ) {
-        //TODO: TEST VALUE FOR PHONE
-        return $this->render_simple_field( $args, $value, 'tel' );
+        $err = '';
+        if ( empty( $value ) && $args['required'] == 'required') {
+            $err = $this->add_error_to_field( __('this field is required....') );
+        }
+        if ( ! $this->init->is_phone( $value ) ) {
+            $err = $this->add_error_to_field( __( 'this is not a valid phone number' ) );
+        }
+        return $this->render_simple_field( $args, $value, $err );
     }
 
+    /**
+     * Email field.
+     */
     public function render_email_field ( $args, $value ) {
-        //TODO: TEST VALUE FOR EMAIL
-        return $this->render_simple_field( $args, $value, 'email' );
-
+        $err = '';
+        if ( empty( $value ) && $args['required'] == 'required') {
+            $err = $this->add_error_to_field( __('this field is required....') );
+        }
+        if ( ! $this->init->is_email( $value ) ) {
+            $err = $this->add_error_to_field( __( 'this is not a valid email' ) );
+        }
+        return $this->render_simple_field( $args, $value, $err );
     }
 
+    /**
+     * URL field (http or https)
+     */
     public function render_url_field ( $args, $value ) {
-        //TODO:
-        $this->render_simple_field( $args, $value, 'url' );
+        $err = '';
+        if ( empty( $value ) && $args['required'] == 'required') {
+            $err = $this->add_error_to_field( __('this field is required....') );
+        } else if ( ! $this->init->is_url( $value ) ) {
+            $err = $this->add_error_to_field( __( 'invalid address (URL)' ) );
+        }
+        $this->render_simple_field( $args, $value, $err );
     }
 
+    /**
+     * Textarea field.
+     */
     public function render_textarea_field ( $args, $value ) {
-        // TODO: check value type
-        $value = ( $args['value_type'] == 'serialized' ) ? serialize( $value ) : $value;
-        echo '<textarea id="' . sanitize_key( $args['slug'] ) . '" name="' . sanitize_key( $args['slug'] ) .'" rows="5" cols="60">' . esc_attr( $value ) . '</textarea>';
-
+        $err = '';
+        if ( empty( $value ) && $args['required'] == 'required') {
+            $err = $this->add_error_to_field( __('this field is required....') );
+        }
+        echo '<textarea title="' . $args['title'] . '" id="' . sanitize_key( $args['slug'] ) . '" name="' . sanitize_key( $args['slug'] ) .'" rows="5" cols="60">' . esc_attr( $value ) . '</textarea>';
+        if ( ! empty( $err ) ) echo $err;
     }
 
+    /**
+     * Date field.
+     */
     public function render_date_field ( $args, $value ) {
-        //TODO:
-        $value = ( $args['value_type'] == 'serialized' ) ? serialize( $value ) : $value;
-        echo '<input type="date" name="' . $value . '" value="' . sanitize_key( $args['slug'] ) . '">';
+        $err = '';
+        if ( $this->init->is_required( $args ) ) {
+            $err = $this->add_error_to_field( __('this field is required....') );
+        }
+        echo '<input title="' . $args['title'] . '" type="date" name="' . sanitize_key( $args['slug'] ) . '" value="' . esc_attr( $value ) . '">';
+        if ( ! empty( $err ) ) echo $err;
     }
 
     /**
@@ -449,8 +514,12 @@ class PLSE_Metabox {
      */
     public function render_time_field ( $args, $value ) {
         //TODO: value is HH:MM:SS
-        $value = ( $args['value_type'] == 'serialized' ) ? serialize( $value ) : $value;
-        echo '<input type="time" id="appt" name="' . sanitize_key( $arg['slug' ] ) . '" min="00:00" max="24:00" value="' . $esc_attr( $value ) . '">';
+        $err = '';
+        if ( $this->init->is_required( $args ) ) {
+            $err = $this->add_error_to_field( __('this field is required....') );
+        }
+        echo '<input title="' . $args['title'] . '" type="time" id="' . sanitize_key( $arg['slug' ] ) . '" name="' . sanitize_key( $arg['slug' ] ) . '" min="00:00" max="24:00" value="' . $esc_attr( $value ) . '">';
+        if ( ! empty( $err ) ) echo $err;
     }
 
     /**
@@ -470,7 +539,6 @@ class PLSE_Metabox {
         echo '<input type="date" id="date" name="" value="2018-07-03"><span></span>';
         echo '<input type="time" id="time" name="" value="08:00">';
         echo '</div>';
-
     }
 
     public function render_daterange_field ( $args, $value ) {
@@ -480,7 +548,7 @@ class PLSE_Metabox {
     public function render_checkbox_field ( $args, $value ) {
         //TODO:
         echo "CHECKBOX FIELD...............";
-        echo '<input style="display:block;" type="checkbox" id="' . $slug . '" name="' . $slug . '"';
+        echo '<input title="' . $args['title'] . '" style="display:block;" type="checkbox" id="' . $slug . '" name="' . $slug . '"';
         if ( $option == $this->ON ) echo ' CHECKED';
         echo ' />';	
     }
@@ -499,13 +567,14 @@ class PLSE_Metabox {
 
         $plse_init = PLSE_Init::getInstance();
         $slug = $args['slug'];
+        $title = $args['title'];
 
         echo '<div class="plse-meta-image-col">';
 
         if ( $value ) {
-            echo '<img class="plse-upload-img-box" id="' . sanitize_key( $slug ) . '-img-id" src="' . esc_url( $value ) . '" width="128" height="128">';
+            echo '<img title="' . $title . '" class="plse-upload-img-box" id="' . sanitize_key( $slug ) . '-img-id" src="' . esc_url( $value ) . '" width="128" height="128">';
         } else {
-            echo '<img class="plse-upload-img-box" id="'. sanitize_key( $slug ) . '-img-id" src="' . $plse_init->get_default_placeholder_icon_url() . '" width="128" height="128">';
+            echo '<img title="' . $title . '" class="plse-upload-img-box" id="'. sanitize_key( $slug ) . '-img-id" src="' . $plse_init->get_default_placeholder_icon_url() . '" width="128" height="128">';
         }
 
         echo '</div><div class="plse-meta-upload-col">';
@@ -515,7 +584,7 @@ class PLSE_Metabox {
 
         // media library button (ajax)
         echo '<input type="text" name="' . sanitize_key( $slug ) . '" id="' . sanitize_key( $slug ) . '" value="' . $value . '">';
-        echo '<input type="button" class="button plse-media-button" data-media="'. $slug . '" value="Upload Image" />';
+        echo '<input title="' . $title . '" type="button" class="button plse-media-button" data-media="'. $slug . '" value="Upload Image" />';
 
         echo '</div></div>';
 
@@ -527,21 +596,138 @@ class PLSE_Metabox {
      * --------------------------------------------------------------------------
      */
 
-    public function metabox_before_save () {
+    /**
+     * Check entered data before saving.
+     */
+    public function metabox_before_save ( $post_id, $post_data ) {
+
+        //if ( ! is_admin() ) return;
+
+        //$s = print_r( $post_data, true );
+        $slug = 'plyo-schema-extender-game-description';
+        update_post_meta( $post_id, $slug, '666' );
 
         // use http://rachievee.com/how-to-intercept-post-publishing-based-on-post-meta/
 
     }
 
-    public function metabox_save () {
+    /**
+     * Save the metabox data.
+     */
+    public function metabox_save ( $post_id, $post ) {
+
+        // don't update on autosave
+        if ( defined('DOING_AUTOSAVE') && DOING_AUTOSAVE ) return $post_id;
+
+        // don't update on Ajax
+        if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) return $post_id;
+
+        // don't update on cron
+        if ( defined( 'DOING_CRON' ) && DOING_CRON ) return $post_id;
+
+        // check user permissions to post
+        if ( ! current_user_can( 'edit_posts' ) ) return $post_id;
+
+        // check permissions for post type
+        if ( 'page' == $_POST['post_type'] ) {
+            if ( ! current_user_can( 'edit_page', $post_id ) ) {
+                return $post_id;
+            }
+        }
+
+        // get the Schemas that need to be saved for this post
+        $schema_list = $this->get_available_schemas();
+
+        // determine which Schema metaboxes should be loaded
+        foreach ( $schema_list as $schema_label ) {
+
+            // Check if Schema is active, and if we have a CPT or category requiring a Schema
+            if ( $this->check_if_metabox_needed( $schema_label ) ) {
+
+                // load the Schema fields from /schema/plyo-schema-XXX.php
+                $schema = $this->load_schema_fields( $schema_label );
+
+                // verify nonce
+                $nonce = $schema['nonce'];
+                $context = $schema['slug'];
+    
+                // if there's an invalid nonce, loop to the next metabox
+                if ( ! isset( $_POST[ $nonce ] ) || ! wp_verify_nonce( $_POST[ $nonce ], $context ) ) {
+                    continue;
+                }
+
+                $fields = $schema['fields'];
+
+                //////set_user_setting('plse-user-setting-error', 'OK'); //////////////////////
+
+                 // save individual field values
+                foreach ( $fields as $key => $field ) {
+
+                    $slug = $field['slug'];
+
+                    if( ! isset( $_POST[ $slug ] ) ) {
+
+                        delete_post_meta( $post_id, $slug );
+
+                    } else {
+
+                        $value = trim( $_POST[ $slug ] );
+
+                        switch ( $field['type'] ) {
+
+                            case PLSE_INPUT_TYPES['EMAIL']:
+                                $value = sanitize_email( $value );
+                                break;
+
+                            case PLSE_INPUT_TYPES['URL']:
+                                $value = esc_url_raw( $value, [ 'http', 'https' ] );
+                                break;
+
+                            case PLSE_INPUT_TYPES['TEXTAREA']:
+                                $value = esc_textarea( $value );
+
+                            default: 
+                                $value = sanitize_text_field( $value );
+                                break;
+
+                        }
+
+                        // TODO: Sanitize here (though should have been done in jquery)
+                        //https://newbedev.com/validating-custom-meta-box-values-required-fields
+                        // check for validation, flag
+                        //////set_user_setting('plse-user-setting-error', 'ERROR'); //////////////////
+
+                        // update or delete data
+                        if ( empty( $value ) ) {
+
+                            delete_post_meta( $post_id, $slug );
+
+                        } else {
+
+                            update_post_meta( $post_id, $slug, $value );
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
 
     }
 
+    /**
+     * Do something after metabox data is saved.
+     */
     public function metabox_after_save () {
 
     }
 
-
+    /**
+     * Display errors.
+     */
     public function metabox_show_errors () {
 
     }
