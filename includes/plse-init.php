@@ -265,7 +265,7 @@ class PLSE_Init {
      * Field is required
      */
     public function is_required ( $in ) {
-        if ( empty( $value ) && $in['required'] == 'required') {
+        if ( empty( $in ) && $in['required'] == 'required') {
            return true;
         }
         return false;
@@ -308,22 +308,22 @@ class PLSE_Init {
      * 
      * @since    1.0.0
      * @access   public
-     * @param    string    $url the URL string to test
+     * @param    string    $in the URL string to test
      * @return   boolean   if valid, return true, else false
      */
-    function is_active_url( $url ) {
+    function is_active_url( $in ) {
 
         // break the URL into its components
-        if ( ! ( $url = @parse_url( $url ) ) ) return false;
+        if ( ! ( $in = @parse_url( $in ) ) ) return false;
 
         // Check components for validity
-        $url['port']  = ( ! isset($url['port'])) ? 80 : (int)$url['port'];
-        $url['path']  = ( ! empty($url['path'])) ? $url['path'] : '/';
-        $url['path'] .= ( isset($url['query'])) ? "?$url[query]" : '';
+        $in['port']  = ( ! isset($in['port'])) ? 80 : (int)$in['port'];
+        $in['path']  = ( ! empty($in['path'])) ? $in['path'] : '/';
+        $in['path'] .= ( isset($in['query'])) ? "?$in[query]" : '';
 
         // See if URL responds to a HTTP request (assume PHP version > 5)
-        if ( isset( $url['host'] ) AND $url['host'] != @gethostbyname( $url['host'] ) ) {
-            $headers = @implode( '', @get_headers( "$url[scheme]://$url[host]:$url[port]$url[path]" ) );
+        if ( isset( $in['host'] ) AND $in['host'] != @gethostbyname( $in['host'] ) ) {
+            $headers = @implode( '', @get_headers( "$in[scheme]://$in[host]:$in[port]$in[path]" ) );
             return (bool)preg_match( '#^HTTP/.*\s+[(200|301|302)]+\s#i', $headers );
         }
 

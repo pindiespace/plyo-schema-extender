@@ -481,7 +481,11 @@ class PLSE_Metabox {
             $err = $this->add_error_to_field( __('this field is required....') );
         } else if ( ! $this->init->is_url( $value ) ) {
             $err = $this->add_error_to_field( __( 'invalid address (URL)' ) );
-        }
+        } 
+        // TODO: TOO SLOW - MAKE INTO A USER BUTTON
+        //else if ( ! $this->init->is_active_url( $value ) ) {
+        //    $err = $this->add_error_to_field( __('the address does not go to a valid web page' ) );
+        //}
         $this->render_simple_field( $args, $value, $err );
     }
 
@@ -490,7 +494,7 @@ class PLSE_Metabox {
      */
     public function render_textarea_field ( $args, $value ) {
         $err = '';
-        if ( empty( $value ) && $args['required'] == 'required') {
+        if ( $this->init->is_required( $args ) ) {
             $err = $this->add_error_to_field( __('this field is required....') );
         }
         echo '<textarea title="' . $args['title'] . '" id="' . sanitize_key( $args['slug'] ) . '" name="' . sanitize_key( $args['slug'] ) .'" rows="5" cols="60">' . esc_attr( $value ) . '</textarea>';
@@ -505,7 +509,8 @@ class PLSE_Metabox {
         if ( $this->init->is_required( $args ) ) {
             $err = $this->add_error_to_field( __('this field is required....') );
         }
-        echo '<input title="' . $args['title'] . '" type="date" name="' . sanitize_key( $args['slug'] ) . '" value="' . esc_attr( $value ) . '">';
+        ///////echo "DATABASE HAS:" . $value;
+        echo '<input title="' . $args['title'] . '" id="' . sanitize_key( $args['slug'] ) . '" type="date" name="' . sanitize_key( $args['slug'] ) . '" value="' . esc_attr( $value ) . '">';
         if ( ! empty( $err ) ) echo $err;
     }
 
@@ -518,7 +523,7 @@ class PLSE_Metabox {
         if ( $this->init->is_required( $args ) ) {
             $err = $this->add_error_to_field( __('this field is required....') );
         }
-        echo '<input title="' . $args['title'] . '" type="time" id="' . sanitize_key( $arg['slug' ] ) . '" name="' . sanitize_key( $arg['slug' ] ) . '" min="00:00" max="24:00" value="' . $esc_attr( $value ) . '">';
+        echo '<input title="' . $args['title'] . '" id="' . sanitize_key( $args['slug'] ) . '" type="time" name="' . sanitize_key( $args['slug'] ) . '" value="' . esc_attr( $value ) . '">';
         if ( ! empty( $err ) ) echo $err;
     }
 
@@ -611,6 +616,12 @@ class PLSE_Metabox {
 
     }
 
+    public function DEBUG ( $post_id, $msg ) {
+        $slug = 'plyo-schema-extender-event-name';
+        update_post_meta( $post_id, $slug, $msg );
+        //////set_user_setting('plse-user-setting-error', 'OK'); //////////////////////
+    }
+
     /**
      * Save the metabox data.
      */
@@ -658,8 +669,6 @@ class PLSE_Metabox {
 
                 $fields = $schema['fields'];
 
-                //////set_user_setting('plse-user-setting-error', 'OK'); //////////////////////
-
                  // save individual field values
                 foreach ( $fields as $key => $field ) {
 
@@ -673,7 +682,8 @@ class PLSE_Metabox {
 
                         $value = trim( $_POST[ $slug ] );
 
-                        switch ( $field['type'] ) {
+                        // switch, converting our uppercase label to a lowercase slug
+                        switch ( $this->init->label_to_slug( $field['type'] ) ) {
 
                             case PLSE_INPUT_TYPES['EMAIL']:
                                 $value = sanitize_email( $value );
@@ -685,6 +695,11 @@ class PLSE_Metabox {
 
                             case PLSE_INPUT_TYPES['TEXTAREA']:
                                 $value = esc_textarea( $value );
+                                break;
+
+                            case PLSE_INPUT_TYPES['DATE']:
+                                // format: '2015-11-26'
+                                break;
 
                             default: 
                                 $value = sanitize_text_field( $value );

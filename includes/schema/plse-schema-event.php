@@ -82,21 +82,45 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
                 'wp_data' => 'post_meta',
             ),
 
-            'startDate' => array(
-                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-startDate',
+            // FORMAT: 'yyyy-mm-dd'
+            // NOTE: sanitize_key() doesn't let us use -'startDate'
+            'event_start_date' => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-start-date',
                 'label' => 'Start Date:',
-                'title' => 'Start Date for the Event',
+                'title' => 'Day when the event starts',
                 'type'  => 'DATE',
                 'required' => 'required',
                 'value_type'=>'normal',
                 'wp_data' => 'post_meta',
             ),
 
-            'endDate' => array(
-                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-startDate',
+            // FORMAT: 'HH:MM:SS'
+            'event_start_time' => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-start-time',
+                'label' => 'Start Time(Hour:Minute:Seconds):',
+                'title' => 'Time when the event starts',
+                'type'  => 'TIME',
+                'required' => 'required',
+                'value_type'=>'normal',
+                'wp_data' => 'post_meta',
+            ),
+
+            'event_end_date' => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-end-date',
                 'label' => 'End Date:',
-                'title' => 'End Date for the event',
+                'title' => 'Day when the event ends',
                 'type'  => 'DATE',
+                'required' => 'required',
+                'value_type'=>'normal',
+                'wp_data' => 'post_meta',
+            ),
+
+            // FORMAT: 'HH:MM:SS'
+            'event_end_time' => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-end-time',
+                'label' => 'End Time(Hour:Minute:Seconds):',
+                'title' => 'Time when the event ends',
+                'type'  => 'TIME',
                 'required' => 'required',
                 'value_type'=>'normal',
                 'wp_data' => 'post_meta',

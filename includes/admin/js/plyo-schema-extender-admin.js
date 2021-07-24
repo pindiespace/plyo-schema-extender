@@ -127,6 +127,21 @@
 
         /*
          * ---------------------------------------------------
+         * Check if a URL exists
+         * ---------------------------------------------------
+         */
+        $('.plse-check-urls').on('click', function (url) {
+            $('<img src="'+ url +'">').load(function() {
+                return true;
+                // TODO: add error message to display
+            }).bind('error', function() {
+                // TODO: add error message to display
+                return false;
+            });
+        });
+
+        /*
+         * ---------------------------------------------------
          * Datetimepicker
          * ---------------------------------------------------
          */
