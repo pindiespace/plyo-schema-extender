@@ -447,6 +447,10 @@ class PLSE_Options {
                 $args = [ $field['slug'], $state, $field['width'], $field['height'], $field['label'], $field['title'] ];
                 break;
 
+            case PLSE_INPUT_TYPES['SELECT']:
+                $args = [ $field['slug'], $state, $field['label'], $field['title'], $field['option_list'] ];
+                break;
+
             default:
                 $args = [ $field['slug'], $state, $field['label'], $field['title'] ];
                 break;
@@ -648,7 +652,8 @@ class PLSE_Options {
     }
 
     /**
-     * Render checkbox
+     * Render checkbox.
+     * 
      * @since    1.0.0
      * @access   public
      * @param    array    $args name of field, state, additional properties
@@ -656,7 +661,7 @@ class PLSE_Options {
     public function render_checkbox_field ( $args ) {
         $slug = $args[0];
         $state = $args[1];
-        $option = get_option ( $slug );
+        $option = get_option( $slug );
         ///////echo "ON for slug: " . $slug . " IS:" . $option;
         echo '<label style="display:block;" for="' . $slug . '">' . esc_html_e( 'If checked, Schema applied to the following Custom Post Types and Categories' ) . '</label>';
         echo '<input style="display:block;" type="checkbox" id="' . $slug . '" name="' . $slug . '"';
@@ -665,7 +670,53 @@ class PLSE_Options {
     }
 
     /**
-     * Handle multiple-select dropdown for Custom Post Type. Stores multiple entries for 
+     * Render single-choice select field (dropdown menu).
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    array    $args name of field, state, additional properties
+     */
+    public function render_select_single_field ( $args ) {
+        // TODO: NOT TESTED
+        // select fields need an option list
+        $option_list = $args[4];
+        if ( ! $option_list ) return;
+        $slug = $args[0];
+        $state = $args[1];
+        $label = $args[2];
+        $title = $args[3];
+        $option = get_option( $slug ); // selected
+        $dropdown = '<div class="plse-option-select"><select title="' . $title . '" name="' . $slug . '" class="cpt-dropdown" >' . "\n";
+        foreach ( $cpts as $cpt ) {
+            $dropdown .= '<option value="' . $option_list['slug'] . '" ';
+            if ( $option == $option_list['slug'] ) {
+                $dropdown .= 'selected';
+            }
+            $dropdown .= '>' . $cpt->label . '</option>' . "\n";
+        }
+        $dropdown .= '</select>' . "\n";
+
+        // add formatting text
+        $dropdown .= '<label class="plse-option-select-description" for="' . $slug . '">' . $label . '</label>';
+        $dropdown .= '</div>';
+
+        echo $dropdown;
+
+    }
+
+    /**
+     * Select multi, with prebuilt option list (scrolling list).
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    array    $args name of field, state, additional properties
+     */
+    public function render_select_multiple_field ( $args ) {
+        // TODO:
+    }
+
+    /**
+     * Handle multiple-select scrolling list for Custom Post Type. Stores multiple entries for 
      * Custom Post Types used to assign Schema for specific CPTs.
      * Example: <select name='plugin_options[clusters][]' multiple='multiple'>
      * {@link https://stackoverflow.com/questions/17987233/how-can-i-set-and-get-the-values-of-a-multiple-select-with-the-wordpress-setting}
@@ -681,7 +732,7 @@ class PLSE_Options {
      */
     public function render_cpt_field ( $args ) {
         // no dropdown if no Custom Post Types
-        $cpts = $this->init->get_all_cpts();
+        $cpts = $this->init->get_all_cpts(); // get all potential selections
         if ( ! $cpts ) return;
         $slug = $args[0];
         $state = $args[1];
@@ -717,7 +768,7 @@ class PLSE_Options {
     }
 
     /**
-     * Handle multi-select dropdown for categories
+     * Handle multi-select scrolling list for categories
      * @since    1.0.0
      * @access   public
      * @param    array    $args name of field, state, additional properties

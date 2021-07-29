@@ -82,6 +82,16 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'wp_data' => 'post_meta',
             ),
 
+            'screenshot' => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-screenshot',
+                'label' => 'Game Screenshot:',
+                'title' => 'An image showing the game in action',
+                'type'  => 'IMAGE',
+                'required' => '',
+                'value_type'=>'normal',
+                'wp_data' => 'post_meta',
+            ),
+
             'game_company_name' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-company_name',
                 'label' => 'Game Company Name:',
@@ -100,6 +110,23 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'required' => '',
                 'value_type'=>'normal',
                 'wp_data' => 'post_meta',
+            ),
+
+            'operating_system' => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-operating_system',
+                'label' => 'Supported Operating Systems:',
+                'title' => 'Operating Systems compatible with the game',
+                'type'  => 'SELECT_MULTIPLE',
+                'required' => '',
+                'value_type'=>'normal',
+                'wp_data' => 'post_meta',
+                'option_list' => array(
+                    'Android',
+                    'iOS',
+                    'MacOS',
+                    'Windows'
+                ),
+
             ),
 
         )
@@ -188,6 +215,11 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
      * @return    array     $data The Game schema.
      */
     public function generate () {
+
+        $post = $this->init->get_post();
+
+        // get required fields slugs
+
 
         $data = null;
 

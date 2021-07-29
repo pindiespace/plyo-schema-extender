@@ -188,6 +188,8 @@ if ( ! defined( 'PLSE_INPUT_TYPES' ) ) {
         'EMAIL' => 'email',
         'URL' => 'url',
         'CHECKBOX' => 'checkbox',
+        'SELECT_SINGLE' => 'select_single',
+        'SELECT_MULTIPLE' => 'select_multiple',
         'CPT' => 'cpt',
         'CAT' => 'cat',
         'IMAGE' => 'image',

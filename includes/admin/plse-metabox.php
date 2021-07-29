@@ -68,6 +68,15 @@ class PLSE_Metabox {
     private $schema_file_prefix = 'plse-schema-';
 
     /**
+     * Slug for setting a transient messag.
+     * 
+     * @since    1.0.0
+     * @access   private
+     * @var      string    $schema_file_prefix
+     */
+    private $schema_transient = 'plse-schema-metabox-transient';
+
+    /**
      * Initialize the class and set its properties.
      * @since    1.0.0
      */
@@ -79,11 +88,7 @@ class PLSE_Metabox {
         // shared field definitions, Schema data is loaded separately
         $this->options_data = PLSE_Options_Data::getInstance();
 
-        ////$s = get_user_setting('plse-user-setting-error');
-        ////if ($s == 'ERROR') {
-        add_action( 'admin_notices',   [ $this, 'metabox_show_errors' ], 12   );
-        ////}
-
+        // initialze metaboxes assigned by plugin options
         add_action( 'admin_init', [ $this, 'setup' ] );
 
     }
@@ -157,11 +162,14 @@ class PLSE_Metabox {
             if ( file_exists( $class_path ) ) {
                 require $class_path; // now the class exists
                 return $class_name::$schema_fields; // read static public member variable
+            } else {
+                return null; // CLASS FILE NOT PRESENT
             }
 
+        } else {
+            // class already exists
+            return $class_name::$schema_fields;
         }
-
-        return null; // read static public member variable
 
     }
 
@@ -201,7 +209,7 @@ class PLSE_Metabox {
 
         add_action( 'admin_enqueue_scripts', [ $this, 'setup_scripts' ] );
 
-        // NOTE: 'save_post' needs to come BEFORE 'add_meta_boxes'
+        // NOTE: 'save_post' must be BEFORE 'add_meta_boxes'
         add_action( 'pre_post_update', [ $this, 'metabox_before_save' ], 1, 2);
         add_action( 'save_post',       [ $this, 'metabox_save'     ],  2, 2  );
         add_action( 'wp_insert_post',  [ $this, 'metabox_after_save' ], 12, 4 );
@@ -221,6 +229,12 @@ class PLSE_Metabox {
             $this->meta_js_name,
             $this->options_data->get_options_fields()
         );
+
+        // load a local JS validation script
+        // TODO:
+        // TODO: determine if any fields need dynamic validation while typing
+        ///wp_register_script('jquery-validation-plugin', 'https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js', array('jquery' ) );
+        ////wp_enqueue_script('jquery-validation-plugin');
 
     }
 
@@ -245,17 +259,23 @@ class PLSE_Metabox {
             if ( $this->check_if_metabox_needed( $schema_label ) ) {
 
                 /*
-                 * NOTE:
-                 * NOTE:
                  * NOTE: if there is an error here ( for example, the 
-                 * schema/plse-schema-xxx.php file is not available), can't display ERROR
+                 * schema/plse-schema-xxx.php file is not available), we can't display ERROR
                  */
+                $schema_fields = $this->load_schema_fields( $schema_label );
+                if ( ! $this->load_schema_fields( $schema_label ) ) {
 
-                $this->metabox_register( 
-                    $schema_label, 
-                    $this->load_schema_fields( $schema_label ), 
-                    $schema_label // additional argument passed
-                );
+                    $this->metabox_store_transient( 'Could not read:' . $schema_label );
+
+                } else {
+
+                    $this->metabox_register( 
+                        $schema_label, 
+                        $schema_fields, //$this->load_schema_fields( $schema_label ), 
+                        $schema_label // additional argument passed, 'GAME', 'EVENT'
+                    );
+
+                }
 
             }
 
@@ -283,12 +303,16 @@ class PLSE_Metabox {
         // get the current post
         $post = $this->init->get_post();
 
-        // pass field information to the metabox rendering function
-        $args = array(
+        /*
+         * build an argument array containing the metabox field descriptions 
+         * from the Schema file, and any messages from check_if_metabox_needed()
+         */
+        $schema_args = array(
             'schema_label' => $schema_label,
             'schema_fields' => $schema_data['fields'],
             'nonce' => $schema_data['nonce'],
             'slug' => $schema_data['slug'],
+            'message' => $schema_data['message'],
             'msg' => $msg
         );
 
@@ -300,7 +324,7 @@ class PLSE_Metabox {
             $post->post_type, // CPT, can be 'post'
             'normal',
             'high',
-            $args // callback args, contains 'schema_fields'
+            $schema_args // callback args, contains 'schema_fields'
         );
 
     }
@@ -315,20 +339,37 @@ class PLSE_Metabox {
      */
     public function render_metabox ( $post, $args ) {
 
-        // Note our passed parameters were merged into the default $args callback
-        $schema_label = $args['args']['schema_label'];
-        $fields = $args['args']['schema_fields'];
-        $msg = $args['args']['msg'];
+        /*
+         * To render the metabox, we had to pass our field descriptions in metabox_register(),
+         * this becomes $args in this function.
+         */
+        $meta_field_args = $args['args'];
+        $schema_label = $meta_field_args['schema_label'];
+        $fields = $meta_field_args['schema_fields'];
+        $msg = $meta_field_args['msg'];
+        $message = $meta_field_args['message'];
         $value = null;
 
         // create the metabox
         echo '<div class="plse-meta-container">';
-        if ( $msg ) echo '<p>' . __( 'Schema Added due to assignments:' ) . $msg . '</p>';
+
+        // look for errors during the load (not from previous save)
+        $e = $this->metabox_read_transient();
+        if ( ! empty( $e ) ) {
+            echo '<div class="plse-input-err-msg"><p>Error During Load</p><span>' . $e . '</span></div>';
+        }
+
+        // descriptive metabox message
+        echo '<p class="plse-meta-message">' . $msg . ' Schema.' . $meta_field_args['message'] . '</p>';
         echo '<ul class="plse-meta-list">';
 
         // add nonce
-        $nonce = $args['args']['nonce'];
-        $context = $args['args']['slug'];
+        $nonce = $meta_field_args['nonce'];
+        $context = $meta_field_args['slug'];
+
+        //$nonce = $args['args']['nonce'];
+        //$context = $args['args']['slug'];
+
         wp_nonce_field( $context, $nonce );
 
         // loop through each Schema field
@@ -338,6 +379,10 @@ class PLSE_Metabox {
             echo '<li><label for="' . $field['slug'] . '">';
             _e( $field['label'], PLSE_SCHEMA_EXTENDER_SLUG );
              echo '</label>';
+            // TODO: THIS DOESN'T WORK FOR MULTI-SELECT FIELDS!!!!!!!!!!!!
+            // TODO:
+            // TODO:
+            // TODO:
 
             // render the field
             // get the stored option value for metabox field directly from database
@@ -406,7 +451,7 @@ class PLSE_Metabox {
      * @access   public
      * @param    array    $args    arguments neeeded to render the field
      * @param    string   $value   serialized or unserialized field value
-     * @param    string   $type    type="xxx" for the field
+     * @param    string   $err     error message, formated in HTML error style
      */
     public function render_simple_field ( $args, $value, $err = '' ) {
         $type = $this->init->label_to_slug( $args['type'] );
@@ -515,10 +560,10 @@ class PLSE_Metabox {
     }
 
     /**
-     * Time field, value always HH:MM
+     * Time field, value always HH:MM:AM/PM
      */
     public function render_time_field ( $args, $value ) {
-        //TODO: value is HH:MM:SS
+        //TODO: value is HH:MM:AM/PM
         $err = '';
         if ( $this->init->is_required( $args ) ) {
             $err = $this->add_error_to_field( __('this field is required....') );
@@ -556,6 +601,30 @@ class PLSE_Metabox {
         echo '<input title="' . $args['title'] . '" style="display:block;" type="checkbox" id="' . $slug . '" name="' . $slug . '"';
         if ( $option == $this->ON ) echo ' CHECKED';
         echo ' />';	
+    }
+
+    public function render_select_single_field ( $args, $value ) {
+        // TODO:
+        echo "SELECT SINGLE FIELD.........";
+
+    }
+
+    public function render_select_multiple_field ( $args, $value ) {
+        // TODO: LABELS!!!!!!!
+        $option_list = $args['option_list'];
+        if ( ! $option_list ) return; // options weren't added
+        $dropdown = '<div class="plse-option-select"><select multiple title="' . $args['title'] . '" name="' . $args['slug'] . '" class="cpt-dropdown" >' . "\n";
+        foreach ( $option_list as $option ) {
+            $dropdown .= '<option value="' . $option . '" ';
+            if ( $option == $value ) {
+                $dropdown .= 'selected';
+            }
+            $dropdown .= '>' . $option . '</option>' . "\n";
+        }
+        $dropdown .= '</select>' . "\n";
+
+        echo $dropdown;
+
     }
 
     public function render_multi_cpt_field ( $args, $value ) {
@@ -701,6 +770,10 @@ class PLSE_Metabox {
                                 // format: '2015-11-26'
                                 break;
 
+                            case PLSE_INPUT_TYPES['TIME']:
+                                // format: 
+                                break;
+
                             default: 
                                 $value = sanitize_text_field( $value );
                                 break;
@@ -741,9 +814,60 @@ class PLSE_Metabox {
     }
 
     /**
-     * Display errors.
+     * Set a transient that expires after 5 seconds. Add user ID to 
+     * prevent collisions if more than one admin is logged in.
+     * 
+     * Used to record errors during load, NOT after the schema is updated. Errors 
+     * in individual fields appear next to each field after an update.
+     * 
+     * @since     1.0.0
+     * @access    public
+     * @param     string     $err_message    the error message
+     * @param     number     $duration    the duration of the transient, default to 5 seconds
      */
-    public function metabox_show_errors () {
+    public function metabox_store_transient ( $err_msg, $duration = 5 ) {
+        set_transient( $this->schema_transient . get_current_user_id(), $err_msg, $duration );
+    }
+
+    /**
+     * Read any storied transient messages.
+     * 
+     * Used to record errors during load, NOT after the schema is updated. Errors 
+     * in individual fields appear next to each field after an update.
+     * 
+     * @since     1.0.0
+     * @access    public
+     */
+    public function metabox_read_transient () {
+        return get_transient( $this->schema_transient );
+    }
+
+    /**
+     * Display errors.
+     * 
+     * TODO:
+     * TODO:
+     * THIS IS NOT WORKING. IF you try a do_action('admin_init'), the error renders 
+     * BEFORE WP begins creating the pages
+     */
+    public function metabox_show_errors ( $notice_type, $err_msg ) {
+
+        $stored_err_msg = get_transient( $this->schema_transient );
+        if( $stored_error_msg ) {
+            $err_msg = $stored_err_msg;
+        }
+
+        add_action(
+            'admin_notices',
+            function () use ( $err_msg, $message ) {
+                printf(
+                    '<div class="%1$s"><p>%2$s</p></div>',
+                    esc_attr( $notice_type ),
+                    esc_html( $err_msg )
+                );
+            }
+        );
+        do_action( 'admin_notices' );
 
     }
 

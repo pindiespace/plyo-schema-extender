@@ -118,7 +118,7 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
             // FORMAT: 'HH:MM:SS'
             'event_end_time' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-end-time',
-                'label' => 'End Time(Hour:Minute:Seconds):',
+                'label' => 'End Time(Hour:Minute:AM/PM):',
                 'title' => 'Time when the event ends',
                 'type'  => 'TIME',
                 'required' => 'required',
