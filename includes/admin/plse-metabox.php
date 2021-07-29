@@ -391,7 +391,12 @@ class PLSE_Metabox {
             }
             elseif ( $field[ 'wp_data' ] == 'post_meta' ) {
                 // get the string associated with this field in this post (if no slug, get all the CPTs for this post)
-                $value = get_post_meta( $post->ID, $field['slug'], true );
+                if ( $field['select_multiple'] ) {
+                    $value = get_post_meta( $post->ID, $field['slug'] ); // multi-select control, returns array
+                } else {
+                    $value = get_post_meta( $post->ID, $field['slug'], true ); // single = true, returns meta value
+                }
+
             }
 
             // use dynamic method to fire the rendering function for the field
@@ -465,7 +470,7 @@ class PLSE_Metabox {
      * @since    1.0.0
      * @access   public
      * @param    array     $args arguments needed to render the field
-     * @param    string    $value serialized or unserialized field value
+     * @param    string    $value    field value
      */
     public function render_text_field ( $args, $value ) {
         $err = '';
@@ -476,7 +481,12 @@ class PLSE_Metabox {
     }
 
     /**
-     * Postal code
+     * Render postal code field.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    array    $args field parameters, select
+     * @param    string   $value    the field value
      */
     public function render_postal_field ( $args, $value ) {
         $err = '';
@@ -490,7 +500,12 @@ class PLSE_Metabox {
     }
 
     /**
-     * Telephone
+     * Render a telephone field.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    array    $args field parameters, select
+     * @param    string   $value the field value
      */
     public function render_tel_field ( $args, $value ) {
         $err = '';
@@ -504,7 +519,12 @@ class PLSE_Metabox {
     }
 
     /**
-     * Email field.
+     * Render an email field.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    array    $args field parameters, select
+     * @param    string   $value    the field value
      */
     public function render_email_field ( $args, $value ) {
         $err = '';
@@ -518,7 +538,12 @@ class PLSE_Metabox {
     }
 
     /**
-     * URL field (http or https)
+     * Render a URL field (http or https).
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    array    $args field parameters, select
+     * @param    string   $value    the field value
      */
     public function render_url_field ( $args, $value ) {
         $err = '';
@@ -528,6 +553,7 @@ class PLSE_Metabox {
             $err = $this->add_error_to_field( __( 'invalid address (URL)' ) );
         } 
         // TODO: TOO SLOW - MAKE INTO A USER BUTTON
+        // TODO:
         //else if ( ! $this->init->is_active_url( $value ) ) {
         //    $err = $this->add_error_to_field( __('the address does not go to a valid web page' ) );
         //}
@@ -535,7 +561,12 @@ class PLSE_Metabox {
     }
 
     /**
-     * Textarea field.
+     * Render a textara field.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    array    $args field parameters, select
+     * @param    string   $value    the field value
      */
     public function render_textarea_field ( $args, $value ) {
         $err = '';
@@ -547,23 +578,31 @@ class PLSE_Metabox {
     }
 
     /**
-     * Date field.
+     * Render a Date field, value always DD:MM:YEAR.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    array    $args field parameters, select
+     * @param    string   $value    the field value, with correct date format DD-MM-YYYY
      */
     public function render_date_field ( $args, $value ) {
         $err = '';
         if ( $this->init->is_required( $args ) ) {
             $err = $this->add_error_to_field( __('this field is required....') );
         }
-        ///////echo "DATABASE HAS:" . $value;
         echo '<input title="' . $args['title'] . '" id="' . sanitize_key( $args['slug'] ) . '" type="date" name="' . sanitize_key( $args['slug'] ) . '" value="' . esc_attr( $value ) . '">';
         if ( ! empty( $err ) ) echo $err;
     }
 
     /**
-     * Time field, value always HH:MM:AM/PM
+     * Render a Time field, value always HH:MM:AM/PM.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    array    $args     field parameters, select
+     * @param    string   $value    the field value, formatted HH:MM:AM/PM
      */
     public function render_time_field ( $args, $value ) {
-        //TODO: value is HH:MM:AM/PM
         $err = '';
         if ( $this->init->is_required( $args ) ) {
             $err = $this->add_error_to_field( __('this field is required....') );
@@ -595,6 +634,14 @@ class PLSE_Metabox {
         // TODO: PROBABLY DON'T NEED THIS
     }
 
+    /**
+     * Render a checkbox.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    array    $args field parameters, select
+     * @param    string   $value    the field value 'on' or not on
+     */
     public function render_checkbox_field ( $args, $value ) {
         //TODO:
         echo "CHECKBOX FIELD...............";
@@ -603,40 +650,87 @@ class PLSE_Metabox {
         echo ' />';	
     }
 
+    /**
+     * Render a pulldown menu with only one option selectable.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    array    $args field parameters, select
+     * @param    string   $value    the field value
+     */
     public function render_select_single_field ( $args, $value ) {
         // TODO:
         echo "SELECT SINGLE FIELD.........";
 
     }
 
+    /**
+     * Render a scrolling list of options allowing multiple select.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    array    $args field parameters, select
+     * @param    array    $value    an array with all options selected
+     */
     public function render_select_multiple_field ( $args, $value ) {
-        // TODO: LABELS!!!!!!!
         $option_list = $args['option_list'];
+        $slug = $args['slug'];
+        // if multi-select, value is an array with a sub-array of values
+        if ( is_array( $value) ) $value = $value[0];
         if ( ! $option_list ) return; // options weren't added
-        $dropdown = '<div class="plse-option-select"><select multiple title="' . $args['title'] . '" name="' . $args['slug'] . '" class="cpt-dropdown" >' . "\n";
+        $dropdown = '<div class="plse-option-select"><select multiple="multiple" title="' . $args['title'] . ' id="' . $slug . '" name="' . $slug . '[]" class="cpt-dropdown" >' . "\n";
         foreach ( $option_list as $option ) {
             $dropdown .= '<option value="' . $option . '" ';
-            if ( $option == $value ) {
+            if ( is_array( $value ) ) {
+               foreach ( $value as $v) {
+                   if ( $option == $v) {
+                       $dropdown .= 'selected';
+                   }
+               }
+            } else if ( $option == $value ) {
                 $dropdown .= 'selected';
             }
+
             $dropdown .= '>' . $option . '</option>' . "\n";
         }
         $dropdown .= '</select>' . "\n";
+        $dropdown .= '<p class="plse-option-select-description">' . __( '(CTL-Click to for select and deselect)') . '</p>';
 
         echo $dropdown;
-
     }
 
+    /**
+     * Render Custom Post Type list.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    array    $args field parameters, select
+     * @param    array    $value    an array with all options selected
+     */
     public function render_multi_cpt_field ( $args, $value ) {
-        //TODO:
-        echo "MULTI CPT FIELD...............";
+        $this->render_select_multiple_field( $args, $value );
     }
 
+    /**
+     * Render Category list.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    array    $args field parameters, select
+     * @param    array    $value    an array with all options selected
+     */
     public function render_multi_cat_field ( $args, $value ) {
-        //TODO:
-        echo "MULTI CAT FIELD...............";
+        $this->render_select_multiple_field( $args, $value );
     }
 
+    /**
+     * Render an image with its associated URL field.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    array    $args field parameters, select
+     * @param    string    $value    the URL of the image
+     */
     public function render_image_field ( $args, $value ) {
 
         $plse_init = PLSE_Init::getInstance();
@@ -749,25 +843,29 @@ class PLSE_Metabox {
 
                     } else {
 
-                        $value = trim( $_POST[ $slug ] );
+                        $value = $_POST[ $slug ];
 
                         // switch, converting our uppercase label to a lowercase slug
                         switch ( $this->init->label_to_slug( $field['type'] ) ) {
 
                             case PLSE_INPUT_TYPES['EMAIL']:
-                                $value = sanitize_email( $value );
+                                $value = sanitize_email( trim( $value ) );
                                 break;
 
                             case PLSE_INPUT_TYPES['URL']:
-                                $value = esc_url_raw( $value, [ 'http', 'https' ] );
+                                $value = esc_url_raw( trim( $value ), [ 'http', 'https' ] );
                                 break;
 
                             case PLSE_INPUT_TYPES['TEXTAREA']:
-                                $value = esc_textarea( $value );
+                                $value = esc_textarea( trim( $value ) );
                                 break;
 
                             case PLSE_INPUT_TYPES['DATE']:
                                 // format: '2015-11-26'
+                                break;
+
+                            case PLSE_INPUT_TYPES['SELECT_MULTIPLE']:
+                                $value = $value; ////////////////////////////////////
                                 break;
 
                             case PLSE_INPUT_TYPES['TIME']:
@@ -775,7 +873,7 @@ class PLSE_Metabox {
                                 break;
 
                             default: 
-                                $value = sanitize_text_field( $value );
+                                $value = sanitize_text_field( trim( $value ) );
                                 break;
 
                         }

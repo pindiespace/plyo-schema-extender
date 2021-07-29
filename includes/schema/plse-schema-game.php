@@ -50,6 +50,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'required' => 'required',
                 'value_type'=>'normal',
                 'wp_data' => 'post_meta',
+                'select_multiple' => false
             ),
 
             'game_url' => array(
@@ -60,6 +61,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'required' => '',
                 'value_type'=>'normal',
                 'wp_data' => 'post_meta',
+                'select_multiple' => false
             ),
 
             'game_image' => array(
@@ -70,6 +72,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'required' => '',
                 'value_type'=>'normal',
                 'wp_data' => 'post_meta',
+                'select_multiple' => false
             ),
 
             'game_description' => array(
@@ -80,6 +83,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'required' => '',
                 'value_type'=>'normal',
                 'wp_data' => 'post_meta',
+                'select_multiple' => false
             ),
 
             'screenshot' => array(
@@ -90,6 +94,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'required' => '',
                 'value_type'=>'normal',
                 'wp_data' => 'post_meta',
+                'select_multiple' => false
             ),
 
             'game_company_name' => array(
@@ -100,6 +105,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'required' => '',
                 'value_type'=>'normal',
                 'wp_data' => 'post_meta',
+                'select_multiple' => false
             ),
 
             'game_company_url' => array(
@@ -110,6 +116,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'required' => '',
                 'value_type'=>'normal',
                 'wp_data' => 'post_meta',
+                'select_multiple' => false
             ),
 
             'operating_system' => array(
@@ -126,6 +133,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                     'MacOS',
                     'Windows'
                 ),
+                'select_multiple' => true
 
             ),
 
