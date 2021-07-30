@@ -41,7 +41,7 @@ class PLSE_Metabox {
     private $meta_js_name = 'plse_plugin_custom_fields';
 
     /**
-     * label for injected script for enqueueing in PLSE_init.
+     * label for injected script for enqueueing via PLSE_init.
      * 
      * @since    1.0.0
      * @access   private
@@ -50,7 +50,7 @@ class PLSE_Metabox {
     private $meta_js_label = 'plse_metabox_options_js';
 
     /**
-     * Schema directory
+     * Schema subdirectory in the plugin.
      * 
      * @since    1.0.0
      * @access   private
@@ -68,11 +68,11 @@ class PLSE_Metabox {
     private $schema_file_prefix = 'plse-schema-';
 
     /**
-     * Slug for setting a transient messag.
+     * Slug for setting a transient message.
      * 
      * @since    1.0.0
      * @access   private
-     * @var      string    $schema_file_prefix
+     * @var      string    $schema_transient
      */
     private $schema_transient = 'plse-schema-metabox-transient';
 
@@ -107,7 +107,8 @@ class PLSE_Metabox {
     }
 
     /**
-     * Look in the Schema directory, extract current Schema list from the FILEs
+     * Look in the plugin's Schema directory. 
+     * Extract current Schema file list
      * pattern: 'plse-schema-xxxx.php' to 'XXX', plse-schema-game.php to 'GAME.'
      * 
      * @since    1.0.0
@@ -118,9 +119,9 @@ class PLSE_Metabox {
 
         $schemas = array();
 
+        // construct Schema file names
         $patterns = array( '/' . $this->schema_file_prefix . '/', '/.php/' );
         $replacements = array( '', '' );
-
         $dir = plugin_dir_path( dirname( __FILE__ ) ) . $this->schema_dir . '/';
 
         $handle = opendir( $dir );
@@ -143,7 +144,7 @@ class PLSE_Metabox {
 
 
     /**
-     * Based on required Schema, get data from the Schema class for the metabox.
+     * Based on required Schema, get data from the Schema class into the metabox.
      * 
      * @since    1.0.0
      * @access   public
@@ -151,7 +152,7 @@ class PLSE_Metabox {
      */
     public function load_schema_fields ( $schema_label ) {
 
-        // upper-case the first letter, from 'game' to 'Game' to make the class name
+        // Create the class name, upper-case the first letter, from 'game' to 'Game'
         $class_name = 'PLSE_Schema_' . $this->init->label_to_class_slug( $schema_label );
 
         // load the appropriate class.
@@ -174,7 +175,8 @@ class PLSE_Metabox {
     }
 
     /**
-     * Check if a metabox should be drawn (Schema assigned by post type or category).
+     * Check if a metabox should be drawn. Schema are assigned either to a Custom Post Type,
+     * or through a category assigned to the post, both in plugin options.
      * 
      * @since    1.0.0
      * @access   public
@@ -204,6 +206,9 @@ class PLSE_Metabox {
     /* 
      * Enqueue our scripts and styles for the post area. 
      * Separate from, mutually exclusive loading from admin options pages.
+     * 
+     * @since    1.0.0
+     * @access   public
      */
     public function setup () {
 
@@ -217,6 +222,12 @@ class PLSE_Metabox {
 
     }
 
+    /**
+     * Enqueue scripts and styles related to metaboxes (calls PLSE_Init).
+     * 
+     * @since    1.0.0
+     * @access   public
+     */
     public function setup_scripts () {
 
         // load scripts common to PLSE_Settings and PLSE_Meta, get the label for where to position
@@ -242,7 +253,7 @@ class PLSE_Metabox {
      * Initialize metabox display
      * - enqueue scripts
      * - set up metaboxes, determining which should be shown
-     * 'admin_init' hook
+     * - use the 'admin_init' hook
      * 
      * @since    1.0.0
      * @access   public
@@ -367,9 +378,6 @@ class PLSE_Metabox {
         $nonce = $meta_field_args['nonce'];
         $context = $meta_field_args['slug'];
 
-        //$nonce = $args['args']['nonce'];
-        //$context = $args['args']['slug'];
-
         wp_nonce_field( $context, $nonce );
 
         // loop through each Schema field
@@ -379,12 +387,7 @@ class PLSE_Metabox {
             echo '<li><label for="' . $field['slug'] . '">';
             _e( $field['label'], PLSE_SCHEMA_EXTENDER_SLUG );
              echo '</label>';
-            // TODO: THIS DOESN'T WORK FOR MULTI-SELECT FIELDS!!!!!!!!!!!!
-            // TODO:
-            // TODO:
-            // TODO:
 
-            // render the field
             // get the stored option value for metabox field directly from database
             if( $field[ 'wp_data' ] == 'option' ) {
                 $value = get_option( $field['slug'] );
@@ -420,7 +423,9 @@ class PLSE_Metabox {
     /**
      * --------------------------------------------------------------------------
      * RENDER METABOX FIELDS
+     * 
      * Strategy: Render, and validate. Check if there is an error in input.
+     * NOTE: unlike PLSE_Options, <label> is rendered in the calling function.
      * --------------------------------------------------------------------------
      */
 
@@ -583,7 +588,7 @@ class PLSE_Metabox {
      * @since    1.0.0
      * @access   public
      * @param    array    $args field parameters, select
-     * @param    string   $value    the field value, with correct date format DD-MM-YYYY
+     * @param    string   $value    the field value, with correct date format YYYY-MM-DD
      */
     public function render_date_field ( $args, $value ) {
         $err = '';
@@ -646,7 +651,7 @@ class PLSE_Metabox {
         //TODO:
         echo "CHECKBOX FIELD...............";
         echo '<input title="' . $args['title'] . '" style="display:block;" type="checkbox" id="' . $slug . '" name="' . $slug . '"';
-        if ( $option == $this->ON ) echo ' CHECKED';
+        if ( $option == $this->init->get_checkbox_on() ) echo ' CHECKED';
         echo ' />';	
     }
 
@@ -659,9 +664,22 @@ class PLSE_Metabox {
      * @param    string   $value    the field value
      */
     public function render_select_single_field ( $args, $value ) {
-        // TODO:
-        echo "SELECT SINGLE FIELD.........";
+        $option_list = $args['option_list'];
+        $slug = $args['slug'];
+        $dropdown = '<div class="plse-option-select"><select title="' . $args['title'] . ' id="' . $slug . '" name="' . $slug . '" class="cpt-dropdown" >' . "\n";
+        foreach ( $option_list as $option_label => $option ) {
 
+            $dropdown .= '<option value="' . $option . '" ';
+            if ( $value == $option ) {
+                $dropdown .= 'selected';
+            }
+
+            $dropdown .= '>' . $option_label . '</option>' . "\n";
+        }
+        $dropdown .= '</select>' . "\n";
+        $dropdown .= '<p class="plse-option-select-description">' . __( 'Select one option from the list' ) . '</p>';
+
+        echo $dropdown;
     }
 
     /**
@@ -674,12 +692,12 @@ class PLSE_Metabox {
      */
     public function render_select_multiple_field ( $args, $value ) {
         $option_list = $args['option_list'];
+        if ( ! $option_list ) return; // options weren't added
         $slug = $args['slug'];
         // if multi-select, value is an array with a sub-array of values
         if ( is_array( $value) ) $value = $value[0];
-        if ( ! $option_list ) return; // options weren't added
         $dropdown = '<div class="plse-option-select"><select multiple="multiple" title="' . $args['title'] . ' id="' . $slug . '" name="' . $slug . '[]" class="cpt-dropdown" >' . "\n";
-        foreach ( $option_list as $option ) {
+        foreach ( $option_list as $option_label => $option ) {
             $dropdown .= '<option value="' . $option . '" ';
             if ( is_array( $value ) ) {
                foreach ( $value as $v) {
@@ -691,7 +709,7 @@ class PLSE_Metabox {
                 $dropdown .= 'selected';
             }
 
-            $dropdown .= '>' . $option . '</option>' . "\n";
+            $dropdown .= '>' . $option_label . '</option>' . "\n";
         }
         $dropdown .= '</select>' . "\n";
         $dropdown .= '<p class="plse-option-select-description">' . __( '(CTL-Click to for select and deselect)') . '</p>';
@@ -769,24 +787,15 @@ class PLSE_Metabox {
      */
     public function metabox_before_save ( $post_id, $post_data ) {
 
-        //if ( ! is_admin() ) return;
-
-        //$s = print_r( $post_data, true );
-        $slug = 'plyo-schema-extender-game-description';
-        update_post_meta( $post_id, $slug, '666' );
-
-        // use http://rachievee.com/how-to-intercept-post-publishing-based-on-post-meta/
-
-    }
-
-    public function DEBUG ( $post_id, $msg ) {
-        $slug = 'plyo-schema-extender-event-name';
-        update_post_meta( $post_id, $slug, $msg );
-        //////set_user_setting('plse-user-setting-error', 'OK'); //////////////////////
     }
 
     /**
      * Save the metabox data.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    number   $post_id    ID of current post
+     * @param    WP_Post  $post    the current post
      */
     public function metabox_save ( $post_id, $post ) {
 

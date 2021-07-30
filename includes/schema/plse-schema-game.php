@@ -128,14 +128,88 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'value_type'=>'normal',
                 'wp_data' => 'post_meta',
                 'option_list' => array(
-                    'Android',
-                    'iOS',
-                    'MacOS',
-                    'Windows'
+                    'Android' => 'android',
+                    'iOS' => 'ios',
+                    'MacOS' => 'macos',
+                    'Windows' => 'windows'
                 ),
                 'select_multiple' => true
 
             ),
+
+            'trailer_video_url' => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-trailer_video_url',
+                'label' => 'Trailer Video URL:',
+                'title' => 'Link to video showing gameplay',
+                'type'  => 'URL',
+                'required' => '',
+                'value_type'=>'normal',
+                'wp_data' => 'post_meta',
+                'select_multiple' => false
+            ),
+
+            'trailer_video_in_language' => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-trailer_video_in_language',
+                'label' => 'Trailer Video Language:',
+                'title' => 'Link to video showing gameplay',
+                'type'  => 'SELECT_SINGLE',
+                'required' => '',
+                'value_type'=>'normal',
+                'wp_data' => 'post_meta',
+                'option_list' => array(
+                    'English' => 'en',
+                    'Spanish' => 'es',
+                    'German'  => 'de'
+                ),
+                'select_multiple' => false
+            ),
+
+            'trailer_video_name' => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-trailer_video_name',
+                'label' => 'Trailer Video Name:',
+                'title' => 'Name of game promotional video',
+                'type'  => 'TEXT',
+                'required' => '',
+                'value_type'=>'normal',
+                'wp_data' => 'post_meta',
+                'select_multiple' => false
+            ),
+
+            'trailer_video_description' => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-trailer_video_description',
+                'label' => 'Trailer Video Description:',
+                'title' => 'One-paragraph description of what the game trailer video shows',
+                'type'  => 'TEXTAREA',
+                'required' => '',
+                'value_type'=>'normal',
+                'wp_data' => 'post_meta',
+                'select_multiple' => false
+            ),
+
+            'trailer_video_upload_date' => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-trailer_video_upload_date',
+                'label' => 'Trailer video upload date:',
+                'title' => 'Date that the video was uploaded to public server',
+                'type'  => 'DATE',
+                'required' => '',
+                'value_type'=>'normal',
+                'wp_data' => 'post_meta',
+                'select_multiple' => false
+            ),
+
+            // NOTE: we dynamically get Thumbnail URL
+            //https://stackoverflow.com/questions/2068344/how-do-i-get-a-youtube-video-thumbnail-from-the-youtube-api?rq=1
+
+            //  $video_thumbnail = 'http://img.youtube.com/vi/'.$video_url.'/mqdefault.jpg';
+
+            /*
+            // NOTE: might be able to get this from video URL
+            'trailer_video_thumbnail_url' => array(
+
+            ),
+
+            */
+
 
         )
 

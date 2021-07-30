@@ -145,7 +145,7 @@ class PLSE_Options {
  */
 
     /**
-     * Setup for the options UI (tabbed) on the page
+     * Setup for the options UI (tabbed) on the page.
      * 'admin_init' hook
      * 
      * @since    1.0.0
