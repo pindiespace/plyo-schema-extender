@@ -465,7 +465,8 @@ class PLSE_Metabox {
      */
     public function render_simple_field ( $args, $value, $err = '' ) {
         $type = $this->init->label_to_slug( $args['type'] );
-        echo '<input title="' . $args['title'] . '" type="' . $type . '" id="' . sanitize_key( $args['slug'] ) . '" name="' . sanitize_key( $args['slug'] ) .'" size="40" value="' . esc_attr( $value ) . '" />';
+        if ( $args['class']) $class = ' class="' .  $args['class'] . '"'; else $class = '';
+        echo '<input title="' . $args['title'] . '" type="' . $type . '"' . $class . ' id="' . sanitize_key( $args['slug'] ) . '" name="' . sanitize_key( $args['slug'] ) .'" size="40" value="' . esc_attr( $value ) . '" />';
         if ( $err )echo $err;
     }
 
@@ -771,6 +772,45 @@ class PLSE_Metabox {
         // media library button (ajax)
         echo '<input type="text" name="' . sanitize_key( $slug ) . '" id="' . sanitize_key( $slug ) . '" value="' . $value . '">';
         echo '<input title="' . $title . '" type="button" class="button plse-media-button" data-media="'. $slug . '" value="Upload Image" />';
+
+        echo '</div></div>';
+
+    }
+
+    /**
+     * Video URL also captures a thumbnail
+     */
+    public function render_video_field ( $args, $value ) {
+        
+        $plse_init = PLSE_Init::getInstance();
+        $slug = $args['slug'];
+        $title = $args['title'];
+
+        // create the thumbnail URL
+        //https://ytimg.googleusercontent.com/vi/<insert-youtube-video-id-here>/default.jpg
+        echo '<div>';
+        // add a special class for JS to the URL field for dynamic video embed
+        $args['class'] = 'pulse-embedded-video-url';
+        $this->render_url_field( $args, $value );
+
+        // TODO: MAKE THIS A TABLE
+
+        echo '</div><div style="display:inline-block;" class="">';
+
+        if ( $value ) {
+
+            $thumbnail_url = $this->init->get_video_thumb( $value );
+
+            echo '<a href="' . $value . '"><img title="' . $title . '" class="plse-upload-img-box" id="' . sanitize_key( $slug ) . '-img-id" src="' . esc_url( $thumbnail_url ) . '" width="128" height="128"></a>';
+        } else {
+            echo '<img title="' . $title . '" class="plse-upload-img-box" id="'. sanitize_key( $slug ) . '-img-id" src="' . $plse_init->get_default_placeholder_icon_url() . '" width="128" height="128">';
+        }
+
+        echo '<div style="float:right;" class="plse-auto-resizable-iframe">';
+        echo '<div class="plse-embed-video"></div>'; //////////////////
+        echo '</div>';
+
+        echo '<div>';
 
         echo '</div></div>';
 

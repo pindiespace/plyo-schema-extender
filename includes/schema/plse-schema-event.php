@@ -48,7 +48,6 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
                 'title' => 'Official name of the event',
                 'type'  => 'TEXT',
                 'required' => 'required',
-                'value_type'=>'normal',
                 'wp_data' => 'post_meta',
             ),
 
@@ -58,7 +57,6 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
                 'title' => 'Website, or page on website, that is home page for this event',
                 'type'  => 'URL',
                 'required' => '',
-                'value_type'=>'normal',
                 'wp_data' => 'post_meta',
             ),
 
@@ -68,7 +66,6 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
                 'title' => 'Click button to upload image, or use one from Media Library',
                 'type'  => 'IMAGE',
                 'required' => '',
-                'value_type'=>'normal',
                 'wp_data' => 'post_meta',
             ),
 
@@ -78,7 +75,6 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
                 'title' => 'One-paragraph description of the event',
                 'type'  => 'TEXTAREA',
                 'required' => '',
-                'value_type'=>'normal',
                 'wp_data' => 'post_meta',
             ),
 
@@ -90,7 +86,6 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
                 'title' => 'Day when the event starts',
                 'type'  => 'DATE',
                 'required' => 'required',
-                'value_type'=>'normal',
                 'wp_data' => 'post_meta',
             ),
 
@@ -101,7 +96,6 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
                 'title' => 'Time when the event starts',
                 'type'  => 'TIME',
                 'required' => 'required',
-                'value_type'=>'normal',
                 'wp_data' => 'post_meta',
             ),
 
@@ -111,7 +105,6 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
                 'title' => 'Day when the event ends',
                 'type'  => 'DATE',
                 'required' => 'required',
-                'value_type'=>'normal',
                 'wp_data' => 'post_meta',
             ),
 
@@ -122,7 +115,6 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
                 'title' => 'Time when the event ends',
                 'type'  => 'TIME',
                 'required' => 'required',
-                'value_type'=>'normal',
                 'wp_data' => 'post_meta',
             ),
 

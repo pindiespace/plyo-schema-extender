@@ -256,6 +256,82 @@ class PLSE_Init {
     }
 
     /**
+     * Get the thumbnail image URL from a YouTube video URL
+     * {@link https://stackoverflow.com/questions/2068344/how-do-i-get-a-youtube-video-thumbnail-from-the-youtube-api?rq=1}
+     * @since    1.0.0
+     * @access   public
+     * @return   string    the URL of the thumbnail associated with the video
+     */
+    public function get_youtube_thumb( $url, $type = 'small' ) {
+
+        $url = esc_url( $url );
+        $video_id = explode( '?v=', $url );
+
+        if ( empty( $video_id[1] ) ) {
+            $video_id = explode( "/v/", $url );
+            $video_id = explode( '&', $video_id[1] );
+            $video_id = $video_id[0];
+        } else {
+            $video_id = $video_id[1];
+        }
+
+        $thumb_link = '';
+
+        if ( $type == 'small' || $type == 'default' ) $type = 'hqdefault';
+        else if ( $type == 'medium' ) $type = 'sddefault';
+        else if ( $type == 'large' ) $type = 'maxresdefault';
+
+        if ( $type == 'default'   || $type == 'hqdefault' ||
+           $type == 'mqdefault' || $type == 'sddefault' ||
+           $type == 'maxresdefault') {
+
+            $thumb_link =  'http://img.youtube.com/vi/' . $video_id . '/' . $type . '.jpg';
+
+        } else if ( $type == "id" ) {
+            $thumb_link = $video_id;
+        }
+
+        return $thumb_link;
+
+    }
+
+    public function get_vimeo_thumb( $url, $type = 'small' ) {
+
+        $url = esc_url( $url );
+        $video_id = '';
+        $thumb_link = '';
+    
+        if (preg_match('%^https?:\/\/(?:www\.|player\.)?vimeo.com\/(?:channels\/(?:\w+\/)?|groups\/([^\/]*)\/videos\/|album\/(\d+)\/video\/|video\/|)(\d+)(?:$|\/|\?)(?:[?]?.*)$%im', $url, $regs)) {
+            $video_id = $regs[3];
+        }
+
+        if ( $id ) {
+            $vimeo = unserialize( file_get_contents( 'http://vimeo.com/api/v2/video/' . $id . '.php' ) );
+            if ( $type == 'small') $thumb_link = $vimeo[0]['thumbnail_small'];
+            else if ( $type == 'medium') $thumb_link = $vimeo[0]['thumbnail_medium'];
+            else if ( $type == 'large' ) $thumb_link =  $vimeo[0]['thumbnail_large'];
+            else if ( $type == 'id' ) $thumb_link = $video_id;
+        }
+
+        return $thumb_link;
+    }
+
+    /**
+     * Get video thumbnail from a variety of streaming services
+     */
+    public function get_video_thumb( $url, $type = 'small' ) {
+
+        if ( strpos($url, 'youtube') !== false ) {
+            return $this->get_youtube_thumb( $url );
+        } 
+
+        if ( strpos( $url, 'vimeo' ) !== false ) {
+            return $this->get_vimeo_thumb( $url );
+        }
+
+    }
+
+    /**
      * -----------------------------------------------------------------------
      * FIELD VALIDATIONS
      * -----------------------------------------------------------------------

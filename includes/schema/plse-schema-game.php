@@ -48,7 +48,6 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'title' => 'Official name of the game',
                 'type'  => 'TEXT',
                 'required' => 'required',
-                'value_type'=>'normal',
                 'wp_data' => 'post_meta',
                 'select_multiple' => false
             ),
@@ -59,7 +58,6 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'title' => 'Website, or page on website, that is home page for the game',
                 'type'  => 'URL',
                 'required' => '',
-                'value_type'=>'normal',
                 'wp_data' => 'post_meta',
                 'select_multiple' => false
             ),
@@ -70,7 +68,6 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'title' => 'Click button to upload image, or use one from Media Library',
                 'type'  => 'IMAGE',
                 'required' => '',
-                'value_type'=>'normal',
                 'wp_data' => 'post_meta',
                 'select_multiple' => false
             ),
@@ -81,7 +78,6 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'title' => 'One-paragraph description of game setting, genre, gameplay',
                 'type'  => 'TEXTAREA',
                 'required' => '',
-                'value_type'=>'normal',
                 'wp_data' => 'post_meta',
                 'select_multiple' => false
             ),
@@ -92,7 +88,6 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'title' => 'An image showing the game in action',
                 'type'  => 'IMAGE',
                 'required' => '',
-                'value_type'=>'normal',
                 'wp_data' => 'post_meta',
                 'select_multiple' => false
             ),
@@ -103,7 +98,6 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'title' => 'The company that created or produced the game',
                 'type'  => 'TEXT',
                 'required' => '',
-                'value_type'=>'normal',
                 'wp_data' => 'post_meta',
                 'select_multiple' => false
             ),
@@ -114,7 +108,6 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'title' => 'Website address, or address of page linking to the company',
                 'type'  => 'URL',
                 'required' => '',
-                'value_type'=>'normal',
                 'wp_data' => 'post_meta',
                 'select_multiple' => false
             ),
@@ -125,7 +118,6 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'title' => 'Operating Systems compatible with the game',
                 'type'  => 'SELECT_MULTIPLE',
                 'required' => '',
-                'value_type'=>'normal',
                 'wp_data' => 'post_meta',
                 'option_list' => array(
                     'Android' => 'android',
@@ -141,9 +133,8 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-trailer_video_url',
                 'label' => 'Trailer Video URL:',
                 'title' => 'Link to video showing gameplay',
-                'type'  => 'URL',
+                'type'  => 'VIDEO',
                 'required' => '',
-                'value_type'=>'normal',
                 'wp_data' => 'post_meta',
                 'select_multiple' => false
             ),
@@ -154,7 +145,6 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'title' => 'Link to video showing gameplay',
                 'type'  => 'SELECT_SINGLE',
                 'required' => '',
-                'value_type'=>'normal',
                 'wp_data' => 'post_meta',
                 'option_list' => array(
                     'English' => 'en',
@@ -170,7 +160,6 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'title' => 'Name of game promotional video',
                 'type'  => 'TEXT',
                 'required' => '',
-                'value_type'=>'normal',
                 'wp_data' => 'post_meta',
                 'select_multiple' => false
             ),
@@ -181,7 +170,6 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'title' => 'One-paragraph description of what the game trailer video shows',
                 'type'  => 'TEXTAREA',
                 'required' => '',
-                'value_type'=>'normal',
                 'wp_data' => 'post_meta',
                 'select_multiple' => false
             ),
@@ -192,7 +180,6 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'title' => 'Date that the video was uploaded to public server',
                 'type'  => 'DATE',
                 'required' => '',
-                'value_type'=>'normal',
                 'wp_data' => 'post_meta',
                 'select_multiple' => false
             ),

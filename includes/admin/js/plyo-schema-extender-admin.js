@@ -142,6 +142,45 @@
 
         /*
          * ---------------------------------------------------
+         * Load YouTube Video when input URL is typed in
+         * https://developers.google.com/youtube/iframe_api_reference
+         * ---------------------------------------------------
+         */
+        $('.pulse-embedded-video-url').on('blur', function (e) {
+
+            let url = e.target.value;
+
+            // https://gist.github.com/takien/4077195
+            function getYouTubeId(url){
+                var ID = '';
+                url = url.replace(/(>|<)/gi,'').split(/(vi\/|v=|\/v\/|youtu\.be\/|\/embed\/)/);
+                if(url[2] !== undefined) {
+                  ID = url[2].split(/[^0-9a-z_\-]/i);
+                  ID = ID[0];
+                }
+                else {
+                  ID = url;
+                }
+                  return ID;
+              }
+
+            var myId = getYouTubeId(url);
+            if (myId) {
+                // load the video
+                $('.plse-embed-video').html('<iframe width="320" height="240" src="//www.youtube.com/embed/' + myId + '" frameborder="0"></iframe>');
+                // reload thumbnail
+                let thumb_link =  'http://img.youtube.com/vi/' + myId + '/' + 'hqdefault' + '.jpg';
+
+                $('.plse-upload-img-box').attr('src', thumb_link);
+            }
+
+        });
+
+        // trigger on startup
+        $('.pulse-embedded-video-url').trigger('blur');
+
+        /*
+         * ---------------------------------------------------
          * Datetimepicker
          * ---------------------------------------------------
          */
