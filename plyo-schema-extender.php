@@ -227,6 +227,9 @@ add_action( 'plugins_loaded', function () {
     // initialize and decide what to load, or display error message
     require_once PLSE_SCHEMA_EXTENDER_PATH . '/includes/plse-init.php';
 
+    // placed here so categories and tags add to pages and custom post types
+    $plse_init = PLSE_Init::getInstance();
+
     // only load if the Yoast Plugin is available
     if ( is_plugin_active( YOAST_PLUGIN ) ) {
 
@@ -234,8 +237,6 @@ add_action( 'plugins_loaded', function () {
 
             global $pagenow;
 
-            // 'admin_init' hook fired, plugin menu and blank options page created
-            $plse_init = PLSE_Init::getInstance();
 
             // global fields used in plugin options, also used by metabox
             require_once PLSE_SCHEMA_EXTENDER_PATH . '/includes/admin/plse-options-data.php';
@@ -285,6 +286,10 @@ add_action( 'plugins_loaded', function () {
                 $plse_metabox = PLSE_Metabox::getInstance();
 
             }
+
+        } else {
+            // add Categories and Tags to Pages
+            add_action( 'pre_get_posts', [ 'PLSE_Init', 'category_and_tag_archives' ] );
 
         }
 

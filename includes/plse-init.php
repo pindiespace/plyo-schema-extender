@@ -41,6 +41,24 @@ class PLSE_Init {
     private $plse_admin_css = 'admin/css/plyo-schema-extender-admin.css';
 
     /**
+     * Schema subdirectory in the plugin.
+     * 
+     * @since    1.0.0
+     * @access   private
+     * @var      string     $schema_dir
+     */
+    private $schema_dir = 'schema';
+
+    /**
+     * Prefix for schema files.
+     * 
+     * @since    1.0.0
+     * @access   private
+     * @var      string    $schema_file_prefix
+     */
+    private $schema_file_prefix = 'plse-schema-';
+
+    /**
      * Plugin menu name in WP_Admin.
      * @since    1.0.0
      * @access   private
@@ -74,7 +92,7 @@ class PLSE_Init {
         // internationalization
         $this->l10ni18n();
 
-        //add_action('admin_menu', [ $this, 'setup_options_menu'] );
+        add_action( 'init', [ $this, 'add_taxonomies_to_pages' ], 100 );
 
     }
 
@@ -206,11 +224,184 @@ class PLSE_Init {
 
     }
 
+
+    /**
+     * add taxonomies to pages, not just posts. Helpful for assigning Schema to 
+     * individual pages. Call by 'init' - runs each time WordPress has finished 
+     * loading but before any headers are sent.
+     * {@link https://code.tutsplus.com/articles/wordpress-initialization-hooks-benefits-and-common-mistakes--wp-34427}
+     * {@link https://thewphosting.com/add-categories-tags-pages-wordpress/}
+     * 
+     * @since    1.0.0
+     * @access   public
+     */
+    public function add_taxonomies_to_pages () {
+        $this->add_taxonomies_to_cpt( 'page' );
+    }
+
+    /**
+     * Add taxonomies (categories and tags) to a CPT. This is 
+     * distinct from defined custom taxonomies added to the CPT.
+     * Call by 'init'
+     * 
+     * @since    1.0.0
+     * @access   public
+     */
+    public function add_taxonomies_to_cpt ( $cpt_name ) {
+
+        if ( $cpt_name ) {
+
+            $taxonomies = get_object_taxonomies( $cpt_name );
+            if ( ! in_array( $cpt_name, $taxonomies ) ) {
+                register_taxonomy_for_object_type( 'post_tag', $cpt_name );
+                register_taxonomy_for_object_type( 'category', $cpt_name );
+            }
+
+        }
+
+    }
+
+    /**
+     * Add categories and tags to all CPTs. Independent of any 
+     * custom taxonomies added to the CPT.
+     */
+    public function add_taxonomies_to_all_cpts () {
+
+        $my_cpt_names = $this->get_all_cpt_names();
+
+        // if category and tag menus are missing for CPT, add it
+        foreach ( $my_cpt_names as $name ) {
+
+            //check if taxonomy is already added
+            $taxonomies = get_object_taxonomies( $name );
+
+            if ( empty( $taxonomies ) ) {
+                register_taxonomy_for_object_type( 'post_tag', $name );
+                register_taxonomy_for_object_type( 'category', $name );
+            }
+
+        }
+
+    }
+
+    /**
+     * set category and tag archives in admin mode.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    WP_Query    $wp_query WP_Query object to modify
+     * 
+     * @param WP_QUERY $wp_query
+     */
+    public function category_and_tag_archives( $wp_query ) {
+
+        if ( ! is_admin() && $wp_query->is_main_query() ) {
+
+            if ( is_archive() || is_category() || is_home() ) {
+
+                //get_all_cpt_names
+                $util = PLSE_Util::getInstance();
+                $my_cpt_names = $util->get_all_cpt_names();
+
+                // Add CPT to the category
+                $wp_query->set( 'post_type', $my_cpt_names );
+            }
+
+            if ( $wp_query->is_search() ) {
+                // Add CPT to the search
+                $wp_query->set( 'post_type', $my_cpt_names );
+            }
+
+        }
+
+    }
+
+    /**
+     * -----------------------------------------------------------------------
+     * GET SCHEMA INFORMATION
+     * -----------------------------------------------------------------------
+     */
+
+    /**
+     * Look in the plugin's Schema directory. 
+     * Extract current Schema file list
+     * pattern: 'plse-schema-xxxx.php' to 'XXX', plse-schema-game.php to 'GAME.'
+     * 
+     * @since    1.0.0
+     * @access   private
+     * @return   array    a list of the defined Schemas, capitalized
+     */
+    public function get_available_schemas () {
+
+        $schemas = array();
+
+        // construct Schema file names
+        $patterns = array( '/' . $this->schema_file_prefix . '/', '/.php/' );
+        $replacements = array( '', '' );
+        $dir = plugin_dir_path( dirname( __FILE__ ) ) . 'includes/' . $this->schema_dir . '/';
+
+        $handle = opendir( $dir );
+
+        if ( $handle ) {
+
+            while ( false !== ( $entry = readdir( $handle ) ) ) { 
+
+                // strip out non-schema substrings
+                if ( $entry != "." && $entry != ".." ) {
+                    //$schemas[] = strtoupper( preg_replace( $patterns, $replacements, $entry ) );
+                    $schemas[] = $this->label_to_slug( preg_replace( $patterns, $replacements, $entry ) );
+                }
+
+            }
+
+            closedir( $handle );
+
+        }
+
+        return $schemas;
+
+    }
+
     /**
      * -----------------------------------------------------------------------
      * DEFAULT VALUES
      * -----------------------------------------------------------------------
      */
+
+
+    /**
+     * Return the value which a checked checkbox returns in a form
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @return   string   the 'on' value returned by checkboxes
+     */
+    public function get_checkbox_on () {
+        return $this->ON;
+    }
+
+    /**
+     * Return the schema directory
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @return   string    the currently use schema directory
+     */
+    public function get_schema_dirname () {
+        return $this->schema_dir;
+    }
+
+    /**
+     * Return the prefix for schema files, e.g. 'plse-schema-' for 
+     * includes/schema/plse-schema-game.php
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @return   string    the currently-used schema prefix
+     */
+    public function get_schema_file_prefix () {
+        return $this->schema_file_prefix;
+    }
 
     /**
      * Return the logo image for the plugin, hard-coded width and height. Note relative path ../img
@@ -231,17 +422,6 @@ class PLSE_Init {
      */
     public function get_default_placeholder_icon_url () {
         return esc_url( plugins_url( '../assets/images/plyo-schema-extender-logo-placeholder.png', __FILE__ ) );
-    }
-
-    /**
-     * Return the value which a checked checkbox returns in a form
-     * 
-     * @since    1.0.0
-     * @access   public
-     * @return   string   the 'on' value returned by checkboxes
-     */
-    public function get_checkbox_on () {
-        return $this->ON;
     }
 
     /**
@@ -435,7 +615,7 @@ class PLSE_Init {
      */
     public function check_if_schema_defined ( $schema_label ) {
 
-        $dir = plugin_dir_path( dirname( __FILE__ ) ) . $this->schema_dir . '/';
+        $dir = plugin_dir_path( dirname( __FILE__ ) ) . 'includes/' . $this->schema_dir . '/';
 
         $s = strtolower( $schema_label ) . '.php';
 

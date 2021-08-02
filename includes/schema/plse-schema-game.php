@@ -126,7 +126,6 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                     'Windows' => 'windows'
                 ),
                 'select_multiple' => true
-
             ),
 
             'trailer_video_url' => array(
@@ -184,18 +183,15 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'select_multiple' => false
             ),
 
-            // NOTE: we dynamically get Thumbnail URL
-            //https://stackoverflow.com/questions/2068344/how-do-i-get-a-youtube-video-thumbnail-from-the-youtube-api?rq=1
-
-            //  $video_thumbnail = 'http://img.youtube.com/vi/'.$video_url.'/mqdefault.jpg';
-
-            /*
-            // NOTE: might be able to get this from video URL
-            'trailer_video_thumbnail_url' => array(
-
+            'install_url' => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-install_url',
+                'label' => 'Download Location for the game:',
+                'title' => 'Address where the game may be downloaded',
+                'type'  => 'URL',
+                'required' => '',
+                'wp_data' => 'post_meta',
+                'select_multiple' => false
             ),
-
-            */
 
 
         )

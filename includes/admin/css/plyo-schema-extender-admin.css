@@ -20,6 +20,11 @@
     border-radius: 4px;
 }
 
+.plse-upload-img-video-box {
+    line-height:0;
+    font-size:0;
+}
+
 /*
  * STYLES USED IN PLUGIN OPTIONS PAGE
  */
@@ -364,22 +369,9 @@ outline: none;
     color: rgba(255, 255, 255, 0.5);
 }
 
+/* video */
 
-.plse-auto-resizable-iframe {
-    max-width: 134px;
-    margin: 0px auto;
-  }
-  
-  .plse-auto-resizable-iframe > div {
-    position: relative;
-    height: 0px;
-  }
-  
-  .plse-auto-resizable-iframe iframe {
-    position: absolute;
-    top: 0px;
-    left: 0px;
-
-    width: 159px; /* 227px; */
-    height: 90px; /* 128px; */
-  }
+.plse-auto-resizable-iframe iframe {
+    width: 180px; /* 227px; */
+    height: 102px; /* 128px; */
+}

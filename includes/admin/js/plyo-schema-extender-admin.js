@@ -146,38 +146,60 @@
          * https://developers.google.com/youtube/iframe_api_reference
          * ---------------------------------------------------
          */
-        $('.pulse-embedded-video-url').on('blur', function (e) {
+        $('.plse-embedded-video-url').on('blur', function (e) {
 
             let url = e.target.value;
 
-            // https://gist.github.com/takien/4077195
-            function getYouTubeId(url){
-                var ID = '';
-                url = url.replace(/(>|<)/gi,'').split(/(vi\/|v=|\/v\/|youtu\.be\/|\/embed\/)/);
-                if(url[2] !== undefined) {
-                  ID = url[2].split(/[^0-9a-z_\-]/i);
-                  ID = ID[0];
-                }
-                else {
-                  ID = url;
-                }
-                  return ID;
-              }
+            // https://gist.github.com/yangshun/9892961
+            function getVideoId(url) {
 
-            var myId = getYouTubeId(url);
-            if (myId) {
+                url.match(/(http:|https:|)\/\/(player.|www.)?(vimeo\.com|youtu(be\.com|\.be|be\.googleapis\.com))\/(video\/|embed\/|watch\?v=|v\/)?([A-Za-z0-9._%-]*)(\&\S+)?/);
+
+                // youtube, video, dailymotion
+                //url.match(/(http:|https:|)\/\/(player.|www.)?(vimeo\.com|youtu(be\.com|\.be|be\.googleapis\.com)|dailymotion.com)\/(video\/|embed\/|watch\?v=|v\/)?([A-Za-z0-9._%-]*)(\&\S+)?/);
+
+                if (RegExp.$3.indexOf('youtu') > -1) {
+                    var type = 'youtube';
+                } else if (RegExp.$3.indexOf('vimeo') > -1) {
+                    var type = 'vimeo';
+                }
+
+                // return ID and video service
+                return {
+                    type: type,
+                    id: RegExp.$6
+                };
+            }
+
+            var id = getVideoId(url);
+
+            if(id.type == 'youtube') {
+
                 // load the video
-                $('.plse-embed-video').html('<iframe width="320" height="240" src="//www.youtube.com/embed/' + myId + '" frameborder="0"></iframe>');
-                // reload thumbnail
-                let thumb_link =  'http://img.youtube.com/vi/' + myId + '/' + 'hqdefault' + '.jpg';
+                $('.plse-embed-video').html('<iframe width="320" height="240" src="//www.youtube.com/embed/' + id.id + '" frameborder="0"></iframe>');
 
-                $('.plse-upload-img-box').attr('src', thumb_link);
+                // load thumbnail
+                let thumb_link =  'https://img.youtube.com/vi/' + id.id + '/' + 'hqdefault' + '.jpg';
+
+                $('.plse-upload-img-video-box').attr('src', thumb_link);
+
+            } else if(id.type == 'vimeo') {
+
+                // load the video
+                $('.plse-embed-video').html('<iframe src="https://player.vimeo.com/video/' + id.id + '?portrait=0" width="600" height="320" frameborder="0"></iframe> ');
+
+                // load thumbnail
+
+                $.getJSON('https://vimeo.com/api/oembed.json?url=https://vimeo.com/' + id.id, {format: "json"}, function(data) {
+                    $('.plse-upload-img-video-box').attr('src', data.thumbnail_url);
+                });
+
             }
 
         });
 
         // trigger on startup
-        $('.pulse-embedded-video-url').trigger('blur');
+        $('.plse-embedded-video-url').trigger('blur');
 
         /*
          * ---------------------------------------------------

@@ -50,24 +50,6 @@ class PLSE_Metabox {
     private $meta_js_label = 'plse_metabox_options_js';
 
     /**
-     * Schema subdirectory in the plugin.
-     * 
-     * @since    1.0.0
-     * @access   private
-     * @var      string     $schema_dir
-     */
-    private $schema_dir = 'schema';
-
-    /**
-     * Prefix for schema files.
-     * 
-     * @since    1.0.0
-     * @access   private
-     * @var      string    $schema_file_prefix
-     */
-    private $schema_file_prefix = 'plse-schema-';
-
-    /**
      * Slug for setting a transient message.
      * 
      * @since    1.0.0
@@ -106,39 +88,46 @@ class PLSE_Metabox {
         return self::$__instance;
     }
 
-    /**
-     * Look in the plugin's Schema directory. 
-     * Extract current Schema file list
-     * pattern: 'plse-schema-xxxx.php' to 'XXX', plse-schema-game.php to 'GAME.'
+
+    /* 
+     * Enqueue our scripts and styles for the post area. 
+     * Separate from, mutually exclusive loading from admin options pages.
      * 
      * @since    1.0.0
-     * @access   private
-     * @return   array    a list of the defined Schemas, capitalized
+     * @access   public
      */
-    public function get_available_schemas () {
+    public function setup () {
 
-        $schemas = array();
+        add_action( 'admin_enqueue_scripts', [ $this, 'setup_scripts' ] );
 
-        // construct Schema file names
-        $patterns = array( '/' . $this->schema_file_prefix . '/', '/.php/' );
-        $replacements = array( '', '' );
-        $dir = plugin_dir_path( dirname( __FILE__ ) ) . $this->schema_dir . '/';
+        add_action( 'pre_post_update', [ $this, 'metabox_before_save' ], 1, 2 );
+        add_action( 'save_post',       [ $this, 'metabox_save' ],  2, 2 );
+        add_action( 'wp_insert_post',  [ $this, 'metabox_after_save' ], 12, 4 );
 
-        $handle = opendir( $dir );
+        // NOTE: 'save_post' must be BEFORE 'add_meta_boxes'
+        add_action( 'add_meta_boxes',  [ $this, 'setup_metaboxes' ] );
 
-        while ( false !== ( $entry = readdir( $handle ) ) ) { 
+    }
 
-            // strip out non-schema substrings
-            if ( $entry != "." && $entry != ".." ) {
-                //$schemas[] = strtoupper( preg_replace( $patterns, $replacements, $entry ) );
-                $schemas[] = $this->init->slug_to_label( preg_replace( $patterns, $replacements, $entry ) );
-            }
+    /**
+     * Enqueue scripts and styles related to metaboxes (calls PLSE_Init).
+     * 
+     * @since    1.0.0
+     * @access   public
+     */
+    public function setup_scripts () {
 
-        }
+        $plse_init = PLSE_Init::getInstance();
 
-        closedir( $handle );
+        // load scripts common to PLSE_Settings and PLSE_Meta, get the label for where to position
+        $script_label = $plse_init->load_admin_scripts();
 
-        return $schemas;
+        // use PLSE_Options to inject variables into JS specifically for PLSE_Meta media library button clicks 
+        $plse_init->load_js_passthrough_script( 
+            $script_label,
+            $this->meta_js_name,
+            $this->options_data->get_options_fields()
+        );
 
     }
 
@@ -158,7 +147,7 @@ class PLSE_Metabox {
         // load the appropriate class.
         if ( ! class_exists( $class_name ) ) {
 
-            $class_path = plugin_dir_path( dirname( __FILE__ ) ) . $this->schema_dir . '/'. $this->schema_file_prefix . $schema_label . '.php';
+            $class_path = plugin_dir_path( dirname( __FILE__ ) ) . $this->init->get_schema_dirname() . '/'. $this->init->get_schema_file_prefix() . $schema_label . '.php';
 
             if ( file_exists( $class_path ) ) {
                 require $class_path; // now the class exists
@@ -202,53 +191,6 @@ class PLSE_Metabox {
         return false;
     }
 
-
-    /* 
-     * Enqueue our scripts and styles for the post area. 
-     * Separate from, mutually exclusive loading from admin options pages.
-     * 
-     * @since    1.0.0
-     * @access   public
-     */
-    public function setup () {
-
-        add_action( 'admin_enqueue_scripts', [ $this, 'setup_scripts' ] );
-
-        // NOTE: 'save_post' must be BEFORE 'add_meta_boxes'
-        add_action( 'pre_post_update', [ $this, 'metabox_before_save' ], 1, 2);
-        add_action( 'save_post',       [ $this, 'metabox_save'     ],  2, 2  );
-        add_action( 'wp_insert_post',  [ $this, 'metabox_after_save' ], 12, 4 );
-        add_action( 'add_meta_boxes', [ $this, 'setup_metaboxes' ] );
-
-    }
-
-    /**
-     * Enqueue scripts and styles related to metaboxes (calls PLSE_Init).
-     * 
-     * @since    1.0.0
-     * @access   public
-     */
-    public function setup_scripts () {
-
-        // load scripts common to PLSE_Settings and PLSE_Meta, get the label for where to position
-        $plse_init = PLSE_Init::getInstance();
-        $script_label = $plse_init->load_admin_scripts();
-
-        // use PLSE_Options to inject variables into JS specifically for PLSE_Meta media library button clicks 
-        $plse_init->load_js_passthrough_script( 
-            $script_label,
-            $this->meta_js_name,
-            $this->options_data->get_options_fields()
-        );
-
-        // load a local JS validation script
-        // TODO:
-        // TODO: determine if any fields need dynamic validation while typing
-        ///wp_register_script('jquery-validation-plugin', 'https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js', array('jquery' ) );
-        ////wp_enqueue_script('jquery-validation-plugin');
-
-    }
-
     /**
      * Initialize metabox display
      * - enqueue scripts
@@ -261,7 +203,7 @@ class PLSE_Metabox {
     public function setup_metaboxes () {
 
         // get a list of all defined schema classes in the /schema directory
-        $schema_list = $this->get_available_schemas();
+        $schema_list = $this->init->get_available_schemas();
 
         // determine which Schema metaboxes should be loaded
         foreach ( $schema_list as $schema_label ) {
@@ -465,8 +407,9 @@ class PLSE_Metabox {
      */
     public function render_simple_field ( $args, $value, $err = '' ) {
         $type = $this->init->label_to_slug( $args['type'] );
-        if ( $args['class']) $class = ' class="' .  $args['class'] . '"'; else $class = '';
-        echo '<input title="' . $args['title'] . '" type="' . $type . '"' . $class . ' id="' . sanitize_key( $args['slug'] ) . '" name="' . sanitize_key( $args['slug'] ) .'" size="40" value="' . esc_attr( $value ) . '" />';
+        if ( $args['class'] ) $class = $args['class']; else $class = '';
+        if ( $args['size'] ) $size = $args['size']; else $size = '40';
+        echo '<input title="' . $args['title'] . '" type="' . $type . '" class="' . $class . '" id="' . sanitize_key( $args['slug'] ) . '" name="' . sanitize_key( $args['slug'] ) .'" size="' . $size . '" value="' . esc_attr( $value ) . '" />';
         if ( $err )echo $err;
     }
 
@@ -786,33 +729,47 @@ class PLSE_Metabox {
         $slug = $args['slug'];
         $title = $args['title'];
 
+        // TODO: REDO LAYOUT
+        // TODO:
+        // TODO:
+
         // create the thumbnail URL
         //https://ytimg.googleusercontent.com/vi/<insert-youtube-video-id-here>/default.jpg
         echo '<div>';
         // add a special class for JS to the URL field for dynamic video embed
-        $args['class'] = 'pulse-embedded-video-url';
-        $this->render_url_field( $args, $value );
+        $args['class'] = 'plse-embedded-video-url';
+        $args['size'] = '60';
+        $args['type'] = 'URL';
+        //$this->render_url_field( $args, $value );
 
-        // TODO: MAKE THIS A TABLE
-
-        echo '</div><div style="display:inline-block;" class="">';
-
+        echo '<table style="width:100%">';
+        echo '<tr>';
+        echo '<td colspan="2" style="padding-bottom:4px;">' . $this->render_url_field( $args, $value ) . '</td>';
+        echo '</td>';
+        echo '<tr>';
+        echo '<td style="width:50%; text-align:center;position:relative">';
         if ( $value ) {
-
             $thumbnail_url = $this->init->get_video_thumb( $value );
-
-            echo '<a href="' . $value . '"><img title="' . $title . '" class="plse-upload-img-box" id="' . sanitize_key( $slug ) . '-img-id" src="' . esc_url( $thumbnail_url ) . '" width="128" height="128"></a>';
+            // clunky inline style removes offending hyperlink border see with onblur event
+            echo '<a href="' . $value . '" style="display:inline-block;height:0px;"><img title="' . $title . '" class="plse-upload-img-video-box" id="' . sanitize_key( $slug ) . '-img-id" src="' . esc_url( $thumbnail_url ) . '" width="128" height="128"></a>';
         } else {
-            echo '<img title="' . $title . '" class="plse-upload-img-box" id="'. sanitize_key( $slug ) . '-img-id" src="' . $plse_init->get_default_placeholder_icon_url() . '" width="128" height="128">';
+            echo '<img title="' . $title . '" class="plse-upload-img-video-box" id="'. sanitize_key( $slug ) . '-img-id" src="' . $plse_init->get_default_placeholder_icon_url() . '" width="128" height="128">';
         }
-
-        echo '<div style="float:right;" class="plse-auto-resizable-iframe">';
+        echo '</td>';
+        echo '<td class="plse-auto-resizable-iframe" style="text-align:center;">';
         echo '<div class="plse-embed-video"></div>'; //////////////////
+        echo '</td>';
+        echo '<tr>';
+        echo '<td style="width:50%;text-align:center">';
+        echo __( 'Thumbnail' ) . '</span>';
+        echo '</td>';
+        echo '<td style="width:100%;text-align:center;">';
+        echo __( 'Video Player' );
+        echo '</td>';
+        echo '</tr>';
+        echo '</table>';
+
         echo '</div>';
-
-        echo '<div>';
-
-        echo '</div></div>';
 
     }
 
@@ -859,7 +816,7 @@ class PLSE_Metabox {
         }
 
         // get the Schemas that need to be saved for this post
-        $schema_list = $this->get_available_schemas();
+        $schema_list = $this->init->get_available_schemas();
 
         // determine which Schema metaboxes should be loaded
         foreach ( $schema_list as $schema_label ) {
