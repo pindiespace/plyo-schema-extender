@@ -18,6 +18,15 @@ use Yoast\WP\SEO\Context\Meta_Tags_Context;
 class PLSE_Schema_Game extends Abstract_Schema_Piece {
 
     /**
+     * Store reference for singleton pattern.
+     *
+     * @since    1.0.0
+     * @access   private
+     * @var      string    $instance    static reference to initialized class.
+     */
+    static private $__instance = null;
+
+    /**
      * A value object with context variables.
      *
      * @var Meta_Tags_Context
@@ -212,6 +221,19 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
 
         $this->init = PLSE_Init::getInstance();
         $this->context = $context;
+    }
+
+    /**
+     * Enable the singleton pattern.
+     * @since    1.0.0
+     * @access   public
+     * @return   PLSE_Schema_Game    $self__instance
+     */
+    public static function getInstance ( $args ) {
+        if ( is_null( self::$__instance ) ) {
+            self::$__instance = new PLSE_Schema_Game ( $args );
+        }
+        return self::$__instance;
     }
 
     /**

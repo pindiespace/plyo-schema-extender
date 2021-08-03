@@ -87,8 +87,7 @@ class PLSE_Options {
         // shared field definitions, Schema data is loaded separately
         $this->options_data = PLSE_Options_Data::getInstance();
 
-        // add the menu
-        //setup_options_page for rendering
+        //add the menu, setup_options_page for rendering
         add_action('admin_menu', [ $this, 'setup_options_menu'] );
 
         // we don't need to set up options if we are editing a post
@@ -116,11 +115,11 @@ class PLSE_Options {
         return self::$__instance;
     }
 
-/**
- * --------------------------------------------------------------------------
- * SPECIFIC DATABASE OPERATIONS RELATED TO UI
- * --------------------------------------------------------------------------
- */
+    /**
+     * --------------------------------------------------------------------------
+     * SPECIFIC DATABASE OPERATIONS RELATED TO UI
+     * --------------------------------------------------------------------------
+     */
 
     /**
      * Set panel visibility style, based on whether the Schema is active
@@ -138,11 +137,11 @@ class PLSE_Options {
 
     }
 
-/**
- * --------------------------------------------------------------------------
- * ENQUEUE SCRIPTS AND STYLES
- * --------------------------------------------------------------------------
- */
+    /**
+     * --------------------------------------------------------------------------
+     * ENQUEUE SCRIPTS AND STYLES
+     * --------------------------------------------------------------------------
+     */
 
     /**
      * Setup for the options UI (tabbed) on the page.
@@ -185,6 +184,9 @@ class PLSE_Options {
 
     /**
      * Set up the options menu in WP-Admin.
+     * 
+     * @since    1.0.0
+     * @access   public
      */
     public function setup_options_menu () {
 
@@ -202,7 +204,10 @@ class PLSE_Options {
     }
 
     /**
-     * Read the Schema array, create the necessary number of tabs
+     * Read the Schema array, create the necessary number of onscreen tabs.
+     * 
+     * @since    1.0.0
+     * @access   public
      */
     public function setup_tabs () {
 
@@ -231,10 +236,13 @@ class PLSE_Options {
     }
 
     /**
-     * Setup group or panels of options by Schema
-     * TODO:
-     * TODO:
-     * TODO:
+     * Set up a group of associated options on one panel. Groups include:
+     * - Schema assignment fields (which CPT or category gets a Schema)
+     * - Schema globals (e.g. 'Service' may apply to the whole site/organization)
+     * - Some address fields applied by Yoast Local SEO, but not free plugin
+     * 
+     * @since    1.0.0
+     * @access   public
      */
     public function setup_panels () {
 
@@ -272,7 +280,6 @@ class PLSE_Options {
                 echo '<!--inside a mask-->';
                 echo '<div class="plse-panel-mask" style="display:' . $panel_display . '">';
                 echo '<div>' ."\n";
-                echo "TABSEL IS A:" . $tab_href;
                 do_settings_sections( $this->options_data->get_section_box_slug( $key ) );
                 echo '</div>';
                 echo '</div>' . "\n";
@@ -292,10 +299,12 @@ class PLSE_Options {
 
     /**
      * Set up the default options page
-     * Called by 'admin_menu' hook -> setup_options_menu -> add_menu_page()
-     * Fields are added separately by 'admin_init' hook -> admin_settings(), 
-     * using the same section slug.
+     * - called by 'admin_menu' hook -> setup_options_menu -> add_menu_page()
+     * - fields are added separately by 'admin_init' hook -> admin_settings(), 
+     *   using the same section slug.
      * 
+     * @since    1.0.0
+     * access    public
      */
     public function setup_options_page () {
 
@@ -359,7 +368,7 @@ class PLSE_Options {
 
 
     /**
-     * Initialize all the fields in the admin window using WP Settings API. The
+     * Initialize all the fields in the options tab panel using WP Settings API. The
      * methods with '_toggle' are used to activate and deactivate each Schema.
      * 'admin_init hook -> setup_options()
      * 
@@ -390,9 +399,8 @@ class PLSE_Options {
 
     }
 
-
     /**
-     * Render a section in the options page, containing multiple fields.
+     * Render a section in the options page (containing multiple fields).
      * @since    1.0.0
      * @access   public
      * @param    array    $fields    slugs, titles to use in add_settings_section
@@ -413,7 +421,6 @@ class PLSE_Options {
 
     }
 
-
     /**
      * Render an individual form field, using the supplied class function name 
      * in the options page.
@@ -422,37 +429,37 @@ class PLSE_Options {
      * @param    array    $section  slugs, titles used to define section
      * @param    array    $field    slugs, titles to use to define an indivdiual field
      * @param    array    $state    $state, field is enabled or disabled, or 'width' for IMG
-     * @param    array    $p1       additional parameter, e.g. 'width' for IMG
-     * @param    array    $p2       additional parameter, e.g. 'height' for IMG
      */
-    public function init_field ( $section, $field, $state = '', $p1 = '', $p2 = '', $p3 = '' ) {
+    public function init_field ( $section, $field, $state = '' ) {
 
         $render_callback = 'render_' . $field['type'] . '_field';
         $validation_callback = 'validate_' . $field['type'] . '_field';
 
         /*
-         * Different field types are pass different elements of the $field object, 
-         * depending on their display
+         * Add additional parameters via the $args array.
+         * Different field types pass different elements of the $field object, 
+         * depending on how they are rendered in the UI.
          */
-
-        $args = array();
+        $args = [ $field['slug'], $state, $field['label'] . ':', $field['title'] ];
 
         switch ( $field['type'] ) {
 
             case PLSE_INPUT_TYPES['TEXTAREA']:
-                $args = [ $field['slug'], $state, $field['rows'], $field['cols'], $field['label'], $field['title'] ];
+                $args[] = $field['rows'];
+                $args[] = $field['cols'];
                 break;
 
             case PLSE_INPUT_TYPES['IMAGE']:
-                $args = [ $field['slug'], $state, $field['width'], $field['height'], $field['label'], $field['title'] ];
+                $args[] = $field['width'];
+                $args[] = $field['height'];
                 break;
 
-            case PLSE_INPUT_TYPES['SELECT']:
-                $args = [ $field['slug'], $state, $field['label'], $field['title'], $field['option_list'] ];
+            case PLSE_INPUT_TYPES['SELECT_SINGLE']:
+            case PLSE_INPUT_TYPES['SELECT_MULTIPLE']:
+                $args[] = $field['option_list'];
                 break;
 
             default:
-                $args = [ $field['slug'], $state, $field['label'], $field['title'] ];
                 break;
 
         }
@@ -460,12 +467,11 @@ class PLSE_Options {
         // add the field
         add_settings_field(
             $field['slug'],
-            $field['title'],
-            [ $this, $render_callback ], // RENDER CALLBACK
-            $section['section_box'],
+            $field['description'] . ':', // appears to the left of the field on options page
+            [ $this, $render_callback ], // field rendering function callback
+            $section['section_box'], // slug for section box
             $section['section_slug'], // label for general settings section
             $args
-            //[ $field['slug'], $state, $p1, $p2, $p3 ] // callback function $args passed additional parameters
         );
 
         // register setting and validation callback
@@ -499,20 +505,6 @@ class PLSE_Options {
 
     }
 
-    /**
-     * Set up tabs UI
-     */
-    public function setup_options_tabs () {
-        echo "IN SETUP OPTIONS TABS.........";
-    }
-
-    /**
-     * Create individual fields for plugin options.
-     */
-    public function setup_options_fields () {
-        echo "IN SETUP OPTIONS FIELDS............";
-    }
-
     /* 
      * ------------------------------------------------------------------------
      * CONTROL RENDERING METHODS
@@ -520,7 +512,6 @@ class PLSE_Options {
      * be changed in the list of render fields functions in private class variables.
      * ------------------------------------------------------------------------
      */
-
 
     /**
      * Render a hidden field.
@@ -546,10 +537,10 @@ class PLSE_Options {
     public function render_text_field ( $args ) {
         $slug = $args[0];
         $state = $args[1];
-        $format = $args[2];
+        $label = $args[2];
         $title = $args[3];
         $option = get_option( $slug );
-        echo '<label class="plse-option-description" for="' . $slug . '">' . esc_html( $format ) . '</label>';
+        echo '<label class="plse-option-description" for="' . $slug . '">' . esc_html( $label ) . '</label>';
         echo '<input title="'. $title .'" class="plse-option-input" type="text" id="' . $slug . '" name="' . $slug . '" size="40" value="' . $option . '" />';	
 
     }
@@ -563,10 +554,10 @@ class PLSE_Options {
     public function render_postal_field ( $args ) {
         $slug = $args[0];
         $state = $args[1];
-        $format = $args[2];
+        $label = $args[2];
         $title = $args[3];
         $option = get_option( $slug );
-        echo '<label class="plse-option-description" for="' . $slug . '">' . esc_html( $format ) . '</label>';
+        echo '<label class="plse-option-description" for="' . $slug . '">' . esc_html( $label ) . '</label>';
         echo '<input title="'. $title .'" class="plse-option-input" type="text" id="' . $slug . '" name="' . $slug . '" value="' . $option . '" />';	
     }
 
@@ -579,10 +570,10 @@ class PLSE_Options {
     public function render_tel_field ( $args ) {
         $slug = $args[0];
         $state = $args[1];
-        $format = $args[2];
+        $label = $args[2];
         $title = $args[3];
         $option = get_option( $slug );
-        echo '<label class="plse-option-description" for="' . $slug . '">' . esc_html( $format ) . '</label>';
+        echo '<label class="plse-option-description" for="' . $slug . '">' . esc_html( $label ) . '</label>';
         echo '<input title="'. $title .'" class="plse-option-input" type="tel" id="' . $slug . '" name="' . $slug . '" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" size="30" value="' . esc_html( $option ) . '" />';	
     }
 
@@ -595,10 +586,10 @@ class PLSE_Options {
     public function render_email_field ( $args ) {
         $slug = $args[0];
         $state = $args[1];
-        $format = $args[2];
+        $label = $args[2];
         $title = $args[3];
         $option = get_option( $slug );
-        echo '<label class="plse-option-description" for="' . $slug . '">' . esc_html( $format ) . '</label>';
+        echo '<label class="plse-option-description" for="' . $slug . '">' . esc_html( $label ) . '</label>';
         echo '<input title="'. $title .'" class="plse-option-input" type="email" id="' . $slug . '" name="' . $slug . '" pattern=".+@novyunlimited.com" size="40" value="' . esc_html( $option ) . '" />';	
     }
 
@@ -611,10 +602,10 @@ class PLSE_Options {
     public function render_url_field ( $args ) {
         $slug = $args[0];
         $state = $args[1];
-        $format = $args[2];
+        $label = $args[2];
         $title = $args[3];
         $option = get_option( $slug );
-        echo '<label class="plse-option-description" for="' . $slug . '">' . esc_html( $format ) . '</label>';
+        echo '<label class="plse-option-description" for="' . $slug . '">' . esc_html( $label ) . '</label>';
         echo '<input title="'. $title .'" class="plse-option-input" type="url" id="' . $slug . '" name="' . $slug . '" pattern="https://.*" size="60" value="' . esc_url( $option ) . '" required/>';	
     }
 
@@ -628,12 +619,13 @@ class PLSE_Options {
     public function render_textarea_field ( $args ) {
         $slug = $args[0];
         $state = $args[1];
-        $rows = $args[2];
-        $cols = $args[3];
-        $format = $args[4];
-        $title = $args[5];
+        $label = $args[2];
+        $title = $args[3];
+        $rows = $args[4];
+        $cols = $args[5];
+
         $option = get_option( $slug );
-        echo '<label class="plse-option-description" for="' . $slug . '">' . esc_html( $format ) . '</label>';
+        echo '<label class="plse-option-description" for="' . $slug . '">' . esc_html( $label ) . '</label>';
         echo '<textarea title="' . $title . '" id="' . $slug . '" name="' . $slug .'" rows="' . $rows . '" cols="' . $cols . '"></textarea>';
     }
 
@@ -686,7 +678,7 @@ class PLSE_Options {
         $label = $args[2];
         $title = $args[3];
         $option = get_option( $slug ); // selected
-        $dropdown = '<div class="plse-option-select"><select title="' . $title . '" name="' . $slug . '" class="cpt-dropdown" >' . "\n";
+        $dropdown = '<div class="plse-option-select"><select title="' . $title . '" name="' . $slug . '" class="plse-option-select-dropdown" >' . "\n";
         foreach ( $cpts as $cpt ) {
             $dropdown .= '<option value="' . $option_list['slug'] . '" ';
             if ( $option == $option_list['slug'] ) {
@@ -712,7 +704,42 @@ class PLSE_Options {
      * @param    array    $args name of field, state, additional properties
      */
     public function render_select_multiple_field ( $args ) {
-        // TODO:
+        // TODO: NOT TESTED
+        $options_list = $args[4];
+        if ( ! $option_list ) return;
+        $slug = $args[0];
+        $state = $args[1];
+        $label = $args[2];
+        $title = $args[3];
+        $options = get_option( $slug );
+
+        // note $slug[], which specifies multiple values stored in one option.
+        $dropdown = '<div class="plse-option-select"><select multiple name="' . $slug .'[' . $slug . '][]" class="plse-option-select-dropdown" >' . "\n";
+
+        foreach ( $option_list as $option ) {
+            $dropdown .= '<option title="' . $title . '" value="' . $option->rewrite['slug'] . '" ';
+            // highlight stored options in dropdown
+            if ( is_array( $options ) ) {
+                foreach ( $options as $opt ) {
+                    if ( is_array( $opt ) ) {
+                        foreach ( $opt as $subopt ) {
+                            if ( $subopt == $option->rewrite['slug'] ) {
+                                $dropdown .= 'selected';
+                            }
+                        }
+                    }
+                }
+            }
+            $dropdown .= '>' . $option_list->label . '</option>' . "\n";
+        }
+        $dropdown .= '</select>' . "\n";
+
+        // add the field label
+        $dropdown .= '<label class="plse-option-select-description" for="' . $slug . '">' . $label . '<br>' . __( '(CTL-Click to deselect)') . '</label>';
+        $dropdown .= '</div>';
+
+        echo $dropdown;
+
     }
 
     /**
@@ -736,10 +763,10 @@ class PLSE_Options {
         if ( ! $cpts ) return;
         $slug = $args[0];
         $state = $args[1];
-        $format = $args[2];
+        $label = $args[2];
         $options = get_option( $slug );
 
-        $dropdown = '<div class="plse-option-select"><select multiple name="' . $slug .'[' . $slug . '][]" class="cpt-dropdown" >' . "\n";
+        $dropdown = '<div class="plse-option-select"><select multiple name="' . $slug .'[' . $slug . '][]" class="plse-option-select-dropdown" >' . "\n";
 
         foreach ( $cpts as $cpt ) {
             $dropdown .= '<option value="' . $cpt->rewrite['slug'] . '" ';
@@ -759,8 +786,8 @@ class PLSE_Options {
         }
         $dropdown .= '</select>' . "\n";
 
-        // add formatting text
-        $dropdown .= '<label class="plse-option-select-description" for="">' . $format . '<br>' . __( '(CTL-Click to deselect)') . '</label>';
+        // add label text
+        $dropdown .= '<label class="plse-option-select-description" for="' . $slug . '">' . $label . '<br>' . __( '(CTL-Click to deselect)') . '</label>';
         $dropdown .= '</div>';
 
         echo $dropdown;
@@ -779,9 +806,9 @@ class PLSE_Options {
         if ( ! $cats ) return;
         $slug = $args[0];
         $state = $args[1];
-        $format = $args[2];
+        $label = $args[2];
         $options = get_option( $slug );
-        $dropdown = '<div class="plse-option-select"><select multiple name="' . $slug .'[' . $slug . '][]" class="cpt-dropdown">' . "\n";
+        $dropdown = '<div class="plse-option-select"><select multiple name="' . $slug .'[' . $slug . '][]" class="plse-option-select-dropdown">' . "\n";
         foreach ( $cats as $cat ) {
             $dropdown .= '<option value="' . $cat->slug . '" ';
             // highlight stored options in dropdown
@@ -800,7 +827,7 @@ class PLSE_Options {
         }
         $dropdown .= '</select>' . "\n";
 
-        $dropdown .= '<label class="plse-option-select-description" for="">' . $format . '<br>' . __( '(CTL-Click to for select and deselect)') . '</label>';
+        $dropdown .= '<label class="plse-option-select-description" for="' . $slug . '">' . $label . '<br>' . __( '(CTL-Click to for select and deselect)') . '</label>';
         $dropdown .= '</div>';
 
         echo $dropdown;
@@ -817,10 +844,10 @@ class PLSE_Options {
 
         $slug = $args[0];
         $state = $args[1];
-        $width = $args[2];
-        $height = $args[3];
-        $label  = $args[4];
-        $title  = $args[5];
+        $label  = $args[2];
+        $title  = $args[3];
+        $width = $args[4];
+        $height = $args[5];
         $option = esc_attr( get_option ( $slug ) );
 
         // current image (default to plugin blank if not set)
@@ -1036,7 +1063,7 @@ class PLSE_Options {
             add_settings_error(
                 $this->option_group,
                 'float_validation_error',
-                '<span style="color:red">Error:</span> Invalid Floating-point number ('.$out.'), please re-enter',
+                '<span style="color:red">Error:</span>' . __( 'Invalid Floating-point number ('.$out.'), please re-enter' ),
                 'error'
             );
         }

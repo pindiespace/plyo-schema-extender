@@ -218,7 +218,7 @@ class PLSE_Metabox {
                 $schema_fields = $this->load_schema_fields( $schema_label );
                 if ( ! $this->load_schema_fields( $schema_label ) ) {
 
-                    $this->metabox_store_transient( 'Could not read:' . $schema_label );
+                    $this->metabox_store_transient( __( 'Could not read:' ) . $schema_label );
 
                 } else {
 
@@ -406,6 +406,9 @@ class PLSE_Metabox {
      * @param    string   $err     error message, formated in HTML error style
      */
     public function render_simple_field ( $args, $value, $err = '' ) {
+        if ( empty( $value ) && $args['required'] == 'required') {
+            $err = $this->add_error_to_field( __( 'this field is required....') );
+        }
         $type = $this->init->label_to_slug( $args['type'] );
         if ( $args['class'] ) $class = $args['class']; else $class = '';
         if ( $args['size'] ) $size = $args['size']; else $size = '40';
@@ -423,9 +426,6 @@ class PLSE_Metabox {
      */
     public function render_text_field ( $args, $value ) {
         $err = '';
-        if ( empty( $value ) && $args['required'] == 'required') {
-            $err = $this->add_error_to_field( __( 'this field is required....') );
-        }
         return $this->render_simple_field( $args, $value, $err );
     }
 
@@ -439,9 +439,6 @@ class PLSE_Metabox {
      */
     public function render_postal_field ( $args, $value ) {
         $err = '';
-        if ( empty( $value ) && $args['required'] == 'required') {
-            $err = $this->add_error_to_field( __('this field is required....') );
-        }
         if ( ! $this->init->is_postal( $value ) ) {
             $err = $this->add_error_to_field( __( 'this is not a valid postal code' ) );
         }
@@ -458,9 +455,6 @@ class PLSE_Metabox {
      */
     public function render_tel_field ( $args, $value ) {
         $err = '';
-        if ( empty( $value ) && $args['required'] == 'required') {
-            $err = $this->add_error_to_field( __('this field is required....') );
-        }
         if ( ! $this->init->is_phone( $value ) ) {
             $err = $this->add_error_to_field( __( 'this is not a valid phone number' ) );
         }
@@ -477,9 +471,6 @@ class PLSE_Metabox {
      */
     public function render_email_field ( $args, $value ) {
         $err = '';
-        if ( empty( $value ) && $args['required'] == 'required') {
-            $err = $this->add_error_to_field( __('this field is required....') );
-        }
         if ( ! $this->init->is_email( $value ) ) {
             $err = $this->add_error_to_field( __( 'this is not a valid email' ) );
         }
@@ -496,9 +487,7 @@ class PLSE_Metabox {
      */
     public function render_url_field ( $args, $value ) {
         $err = '';
-        if ( empty( $value ) && $args['required'] == 'required') {
-            $err = $this->add_error_to_field( __('this field is required....') );
-        } else if ( ! $this->init->is_url( $value ) ) {
+        if ( ! $this->init->is_url( $value ) ) {
             $err = $this->add_error_to_field( __( 'invalid address (URL)' ) );
         } 
         // TODO: TOO SLOW - MAKE INTO A USER BUTTON
@@ -520,7 +509,7 @@ class PLSE_Metabox {
     public function render_textarea_field ( $args, $value ) {
         $err = '';
         if ( $this->init->is_required( $args ) ) {
-            $err = $this->add_error_to_field( __('this field is required....') );
+            $err = $this->add_error_to_field( __( 'this field is required....' ) );
         }
         echo '<textarea title="' . $args['title'] . '" id="' . sanitize_key( $args['slug'] ) . '" name="' . sanitize_key( $args['slug'] ) .'" rows="5" cols="60">' . esc_attr( $value ) . '</textarea>';
         if ( ! empty( $err ) ) echo $err;
@@ -537,7 +526,7 @@ class PLSE_Metabox {
     public function render_date_field ( $args, $value ) {
         $err = '';
         if ( $this->init->is_required( $args ) ) {
-            $err = $this->add_error_to_field( __('this field is required....') );
+            $err = $this->add_error_to_field( __( 'this field is required....' ) );
         }
         echo '<input title="' . $args['title'] . '" id="' . sanitize_key( $args['slug'] ) . '" type="date" name="' . sanitize_key( $args['slug'] ) . '" value="' . esc_attr( $value ) . '">';
         if ( ! empty( $err ) ) echo $err;
@@ -554,7 +543,7 @@ class PLSE_Metabox {
     public function render_time_field ( $args, $value ) {
         $err = '';
         if ( $this->init->is_required( $args ) ) {
-            $err = $this->add_error_to_field( __('this field is required....') );
+            $err = $this->add_error_to_field( __( 'this field is required....' ) );
         }
         echo '<input title="' . $args['title'] . '" id="' . sanitize_key( $args['slug'] ) . '" type="time" name="' . sanitize_key( $args['slug'] ) . '" value="' . esc_attr( $value ) . '">';
         if ( ! empty( $err ) ) echo $err;
@@ -757,7 +746,7 @@ class PLSE_Metabox {
         }
         echo '</td>';
         echo '<td class="plse-auto-resizable-iframe" style="text-align:center;">';
-        echo '<div class="plse-embed-video"></div>'; //////////////////
+        echo '<div class="plse-embed-video"></div>';
         echo '</td>';
         echo '<tr>';
         echo '<td style="width:50%;text-align:center">';

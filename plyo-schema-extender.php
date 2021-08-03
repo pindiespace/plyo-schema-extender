@@ -38,6 +38,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 // We are running outside of the context of WordPress.
 if ( ! function_exists( 'add_action' ) ) return;
 
+if ( ! defined( 'PLSE_SCHEMA_PHP_MIN_VERSION' ) ) {
+    define( 'PLSE_SCHEMA_PHP_MIN_VERSION', '5.6' );
+}
+
 // Current plugin name.
 if ( ! defined( 'PLSE_SCHEMA_EXTENDER_NAME' ) ) {
     define ( 'PLSE_SCHEMA_EXTENDER_NAME', 'Plyo Schema Extender' );
@@ -49,18 +53,12 @@ if ( ! defined( 'PLSE_SCHEMA_EXTENDER_NAME' ) ) {
  */
 define( 'PLSE_SCHEMA_EXTENDER_VERSION', '1.0.0' );
 
-if ( ! defined( 'PLSE_SCHEMA_PHP_MIN_VERSION' ) ) {
-    define( 'PLSE_SCHEMA_PHP_MIN_VERSION', '5.6' );
-}
-
 /*
  * Basic Plugin description (for options page)
  */
 if ( ! defined( 'PLSE_SCHEMA_OPTIONS_DESCRIPTION' ) ) {
     define( 'PLSE_SCHEMA_OPTIONS_DESCRIPTION', __( 'This plugin works with Yoast SEO and adds additional schema to the default schema provided by Yoast. Schemas can be added through a custom post type whose name matches the schema.org schema, or by creating a category name matching the schema name. Plugin is NOT compatible with other Schema plugins' ) );
 }
-
-
 
 // define the plugin slug for the admin options menu
 if ( ! defined( 'PLSE_SCHEMA_EXTENDER_SLUG' ) ) {
@@ -224,72 +222,95 @@ require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 
 add_action( 'plugins_loaded', function () {
 
-    // initialize and decide what to load, or display error message
+    /* 
+     * Initialization, PHP and Yoast checks.
+     * also includes shared utilities and constants.
+     * initialized here so categories and tags add correctly to pages and custom post types
+     */
     require_once PLSE_SCHEMA_EXTENDER_PATH . '/includes/plse-init.php';
-
-    // placed here so categories and tags add to pages and custom post types
     $plse_init = PLSE_Init::getInstance();
 
-    // only load if the Yoast Plugin is available
-    if ( is_plugin_active( YOAST_PLUGIN ) ) {
+    /*
+     * Plugin options, global for the options page, metabox on posts, and graph generation 
+     * for user-facing pages.
+     */
+    require_once PLSE_SCHEMA_EXTENDER_PATH . '/includes/admin/plse-options-data.php';
 
-        if ( is_admin() ) {
+    // make sure the plugin can run
+    if ( $plse_init->check_php() ) {  // adequate PHP versions
 
-            global $pagenow;
+        if ( $plse_init->check_yoast() ) { // Yoast plugin installed
 
+            if ( $plse_init->check_yoast_active() ) { // Yoast is activated
 
-            // global fields used in plugin options, also used by metabox
-            require_once PLSE_SCHEMA_EXTENDER_PATH . '/includes/admin/plse-options-data.php';
+                if ( is_admin() ) {
 
-            // load options class
-            require_once PLSE_SCHEMA_EXTENDER_PATH . '/includes/admin/plse-options.php';
+                    global $pagenow;
 
-            /*
-             * Reorder menus. Put this plugin menu item right below the
-             * Yoast listing in the Admin menu.
-             */
-            add_filter('custom_menu_order', function() { return true; });
-            add_filter( 'menu_order', function ( $menu_order ) {
+                    // load options class
+                    require_once PLSE_SCHEMA_EXTENDER_PATH . '/includes/admin/plse-options.php';
 
-                $yoast_pos = 0;
-                $plse_pos  = 0;
+                    /*
+                     * Reorder menus. Put the menu for this plugin right below the
+                     * Yoast listing in the Admin menu.
+                     */
+                    add_filter('custom_menu_order', function() { return true; });
+                    add_filter( 'menu_order', function ( $menu_order ) {
 
-                // find the position of Yoas
-                foreach ($menu_order as $key => $value ) {
-                    if ( $value == YOAST_MENU_SLUG ) {
-                        $yoast_pos = $key;
+                        $yoast_pos = 0;
+                        $plse_pos  = 0;
+
+                        // find the position of Yoas
+                        foreach ($menu_order as $key => $value ) {
+                            if ( $value == YOAST_MENU_SLUG ) {
+                                $yoast_pos = $key;
+                            }
+                            if ( $value == PLSE_SCHEMA_EXTENDER_SLUG ) {
+                                $plse_pos = $key;
+                            }
+                        }
+
+                        // move an array element to a new index
+                        function move_element(&$array, $a, $b) {
+                            $out = array_splice($array, $a, 1);
+                            array_splice($array, $b, 0, $out);
+                        }
+                        move_element( $menu_order, $plse_pos, $yoast_pos + 1 );
+
+                        return $menu_order;
+
+                    } );
+
+                    // load admin options to add menu in WP_Admin
+                    $plse_options = PLSE_Options::getInstance();
+
+                    // decide whether to load options page (admin), or metabox custom fields (in post)
+                    if ( $pagenow == 'post.php' ) {
+
+                        // load metabox class
+                        require_once PLSE_SCHEMA_EXTENDER_PATH . '/includes/admin/plse-metabox.php';
+                        $plse_metabox = PLSE_Metabox::getInstance();
+
                     }
-                    if ( $value == PLSE_SCHEMA_EXTENDER_SLUG ) {
-                        $plse_pos = $key;
-                    }
+
+                } else {
+
+                    /* 
+                     * add Schema classes to Yoast graph on the viewing page only. As each 
+                     * Schema class initializes, it will determe, via the is_needed() method, 
+                     * whether it needs to add to the Yoast Schema graph. 
+                     */
+                    $plse_init->add_schemas();
+
+                    /*
+                     * add Categories and Tags to Pages so they can be used to select 
+                     * Schemas (controlled in plugin options).
+                     */
+                    add_action( 'pre_get_posts', [ 'PLSE_Init', 'category_and_tag_archives' ] );
+
                 }
-                // move an array element to a new index
-                function move_element(&$array, $a, $b) {
-                    $out = array_splice($array, $a, 1);
-                    array_splice($array, $b, 0, $out);
-                }
-                move_element( $menu_order, $plse_pos, $yoast_pos + 1 );
-
-                return $menu_order;
-
-            } );
-
-            // load admin options
-            $plse_options = PLSE_Options::getInstance();
-            //add_action('admin_menu', [ $plse_options, 'setup_options_menu'] );
-
-            // decide whether to load options page (admin), or custom fields (in post)
-            if ( $pagenow == 'post.php' ) {
-
-                // load metabox class
-                require_once PLSE_SCHEMA_EXTENDER_PATH . '/includes/admin/plse-metabox.php';
-                $plse_metabox = PLSE_Metabox::getInstance();
 
             }
-
-        } else {
-            // add Categories and Tags to Pages
-            add_action( 'pre_get_posts', [ 'PLSE_Init', 'category_and_tag_archives' ] );
 
         }
 

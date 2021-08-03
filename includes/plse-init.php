@@ -23,7 +23,7 @@ class PLSE_Init {
     static private $__instance = null;
 
     /**
-     * Consolidate admin JS references
+     * Admin JS
      * 
      * @since    1.0.0
      * @access   private
@@ -32,13 +32,31 @@ class PLSE_Init {
     private $plse_admin_js = 'admin/js/plyo-schema-extender-admin.js';
 
     /**
-     * Consolidate admin CSS references
+     * Admin CSS
      * 
      * @since    1.0.0
      * @access   private
      * @var      string    $plse_admin_css
      */
     private $plse_admin_css = 'admin/css/plyo-schema-extender-admin.css';
+
+    /**
+     * Language subdirectory
+     * 
+     * @since    1.0.0
+     * @access   private
+     * @var      string    $language_dir
+     */
+    private $language_dir = 'languages';
+
+    /**
+     * Includes subdirectory (holds most plugin files)
+     * 
+     * @since    1.0.0
+     * @access   private
+     * @var      string    $language_dir
+     */
+    private $includes_dir = 'includes';
 
     /**
      * Schema subdirectory in the plugin.
@@ -48,6 +66,15 @@ class PLSE_Init {
      * @var      string     $schema_dir
      */
     private $schema_dir = 'schema';
+
+    /**
+     * Class name prefix.
+     * 
+     * @since    1.0.0
+     * @access   private
+     * @var      string    $schema_classname_prefix
+     */
+    private $schema_classname_prefix = 'PLSE_';
 
     /**
      * Prefix for schema files.
@@ -109,7 +136,6 @@ class PLSE_Init {
         return self::$__instance;
     }
 
-
     /**
      * Load the textdomain for the plugin.
      * TODO: add languages.
@@ -131,7 +157,7 @@ class PLSE_Init {
         // manually determine locale
         if ( ! $loaded ) {
             $locale = apply_filters( 'plugin_locale', function_exists( 'determine_locale' ) ? determine_locale() : get_locale(), 'cmb2' );
-            $mofile = dirname( __FILE__ ) . '/languages/' .PLSE_SCHEMA_EXTENDER_SLUG . '-' . $locale . '.mo';
+            $mofile = dirname( __FILE__ ) . '/' . $this->language_dir . '/' .PLSE_SCHEMA_EXTENDER_SLUG . '-' . $locale . '.mo';
             load_textdomain( PLSE_SCHEMA_EXTENDER_SLUG, $mofile );
         }
 
@@ -264,6 +290,9 @@ class PLSE_Init {
     /**
      * Add categories and tags to all CPTs. Independent of any 
      * custom taxonomies added to the CPT.
+     * 
+     * @since    1.0.0
+     * @access   public
      */
     public function add_taxonomies_to_all_cpts () {
 
@@ -338,7 +367,7 @@ class PLSE_Init {
         // construct Schema file names
         $patterns = array( '/' . $this->schema_file_prefix . '/', '/.php/' );
         $replacements = array( '', '' );
-        $dir = plugin_dir_path( dirname( __FILE__ ) ) . 'includes/' . $this->schema_dir . '/';
+        $dir = plugin_dir_path( dirname( __FILE__ ) ) . $this->includes_dir . '/' . $this->schema_dir . '/';
 
         $handle = opendir( $dir );
 
@@ -348,7 +377,6 @@ class PLSE_Init {
 
                 // strip out non-schema substrings
                 if ( $entry != "." && $entry != ".." ) {
-                    //$schemas[] = strtoupper( preg_replace( $patterns, $replacements, $entry ) );
                     $schemas[] = $this->label_to_slug( preg_replace( $patterns, $replacements, $entry ) );
                 }
 
@@ -359,6 +387,66 @@ class PLSE_Init {
         }
 
         return $schemas;
+
+    }
+
+    /**
+     * Get the classnames for each declared schema.
+     */
+    public function get_available_classes () {
+
+        $classes = array();
+
+        $schemas = $this->get_available_schemas();
+
+        foreach ( $schemas as $schema ) {
+            $classes[] = $this->schema_classname_prefix . ucfirst( strtolower( $schema ) );
+        }
+
+        return classes;
+
+    }
+
+    /**
+     * Attach new Schemas to Yoast.
+     * NOTE: must be added early when plugin has just loaded, waiting for 'the_content' hook is too late.
+     * 
+     * {@link https://developer.yoast.com/features/schema/api/#to-add-or-remove-graph-pieces}
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    array  $pieces array used to create JSON-LD graph.
+     * @param    \WPSEO_Schema_Context $context Object with context variables.
+     */
+    public function add_schemas () {
+
+        add_filter( 'wpseo_schema_graph_pieces', function( $pieces, $context ) {
+
+            $schemas = $this->get_available_schemas();
+
+            foreach ( $schemas as $schema ) {
+
+                $classname = $this->schema_classname_prefix . ucfirst( $this->schema_dir ) . '_' . ucfirst( strtolower( $schema ) );
+
+                if ( ! class_exists( $classname ) ) {
+
+                    $class_path = plugin_dir_path( dirname( __FILE__ ) ) . $this->includes_dir . '/'. $this->schema_dir . '/' . $this->schema_file_prefix . strtolower( $schema ) . '.php';
+
+                    require $class_path;
+
+                    //$b = new $classname( $context );
+
+                    $b = $classname::getInstance( $context );
+
+                    // TODO: make this work
+                    //$pieces[] = new $classname( $context );
+
+                }
+            }
+
+            return $pieces;
+
+        }, 11, 2 );
 
     }
 
@@ -486,7 +574,7 @@ class PLSE_Init {
         }
 
         if ( $id ) {
-            $vimeo = unserialize( file_get_contents( 'http://vimeo.com/api/v2/video/' . $id . '.php' ) );
+            $vimeo = unserialize( file_get_contents( 'https://vimeo.com/api/v2/video/' . $id . '.php' ) );
             if ( $type == 'small') $thumb_link = $vimeo[0]['thumbnail_small'];
             else if ( $type == 'medium') $thumb_link = $vimeo[0]['thumbnail_medium'];
             else if ( $type == 'large' ) $thumb_link =  $vimeo[0]['thumbnail_large'];
@@ -604,6 +692,103 @@ class PLSE_Init {
      */
 
     /**
+     * end early if incompatible version of PHP used. Note that this will fail if 
+     * PHP is downgraded while the plugin settings screen is running.
+     * 
+     * @since     1.0.0
+     * @access    public
+     * @return    boolean    (TRUE|FALSE) if true, PHP is OK, othewise, upgrade is needed
+     */
+    public function check_php () {
+
+        // End early if incompatible version of PHP used
+        if ( version_compare( PHP_VERSION, PLSE_SCHEMA_PHP_MIN_VERSION, '>=' ) ) {
+            return true;
+        }
+
+        // add a blank, no-option plugin page to explain the error, in addition to the specific error message below.
+        $err = PLSE_SCHEMA_EXTENDER_NAME . __( ' requires <strong>PHP ' . PLSE_SCHEMA_PHP_MIN_VERSION . ' (or above)</strong> (or higher) to function properly. Please upgrade PHP. The Plugin has been auto-deactivated.', PLSE_SCHEMA_EXTENDER_SLUG );
+        $this->add_config_error_page( $err );
+
+        $err = PLSE_SCHEMA_EXTENDER_NAME . __( ' Plugin was deactivated. Upgrade PHP to at least version ' . PLSE_SCHEMA_PHP_MIN_VERSION . ' in your web host administrative tools (usually CPanel) then re-activate this plugin.' );
+        $this->add_config_error_message( $err );
+
+        // remove the 'plugin activated' message
+        unset( $_GET['activate'] );
+
+        // deactivate the plugin
+        add_action( 'admin_init', function () {
+            deactivate_plugins( PLSE_SCHEMA_EXTENDER_BASE );
+        } );
+
+        return false;
+    }
+
+    /**
+     * error message if Yoast plugin isn't installed, or version is not high enough to support Schema.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @return   boolean    if compatible Yoast is installed, return true, else false
+     */
+    public function check_yoast () {
+
+        // Make sure our version of Yoast supports schemas
+        if ( defined( 'WPSEO_VERSION' ) && version_compare( WPSEO_VERSION, PLSE_SCHEMA_YOAST_MIN_VERSION, '>=') ) {
+            return true;
+        }
+
+        // add a blank, no-option plugin page to explain the error, in addition to the specific error message below.
+        $err =  PLSE_SCHEMA_EXTENDER_NAME . __( ' requires <strong>Yoast version ' . PLSE_SCHEMA_YOAST_MIN_VERSION . ' (or above)</strong> (or higher) to function properly. Please upgrade Yoast. The Plugin has been auto-deactivated.', PLSE_SCHEMA_EXTENDER_SLUG );
+        $this->add_config_error_page( $err );
+
+        $err =  PLSE_SCHEMA_EXTENDER_NAME . __( ' Plugin was deactivated. Install and/or ypgrade Yoast SEO using the Plugins menu option in your WP Admin.' );
+        $this->add_config_error_message( $err );
+
+        // remove the 'plugin activated' message
+        unset( $_GET['activate'] );
+
+        // deactivate the plugin
+        add_action( 'admin_init', function () {
+            deactivate_plugins( PLSE_SCHEMA_EXTENDER_BASE );
+        } );
+
+        return false;
+    }
+
+    /**
+     * Check if the Yoast plugin is active.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @return   boolean    if Yoast is active, return true, else false
+     */
+    public function check_yoast_active () {
+
+        if( is_plugin_active( YOAST_PLUGIN ) ) {
+            return true;
+        }
+
+        // add a blank, no-option plugin page to explain the error, in addition to the specific error message below.
+        $err = __( 'Yoast is present, but needs to be activated' , PLSE_SCHEMA_EXTENDER_SLUG );
+        $this->add_config_error_page( $err );
+
+        $err = __( 'Go to the plugins menu, and activate Yoast. Then activate ' ) .  PLSE_SCHEMA_EXTENDER_NAME;
+        $this->add_config_error_message( $err );
+
+        // remove the 'plugin activated' message
+        unset( $_GET['activate'] );
+
+        // deactivate the plugin
+        add_action( 'admin_init', function () {
+            deactivate_plugins( PLSE_SCHEMA_EXTENDER_BASE );
+        } );
+
+        return false;
+
+    }
+
+    /**
      * Check if a Schema file has been defined. 
      * If Schema: 'game' or 'GAME', look for 'plse-schema-game.php'
      * Independent of the fields data defined in plse-options-data.php
@@ -615,7 +800,7 @@ class PLSE_Init {
      */
     public function check_if_schema_defined ( $schema_label ) {
 
-        $dir = plugin_dir_path( dirname( __FILE__ ) ) . 'includes/' . $this->schema_dir . '/';
+        $dir = plugin_dir_path( dirname( __FILE__ ) ) . $this->includes_dir . '/' . $this->schema_dir . '/';
 
         $s = strtolower( $schema_label ) . '.php';
 
@@ -746,6 +931,84 @@ class PLSE_Init {
         );
         $cats = get_categories( $args );
         return $cats;
+    }
+
+    /**
+     * -----------------------------------------------------------------------
+     * ERROR MESSAGES
+     * Used when the plugin can't work (e.g. no Yoast)
+     * -----------------------------------------------------------------------
+     */
+
+    /**
+     * Add an error dialog at the top of the WP_Admin options explaining prblems.
+     * 
+     * @since    1.0.0
+     * @access   public
+     */
+    public function add_config_error_message ( $err ) {
+
+            // create the top dialog error, passing in error message with 'use' operator
+            add_action( 'admin_notices', function () use ( $err ) {
+
+                $plugin_data = get_plugin_data( __FILE__ );
+                ?>
+                <div class="updated error">
+                    <p>
+                        <?php
+                        echo $err;
+                        //////_e( 'This plugin depends on the <strong>Yoast SEO, version ' . PLSE_SCHEMA_YOAST_MIN_VERSION . ' (or above)</strong> plugin to function properly.', PLSE_SCHEMA_EXTENDER_SLUG );
+                        //echo '<br>';
+                        echo '<br><strong>' . $plugin_data['Name'] . __( 'has been deactivated' ) . '</strong>';
+                        //printf(
+                        //    __( '<strong>%s</strong> has been deactivated', PLSE_SCHEMA_EXTENDER_SLUG ),
+                        //    $plugin_data['Name']
+                        //);
+                        ?>
+                    </p>
+                </div>
+
+                <?php
+                // deactivate the plugin
+                ///if ( isset( $_GET['activate'] ) ) {
+                ///    unset( $_GET['activate'] );
+                ///}
+            } );
+
+    }
+
+    /**
+     * If there is a fatal error, and the user is on the plugin options page, 
+     * replace the options with a blank options page. This way, the user won't 
+     * be confused by the sudden disappearance of the plugin options pages.
+     * Possible triggers include:
+     * - Yoast is downgraded below the minimum
+     * - Yoast is deactivated
+     * 
+     * @since    1.0.0
+     * @access   public
+     */
+    public function add_config_error_page ( $err = '' ) {
+
+        // Put under WP_Admin->Tools, save result to decide when to enqueue scripts.
+        add_menu_page( 
+            PLSE_SCHEMA_EXTENDER_NAME, // page <title>
+            $this->plugin_menu_title,  // admin menu text
+            'manage_options',          // capability
+            PLSE_SCHEMA_EXTENDER_SLUG, // menu slug
+            function () {
+                echo '<div style="background-color:#eee">' . "\n";
+                echo '<div style="background-color:#fefefe;border-radius:6px;margin:8px;padding:8px;">';
+                echo '<h2 style="font-size:24px;">Plyo Schema Extender requires the following software versions...</h2>';
+                echo '<ul><li><strong>PHP:</strong> ' . PLSE_SCHEMA_PHP_MIN_VERSION . ', <strong>Currently Installed:</strong> ' . PHP_VERSION . '</li>';
+                echo '<li><strong>Yoast:</strong> ' . PLSE_SCHEMA_YOAST_MIN_VERSION . ', <strong>Currently Installed:</strong> ' . WPSEO_VERSION . '</li></ul>';
+                if ( ! empty ( $err ) ) echo '<li>' . $err . '</li>' . "\n";
+                echo '<hr><p>This plugin has been deactivated. Upgrade, PHP and/or Yoast, then go to WP_Admin->Plugins, and re-activate.</p>';
+                echo '</div>';
+            }, // render callback
+            'dashicons-networking' // schema-like hierarchy icon
+        );
+
     }
 
 } // end of class
