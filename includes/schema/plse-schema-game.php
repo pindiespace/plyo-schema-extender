@@ -91,6 +91,26 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'select_multiple' => false
             ),
 
+            'game_in_language' => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-in_language',
+                'label' => 'Languages supported in the game:',
+                'title' => 'Choose language(s) from the list',
+                'type'  => 'SELECT_MULTIPLE',
+                'required' => '',
+                'wp_data' => 'post_meta',
+                // https://techfunda.com/howto/1163/language-codes
+                // TODO: flag option list with callback function
+                'option_list' => array(
+                    'English' => 'en',
+                    'German' => 'de',
+                    'Spanish' => 'es',
+                    'Russian' => 'ru',
+                    'Chinese' => 'zn',
+                    'Arabic' => 'ar'
+                ),
+                'select_multiple' => true
+            ),
+
             'screenshot' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-screenshot',
                 'label' => 'Game Screenshot:',
@@ -119,6 +139,42 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'required' => '',
                 'wp_data' => 'post_meta',
                 'select_multiple' => false
+            ),
+
+            'game_publisher' => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-publisher',
+                'label' => 'Game Publisher:',
+                'title' => 'The company that distributed or publishes the game',
+                'type'  => 'TEXT',
+                'required' => '',
+                'wp_data' => 'post_meta',
+            ),
+
+            'game_genre' => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-genre',
+                'label' => 'Game Genre (e.g tower Defense):',
+                'title' => 'Category of game, type of game and gameplay',
+                'type'  => 'REPEATER',
+                'required' => '',
+                'wp_data' => 'post_meta',
+            ),
+
+            'game_platform' => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-platform',
+                'label' => 'Supported Platforms:',
+                'title' => 'Desktops, mobiles, and game consoles compatible with the game',
+                'type'  => 'SELECT_MULTIPLE',
+                'required' => '',
+                'wp_data' => 'post_meta',
+                'option_list' => array(
+                    'PlayStation' => 'playstation',
+                    'XBox' => 'xbox',
+                    'iOS' => 'ios',
+                    'Android' => 'android',
+                    'MacOS' => 'macos',
+                    'Windows' => 'windows'
+                ),
+                'select_multiple' => true
             ),
 
             'operating_system' => array(
@@ -240,7 +296,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
      * Get the data associated with this Schema.
      */
     public function get_data () {
-        return $this->schema_fields;
+        return $this::schema_fields;
     }
 
     /**
@@ -252,17 +308,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
      * @return   array    array with just the fields, extracted from their groups
      */
     public function get_data_fields () {
-
-        $data = $this->schema_fields;
-
-            foreach ( $data_group['fields'] as $fields ) {
-
-                $field_list[] = $fields;
-
-        }
-
-        return $field_list;
-
+        return $this::schema_fields['fields'];
     }
 
     /**
@@ -281,9 +327,10 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
         $post = get_post( $this->context->id );
 
         if( $post ) {
+
             $this->post = $post;
 
-            if ( $this->options_data->check_if_schema_assigned_cpt ( $schema_label ) && 
+            if ( $this->options_data->check_if_schema_assigned_cpt ( $schema_label ) || 
                 $this->options_data->check_if_schema_assigned_cat( $schema_label ) ) {
                 return true;
             }
@@ -291,6 +338,33 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
         }
 
         return false;
+
+    }
+
+    /**
+     * Get any global plugin option data associated with a post.
+     * 
+     * 
+     */
+    public function get_option ( $slug ) {
+
+    }
+
+    /**
+     * Get the Schema data associated with a post.
+     * 
+     * 
+     * 
+     */
+    public function get_post_meta ( $slug, $post ) {
+
+        if ( $field['select_multiple'] ) {
+                $value = get_post_meta( $post->ID, $field[ $slug ] ); // multi-select control, returns array
+        } else {
+                $value = get_post_meta( $post->ID, $field[ $slug ], true ); // single = true, returns meta value
+        }
+
+        return $value;
 
     }
 
@@ -305,11 +379,57 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
 
         $post = $this->init->get_post();
 
-        // get required fields slugs
+        // since the arrays are static, access statically here
+        $fields = PLSE_Schema_Game::$schema_fields['fields'];
 
+        /**
+         * Assign values into the Schema array. We do this explicitly, rather than 
+         * trying to loop through $fields since
+         * - some fields go into subfields (e.g. ImageObject or VideoObject)
+         * - some fields are used in multiple locations
+         * 
+         * Rather than making repeated calls, get the entire meta data array 
+         * all at once. NOTE: this also gets Yoast-assigned values and values from 
+         * any other metaboxes.
+         */
+        $values = get_post_meta( $post->ID, '', true );
 
-        $data = null;
+        // data must be at least an empty array
+        $data = array(
+            '@type'  => 'VideoGame',
+            '@id' => $this->context->canonical . Schema_IDs::WEBPAGE_HASH,
+            //'name'   => $values[ 'plyo-schema-extender-game-name' ],
+            'name' => $values[ $fields['game_name']['slug'] ][0],
+            'url' => $values[ $fields['game_url']['slug'] ][0],
+            'image' => $values[ $fields['game_image']['slug'] ][0],
+            'screenshot' => $values[ $fields['screenshot']['slug'] ][0],
+            'description' => $values[ $fields['description']['slug'] ][0],
+            'author' => array(
+                '@type' => 'Organization',
+                'name' => $values[ $fields['game_company_name']['slug'] ][0],
+                'url' => $values[ $fields['game_company_url']['slug'] ][0],
+            ),
+            'publisher' => $values[ $fields['game_publisher']['slug'] ][0],
+            'genre' => $values[ $fields['game_genre']['slug'] ][0],
+            'gamePlatform' => $this->init->get_array_from_serialized( $values[ $fields['game_platform']['slug'] ] ),
 
+        );
+
+        /*
+         * cleanup for some fields, use $post data if the metaboxes
+         * aren't filled in...
+         */
+        if ( empty( $data['description'] ) ) {
+            $data['description'] = $this->init->get_the_excerpt( $post );
+        }
+
+        if ( empty( $data['image'] ) ) {
+            $data['image'] = $this->init->get_featured_image_url( $post );
+        }
+
+        if ( empty( $data['screenshot'] ) ) {
+            $data['screenshot'] = $this->init->get_first_post_image_url( $post );
+        }
 
         return $data;
 

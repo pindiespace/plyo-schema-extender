@@ -203,6 +203,34 @@
 
         /*
          * ---------------------------------------------------
+         * Repeater fields
+         * ---------------------------------------------------
+         */
+
+        // add a text input repeater row
+        $('.plse-repeater-add-row-btn').on('click', function(e) {
+
+            let btnP = $(this).parent(); // enclosing <p></p>
+            let fieldSet = btnP.parent(); // enclosing <div>, with <table> inside
+
+            // find the last table row in the control <table> holding repeated fields
+            let prev = fieldSet.find('tbody>tr:last');
+
+            let emptyRow = $(fieldSet).find('.plse-repeater-empty-row').clone(true);
+            emptyRow.removeClass( 'plse-repeater-empty-row' ).css('display','table-row');
+            emptyRow.insertBefore( prev );
+
+            console.log('adding');
+
+        });
+
+        // remove a text input repeater row
+        $('.plse-repeater-remove-row-btn').on('click', function(e) {
+            $(this).parents('tr').remove();
+        });
+
+        /*
+         * ---------------------------------------------------
          * Datetimepicker
          * ---------------------------------------------------
          */

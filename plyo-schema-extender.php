@@ -188,6 +188,8 @@ if ( ! defined( 'PLSE_INPUT_TYPES' ) ) {
         'CHECKBOX' => 'checkbox',
         'SELECT_SINGLE' => 'select_single',
         'SELECT_MULTIPLE' => 'select_multiple',
+        'REPEATER' => 'repeater',
+        'COMBOBOX' => 'combobox',
         'CPT' => 'cpt',
         'CAT' => 'cat',
         'IMAGE' => 'image',

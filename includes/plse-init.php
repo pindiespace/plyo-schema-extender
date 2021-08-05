@@ -86,6 +86,15 @@ class PLSE_Init {
     private $schema_file_prefix = 'plse-schema-';
 
     /**
+     * Slug prefix for metabox values.
+     * 
+     * @since    1.0.0
+     * @access   private
+     * @var      string    $meta_slug_prefix
+     */
+    private $metabox_slug_prefix = PLSE_SCHEMA_EXTENDER_SLUG;
+
+    /**
      * Plugin menu name in WP_Admin.
      * @since    1.0.0
      * @access   private
@@ -347,6 +356,144 @@ class PLSE_Init {
 
     /**
      * -----------------------------------------------------------------------
+     * GET POST INFORMATION
+     * -----------------------------------------------------------------------
+     */
+
+    /**
+     * Get the post excerpt. Used in descriptions, if not over-ridden by 
+     * Schema descriptions for values in plugin options.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @return   string    the excerpt (which may be an empty string)
+     */
+    public function get_the_excerpt( WP_Post $post, $trim_chars = 150, $more = '&hellip;' ) {
+
+        $excerpt = '';
+
+        if ( is_a( $post, 'WP_Post' ) ) {
+
+            // position of first occurrence of a string within another, case insensitive
+            $more_pos = mb_stripos( $post->post_content, '<!--more-->' );
+
+            if ( $more_pos != false ) {
+                $excerpt = mb_substr( $post->post_content, 0, $more_pos );
+            } else {
+                $excerpt = empty( $post->post_excerpt ) ? $post->post_content : $post->post_excerpt;
+            }
+
+            // strip shortcodes and blocks
+            global $wp_version;
+            if ( version_compare( $wp_version, '5.0', '>=' ) ) {
+                $excerpt = excerpt_remove_blocks( strip_shortcodes( $excerpt ) );
+            } else {
+                $excerpt = strip_shortcodes( $excerpt );
+            }
+
+            // strip all NULL bytes, HTML and PHP tags
+            $excerpt = trim( strip_tags( $excerpt ) );
+
+            // add the 'more' entity
+            if ( $excerpt ) $excerpt = mb_substr( $excerpt, 0, $trim_chars, 'UTF-8' ) . $more;
+
+        }
+
+        return $excerpt;
+
+    }
+
+    /**
+     * Return the thumbail url for the featured image of the post
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @return   string<url>    a text string giving the URL of the featured image thumbnail
+     */
+    public function get_featured_image_url ( WP_Post $post, $size = 'full' ) {
+        return get_the_post_thumbnail_url( $post->ID, $size );
+    }
+
+    /**
+     * get all meta data for a featured image for a post, used to create ImageObject.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    WP_POST    $post    the current post
+     * @param    (string|int)    $size    image size in WP installation
+     * @return   array    metadata for the featured image
+     */
+    public function get_featured_image_meta ( WP_Post $post, $size = 'full' ) {
+        return $this->get_image_meta ( get_post_thumbnail_id( $post ), $size );
+    }
+
+    /**
+     * Get the the url of the first image in post content. 
+     * Use where there is no image availabe from:
+     * - featured image url
+     * - metabox image url
+     * 
+     * @since     1.0.0
+     * @access    public
+     * @param     WP_POST    $post    the current post
+     * @param     (string|int)    $size    image size in WP installation
+     */
+    public function get_first_post_image_url ( WP_Post $post, $size = 'full' ) {
+
+        $img = '';
+
+        if ( is_a( $post, 'WP_Post' ) ) {
+
+            // grab the first image on the post
+            $files = get_children('post_parent='.get_the_ID().'&post_type=attachment&post_mime_type=image&order=desc');
+
+            // loop through the array, grabbing the first image (last one in array)
+            if( $files ) {
+                $keys = array_reverse( array_keys( $files ) );
+                $j = 0;
+                $attachment_id = $keys[ $j ];
+                $img = wp_get_attachment_image_src( $attachment_id, $size );
+            }
+
+        }
+
+        return $img;
+
+    }
+
+    /**
+     * Get the first image in a post, return all meta data.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    (string|int) $size    image size in WP installation
+     * @return   (array)      $img    image-related information extracted from the <figure>
+     */
+    public function get_first_post_image_meta ( WP_Post $post, $size = 'full' ) {
+
+        $image_meta = '';
+
+        if ( is_a( $post, 'WP_Post' ) ) {
+            // grab the first image on the post
+            $files = get_children('post_parent='.get_the_ID().'&post_type=attachment&post_mime_type=image&order=desc');
+
+            // loop through the array, grabbing the first image (last one in array)
+            if( $files ) {
+                $keys = array_reverse( array_keys( $files ) );
+                $j = 0;
+                $attachment_id = $keys[ $j ];
+                $image_meta = $this->get_image_meta( $attachment_id );
+
+                return $image_meta;
+
+            }
+        }
+
+        return $image_meta;
+    }
+
+    /**
+     * -----------------------------------------------------------------------
      * GET SCHEMA INFORMATION
      * -----------------------------------------------------------------------
      */
@@ -407,6 +554,14 @@ class PLSE_Init {
 
     }
 
+    public function get_imageObject () {
+
+    }
+
+    public function get_videoObject () {
+
+    }
+
     /**
      * Attach new Schemas to Yoast.
      * NOTE: must be added early when plugin has just loaded, waiting for 'the_content' hook is too late.
@@ -434,12 +589,7 @@ class PLSE_Init {
 
                     require $class_path;
 
-                    //$b = new $classname( $context );
-
-                    $b = $classname::getInstance( $context );
-
-                    // TODO: make this work
-                    //$pieces[] = new $classname( $context );
+                    $pieces[] = $classname::getInstance( $context );
 
                 }
             }
@@ -477,6 +627,17 @@ class PLSE_Init {
      */
     public function get_schema_dirname () {
         return $this->schema_dir;
+    }
+
+    /**
+     * Return the prefix used by metaboxes to create slugs
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @return   string    the prefix to put in front of metabox slugs, e.g. 'plyo-schema-extender' . 'game_name'
+     */
+    public function get_metabox_slug_prefix () {
+        return $this->metabox_slug_prefix;
     }
 
     /**
@@ -597,6 +758,15 @@ class PLSE_Init {
             return $this->get_vimeo_thumb( $url );
         }
 
+    }
+
+    public function get_array_from_serialized ( $value ) {
+        $value = maybe_unserialize( $value );
+        $value = unserialize($value[0]);
+        if ( is_array( $value )) {
+            return $value;
+        }
+        return array();
     }
 
     /**

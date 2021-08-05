@@ -594,10 +594,10 @@ class PLSE_Options_Data {
         
         $post = $this->init->get_post();
         $s = $this->init->slug_to_label( $schema_label );
-        //$s = strtoupper( $schema_label );
 
         // get the slug, retrieve option values of CPTs assigned to this Schema
         $slug = $this->options[ $s ]['fields']['cpt']['slug'];
+
 
         if ( ! $slug ) return false;
 

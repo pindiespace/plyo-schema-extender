@@ -335,6 +335,7 @@ class PLSE_Metabox {
                 $value = get_option( $field['slug'] );
             }
             elseif ( $field[ 'wp_data' ] == 'post_meta' ) {
+
                 // get the string associated with this field in this post (if no slug, get all the CPTs for this post)
                 if ( $field['select_multiple'] ) {
                     $value = get_post_meta( $post->ID, $field['slug'] ); // multi-select control, returns array
@@ -590,6 +591,9 @@ class PLSE_Metabox {
 
     /**
      * Render a pulldown menu with only one option selectable.
+     * TODO:
+     * TODO:
+     * TODO: autocomplete? https://www.sitepoint.com/html5-datalist-autocomplete/
      * 
      * @since    1.0.0
      * @access   public
@@ -675,6 +679,66 @@ class PLSE_Metabox {
     }
 
     /**
+     * Render Repeater field, which allows users to self-generate multiple entries.
+     * Requires JavaScript to work.
+     * 
+     * {@link https://codexcoach.com/create-repeater-meta-box-in-wordpress/}
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    array    $args field parameters, select
+     * @param    array    $value an array with multiple values
+     */
+    public function render_repeater_field ( $args, $value ) {
+        // TODO:
+        $slug = $args['slug'];
+        $size = '50';
+        ?>
+        <div id="plse-repeater-<?php echo $slug; ?>" class="plse-repeater">
+            <table id="plse-repeater-table" width="60%">
+                <tbody>
+                    <!--default row, or rows from datatbase-->
+                    <?php 
+                    if( $value ):
+                        foreach( $value as $field ) { 
+                            if ( ! empty( $field ) ) { ?>
+                            <tr>
+                            <td><input name="<?php echo $slug; ?>[]" type="text" class="plse-repeater-input" value="<?php if($field != '') echo esc_attr( $field ); ?>" size="<?php echo $size; ?>" placeholder="existing" /></td>
+                            <td><a class="button plse-repeater-remove-row-btn" href="#1">Remove</a></td>
+                        </tr>
+                        <?php } }
+                    else: ?>
+                    <tr class="plse-repeater-default-row" style="display: table-row">
+                        <td><input name="<?php echo $slug; ?>[]" type="text" class="plse-repeater-input" size="<?php echo $size; ?>" placeholder="<?php echo __( 'enter text here' ); ?>"/></td>
+                        <td><a class="button plse-repeater-remove-row-btn button-disabled" href="#">Remove</a></td>
+                    </tr>
+                    <?php endif;
+                    ?>
+                    <!--invisible blank row-->
+                    <tr class="plse-repeater-empty-row" style="display: none">
+                        <td><input name="<?php echo $slug; ?>[]" type="text" class="plse-repeater-input" size="<?php echo $size; ?>" placeholder="<?php echo __( 'enter text here' ); ?>"/></td>
+                        <td><a class="button plse-repeater-remove-row-btn" href="#">Remove</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        <p><a class="button plse-repeater-add-row-btn" href="#">Add another</a></p>
+        </div>
+
+<?php 
+
+    }
+
+    /**
+     * Render a combox box, allowing either selection or typing in values
+     * TODO: autocomplete? https://www.sitepoint.com/html5-datalist-autocomplete/
+     * 
+     * @since    1.0.0
+     */
+    public function render_combobox ( $args, $value ) {
+        // TODO:
+    }
+
+    /**
      * Render an image with its associated URL field.
      * 
      * @since    1.0.0
@@ -718,12 +782,10 @@ class PLSE_Metabox {
         $slug = $args['slug'];
         $title = $args['title'];
 
-        // TODO: REDO LAYOUT
-        // TODO:
-        // TODO:
-
-        // create the thumbnail URL
-        //https://ytimg.googleusercontent.com/vi/<insert-youtube-video-id-here>/default.jpg
+        /**
+         * create the thumbnail URL
+         * {@link https://ytimg.googleusercontent.com/vi/<insert-youtube-video-id-here>/default.jpg}
+         */ 
         echo '<div>';
         // add a special class for JS to the URL field for dynamic video embed
         $args['class'] = 'plse-embedded-video-url';
@@ -860,7 +922,16 @@ class PLSE_Metabox {
                                 break;
 
                             case PLSE_INPUT_TYPES['SELECT_MULTIPLE']:
-                                $value = $value; ////////////////////////////////////
+                                $value = $value;
+                                break;
+
+                            case PLSE_INPUT_TYPES['REPEATER']:
+                                $count = count( $value );
+                                for ( $i = 0; $i < $count; $i++ ) {
+                                    if ( ! empty( $value[$i] ) ) {
+                                        $value[$i] = stripslashes( strip_tags( $value[$i] ) );
+                                    }
+                                }
                                 break;
 
                             case PLSE_INPUT_TYPES['TIME']:

@@ -208,7 +208,7 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
         if( $post ) {
             $this->post = $post;
 
-            if ( $this->options_data->check_if_schema_assigned_cpt ( $schema_label ) && 
+            if ( $this->options_data->check_if_schema_assigned_cpt ( $schema_label ) || 
                 $this->options_data->check_if_schema_assigned_cat( $schema_label ) ) {
                 return true;
             }
@@ -228,7 +228,10 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
      */
     public function generate () {
 
-        $data = null;
+        $post = $this->init->get_post();
+
+        // data must be at least an empty array
+        $data = array();
 
 
         return $data;
