@@ -422,50 +422,53 @@ class PLSE_Datalists {
         'ZW' => 'Zimbabwe'
     );
 
+    // TODO: REVERSE LABEL AND VALUE
     private $game_genres = array(
-        'Platform' => 'https://en.wikipedia.org/wiki/Platform_game',
-        'Shooter' => 'https://en.wikipedia.org/wiki/Shooter_game',
-        'FPS' => 'https://en.wikipedia.org/wiki/First-person_shooter',
-        'Fighting Game' => 'https://en.wikipedia.org/wiki/Fighting_game',
-        'Stealth' => 'https://en.wikipedia.org/wiki/Stealth_game', 
-        'Beat \'Em Up Game' => 'https://en.wikipedia.org/wiki/Beat_%27em_up',
-        'Survival' => 'https://en.wikipedia.org/wiki/Survival_game',
-        'Rhythm and Dance' => 'https://en.wikipedia.org/wiki/Rhythm_game',
-        'Battle Royale game' => 'https://en.wikipedia.org/wiki/Battle_royale_game',
-        'Adventure Game' => 'https://en.wikipedia.org/wiki/Adventure_game',
-        'Interactive Movie' => 'https://en.wikipedia.org/wiki/Interactive_film',
-        'Interactive Novel' => 'https://en.wikipedia.org/wiki/Visual_novel',
-        'Role-Playing (RPG)' => 'https://en.wikipedia.org/wiki/Role-playing_video_game',
-        'Action RPG' => 'https://en.wikipedia.org/wiki/Action_role-playing_game',
-        'MMORPG' => 'https://en.wikipedia.org/wiki/Massively_multiplayer_online_role-playing_game',
-        'Tactical Strategy (RPG)' => 'https://en.wikipedia.org/wiki/Tactical_role-playing_game',
-        'Sandbox Open World RPG' => 'https://en.wikipedia.org/wiki/Open_world',
-        'Pokemon-type Monster Trainer' => 'https://en.wikipedia.org/wiki/List_of_Pok%C3%A9mon_video_games',
-        'Gamified Software' => 'https://en.wikipedia.org/wiki/Gamification',
-        'Business Simulation' => 'https://en.wikipedia.org/wiki/Construction_and_management_simulation',
-        'Flight or Vehicle Simulator' => 'https://en.wikipedia.org/wiki/Vehicle_simulation_game',
-        'Life Simulation' => 'https://en.wikipedia.org/wiki/Life_simulation_game',
-        'Virtual Pet' => 'https://en.wikipedia.org/wiki/List_of_artificial_pet_games',
-        'Real-Time Strategy (RTS)' => 'https://en.wikipedia.org/wiki/Real-time_strategy',
-        '4X Strategy' => 'https://en.wikipedia.org/wiki/4X',
-        'Artillery' => 'https://en.wikipedia.org/wiki/Artillery_game',
-        'Multiplayer Online Battle' => 'https://en.wikipedia.org/wiki/Multiplayer_online_battle_arena',
-        'Tower Defense' => 'https://en.wikipedia.org/wiki/Tower_defense',
-        'Wargame' => 'https://en.wikipedia.org/wiki/Computer_wargame',
-        'Racing' => 'https://en.wikipedia.org/wiki/Sim_racing',
-        'Virtual Sports' => 'https://en.wikipedia.org/wiki/Sports_video_game',
-        'Casino' => 'https://en.wikipedia.org/wiki/Category:Casino_video_games',
-        'Casual Game' => 'https://en.wikipedia.org/wiki/Casual_game',
-        'Trivia' => 'https://en.wikipedia.org/wiki/Trivia',
-        'Party' => 'https://en.wikipedia.org/wiki/Party_game',
-        'Advergame' => 'https://en.wikipedia.org/wiki/Advergame',
-        'Educational Game' => 'https://en.wikipedia.org/wiki/Educational_game',
-        'Exercise Game' => 'https://en.wikipedia.org/wiki/Exergaming',
-        'Board Gam' => 'https://en.wikipedia.org/wiki/Board_game',
-        'Serious Game' => 'https://en.wikipedia.org/wiki/Serious_game',
-        'Esport' => 'https://en.wikipedia.org/wiki/Esports',
-        'Arcade' => 'https://en.wikipedia.org/wiki/Arcade_game',
-        'Open World Sandbox Game' => 'https://en.wikipedia.org/wiki/Sandbox_game',
+        'https://en.wikipedia.org/wiki/Adventure_game' => 'Adventure',
+        'https://en.wikipedia.org/wiki/Action_game' => 'Action',
+        'https://en.wikipedia.org/wiki/Platform_game' => 'Platform',
+        'https://en.wikipedia.org/wiki/Shooter_game' => 'Shooter',
+        'https://en.wikipedia.org/wiki/Puzzle_video_game' => 'Puzzle',
+        'https://en.wikipedia.org/wiki/First-person_shooter' => 'First-Person Shooter (FPS)',
+        'https://en.wikipedia.org/wiki/Fighting_game' => 'Fighting Game',
+        'https://en.wikipedia.org/wiki/Stealth_game' => 'Stealth', 
+        'https://en.wikipedia.org/wiki/Beat_%27em_up' => 'Beat \'Em Up Game',
+        'https://en.wikipedia.org/wiki/Survival_game' => 'Survival',
+        'https://en.wikipedia.org/wiki/Rhythm_game' => 'Rhythm and Dance',
+        'https://en.wikipedia.org/wiki/Battle_royale_game' => 'Battle Royale',
+        'https://en.wikipedia.org/wiki/Interactive_film' => 'Interactive Movie',
+        'https://en.wikipedia.org/wiki/Visual_novel' => 'Interactive Novel',
+        'https://en.wikipedia.org/wiki/Role-playing_video_game' => 'Role-Playing (RPG)',
+        'https://en.wikipedia.org/wiki/Action_role-playing_game' => 'Action RPG',
+        'https://en.wikipedia.org/wiki/Massively_multiplayer_online_role-playing_game' => 'MMORPG',
+        'https://en.wikipedia.org/wiki/Tactical_role-playing_game' => 'Tactical Strategy RPG',
+        'https://en.wikipedia.org/wiki/Open_world' => 'Open World RPG',
+        'https://en.wikipedia.org/wiki/List_of_Pok%C3%A9mon_video_games' => 'Pokemon-style Monster Trainer',
+        'https://en.wikipedia.org/wiki/Gamification' => 'Gamified Software Application',
+        'https://en.wikipedia.org/wiki/Construction_and_management_simulation' => 'Management Simulation',
+        'https://en.wikipedia.org/wiki/Vehicle_simulation_game' => 'Flight or Vehicle Simulation',
+        'https://en.wikipedia.org/wiki/Life_simulation_game' => 'Simulation Game',
+        'https://en.wikipedia.org/wiki/List_of_artificial_pet_games' => 'Virtual Artificial Pet',
+        'https://en.wikipedia.org/wiki/Real-time_strategy' => 'Real-Time Strategy',
+        'https://en.wikipedia.org/wiki/4X' => '4X RPG',
+        'https://en.wikipedia.org/wiki/Artillery_game' => 'Artillery Game',
+        'https://en.wikipedia.org/wiki/Multiplayer_online_battle_arena' => 'Multiplayer Online Battle Arena',
+        'https://en.wikipedia.org/wiki/Tower_defense' => 'Tower Defense',
+        'https://en.wikipedia.org/wiki/Computer_wargame' => 'Wargame',
+        'https://en.wikipedia.org/wiki/Sim_racing' => 'Racing',
+        'https://en.wikipedia.org/wiki/Sports_video_game' => 'Virtual Sports',
+        'https://en.wikipedia.org/wiki/Category:Casino_video_games' => 'Casino Game',
+        'https://en.wikipedia.org/wiki/Casual_game' => 'Casual Game',
+        'https://en.wikipedia.org/wiki/Trivia' => 'Trivia Game',
+        'https://en.wikipedia.org/wiki/Party_game' => 'Party Game',
+        'https://en.wikipedia.org/wiki/Advergame' => 'Advergame',
+        'https://en.wikipedia.org/wiki/Educational_game' => 'Educational game',
+        'https://en.wikipedia.org/wiki/Exergaming' => 'Exergame',
+        'https://en.wikipedia.org/wiki/Board_game' => 'Board Game',
+        'https://en.wikipedia.org/wiki/Serious_game' => 'Serious Game',
+        'https://en.wikipedia.org/wiki/Esports' => 'Esports',
+        'https://en.wikipedia.org/wiki/Arcade_game' => 'Arcade Game',
+        'https://en.wikipedia.org/wiki/Sandbox_game' => 'Sandbox',
     );
 
     private $platforms = array(
@@ -474,9 +477,14 @@ class PLSE_Datalists {
         'windows desktop' => 'Windows Desktop',
         'mac desktop' => 'Mac Desktop',
         'apple TV' => 'Apple TV',
-        '' => 'Web Browser',
-        '' => 'XBox',
+        'web' => 'Web Browser',
+        'xbox' => 'XBox',
+        'xbox360' => 'XBox 360',
+        'xbox one' => 'XBox One',
         'playstation' => 'PlayStation',
+        'playstation 4' => 'Playstation 4',
+        'playstation 5' => 'Playstation 5',
+        'nintendo wii' => 'Nintendo Wii',
         'nintendo switch' => 'Nintendo Switch',
     );
 
@@ -486,10 +494,61 @@ class PLSE_Datalists {
         'steamos' => 'SteamOS',
         'macos' => 'MacOS',
         'windows' => 'Windows',
+        'windows 10' => 'Windows 10',
+        'windows 8' => 'Windows 8',
         'linux' => 'Linux',
+        'freebsd' => 'Free BSD (Nintendo Switch)'
     );
 
     private $service_genres = array(
+        'knowledge' => 'Knowledge',
+        'design' => 'Design',
+        'graphic design' => 'Graphic Design',
+        'ux' => 'User Experience (UX)',
+        'game design' => 'Game Design',
+        'software and coding' => 'Software and Coding',
+        'data processing' => 'Data Processing',
+        'information technology' => 'IT (Information Technology)',
+        'translation' => 'Translation',
+        'human resources' => 'HR (Human Resources)',
+        'consulting' => 'Consulting',
+        'management' => 'Management',
+        'project management' => 'Project Management',
+        'marketing' => 'Marketing',
+        'banking' => 'Banking',
+        'sales' => 'Sales',
+        'retail' => 'Retail',
+        'distribution' => 'distribution',
+        'streaming' => 'streaming services',
+        'social media' => 'Social Media',
+        'supply chain' => 'Supply Chain',
+        'packaging' => 'Packaging',
+        'entertainment' => 'Entertainment',
+        'musician' => 'Musician',
+        'artist' => 'Artist',
+        'creative services' => 'Creative Services',
+        'government' => 'Government',
+        'education' => 'Education',
+        'construction' => 'Construction',
+        'maintenance' => 'Maintenance',
+        'cleaning' => 'Cleaning',
+        'waste management' => 'Waste Management',
+        'real estate' => 'Real Estate',
+        'professional' => 'Professional Services',
+        'security' => 'Security',
+        'healthcare' => 'Healthcare',
+        'wellness and grooming' => 'Wellness and Grooming',
+        'pets' => 'Pets',
+        'sports and fitness' => 'Sports and Fitness',
+        'hospitality' => 'Hospitality',
+        'transport' => 'Transport',
+        'utilities' => 'Utilities',
+        'government' => 'Government',
+        'insurance' => 'Insurance',
+        'financial' => 'Financial',
+        'food' => 'Food',
+        'rentals' => 'Rentals',
+        'events' => 'Events'
 
     );
 
@@ -519,10 +578,30 @@ class PLSE_Datalists {
 
     /**
      * ---------------------------------------------------------------------
-     * GETTERS
+     * GETTERS - GENERAL
      * ---------------------------------------------------------------------
      */
 
+    /**
+     * Get an array by name.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @return   array
+     */
+    public function get_arr ( $array_slug ) {
+        if ( isset( $this->{$array_slug} ) ) {
+            return $this->{$array_slug};
+        }
+        return null;
+    }
+
+     /**
+      * Datalist attaches a list to an <input type="text"... field.
+      * @since    1.0.0
+      * @access   public
+      * @return   string    $list the complete datalist element
+      */
      public function get_datalist ( $arr, $id ) {
         $list = '<datalist id="' . $id . '">';
         foreach ( $arr as $key => $value ) {
@@ -532,13 +611,47 @@ class PLSE_Datalists {
         return $list;
      }
 
-     public function get_select ( $arr ) {
-        $options = '';
-        foreach ( $arr as $key => $value ) {
-            $list .= '<option value="' . $key . '">' . $value . '</option>';
+     /**
+      * Select creates either a poppup menu (single select) or scrolling list (multi select).
+      * 
+      * @since    1.0.0
+      * @access   public
+      * @param    array|string    $arr    either the name of a standard array, or a custom array to use
+      * @param    array|string    $selected    either the value that is selected, or an array of selected values
+      * @return   string    $list the <option... list (not the complete <select> control)
+      */
+     public function get_select ( $arr, $selected = '' ) {
+
+        // if string is passed for array options, use PHP $$ 'variable variable' to convert string to local array name
+        if ( ! is_array( $arr ) ) { 
+            $arr = $this->{$arr}; // $arr is the name of standard array
         }
+
+        // loop through options, assigning selected values
+        foreach ( $arr as $key => $value ) {
+            $sel_value = '';
+            if ( is_array( $selected) ) { // multi select, array of selected options
+                foreach( $selected as $sel ) {
+                    if ( $key == $sel) {
+                        $sel_value = 'selected';
+                    }
+                }
+            } else if ( $key == $selected ) { // single select, one string matching one of the options
+                $sel_value = 'selected';
+            }
+            $list .= '<option value="' . $key . '" ' . $sel_value . '>' . $value . '</option>';
+        }
+
         return $list;
      }
+
+    /**
+     * ---------------------------------------------------------------------
+     * GETTERS - SPECIFIC
+     * Plse_Metabox generates the method names from the $option_list 
+     * if it is a string.
+     * ---------------------------------------------------------------------
+     */
 
     /**
      * Provide a list of common languages for Schema. Note that we 
@@ -550,10 +663,6 @@ class PLSE_Datalists {
     public function get_languages_datalist ( $id = '' ) {
         if ( ! $id ) $id = 'plse-languages-data';
         return $this->get_datalist( $this->languages, $id );
-    }
-
-    public function get_languages_select () {
-        return $this->get_select();
     }
 
     /**
@@ -579,7 +688,7 @@ class PLSE_Datalists {
      * @access   public
      */
     public function get_game_genres_datalist ( $id = '' ) {
-        if ( ! $id ) $id = 'plse-game-genres-data';
+        if ( ! $id ) $id = 'plse-game_genres-data';
         return $this->get_datalist( $this->game_genres, $id );
     }
 
@@ -631,6 +740,5 @@ class PLSE_Datalists {
     public function get_service_select () {
         return $this->get_select( $this->service_genres );
     }
-
 
 } // end of class

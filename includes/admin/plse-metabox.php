@@ -349,10 +349,10 @@ class PLSE_Metabox {
             }
 
             // use dynamic method to fire the rendering function for the field
-            $method = 'render_' . PLSE_INPUT_TYPES[ $field['type'] ] . '_field';
+            $render_method = 'render_' . PLSE_INPUT_TYPES[ $field['type'] ] . '_field';
 
-            if ( method_exists( $this, $method ) ) { 
-                $this->$method( $field, $value, $field['title'] ); 
+            if ( method_exists( $this, $render_method ) ) { 
+                $this->$render_method( $field, $value ); 
             }
 
             echo '</li>';
@@ -592,35 +592,6 @@ class PLSE_Metabox {
         echo ' />';	
     }
 
-    /**
-     * Render a pulldown menu with only one option selectable.
-     * TODO:
-     * TODO:
-     * TODO: autocomplete? https://www.sitepoint.com/html5-datalist-autocomplete/
-     * 
-     * @since    1.0.0
-     * @access   public
-     * @param    array    $args field parameters, select
-     * @param    string   $value    the field value
-     */
-    public function render_select_single_field ( $args, $value ) {
-        $option_list = $args['option_list'];
-        $slug = $args['slug'];
-        $dropdown = '<div class="plse-option-select"><select title="' . $args['title'] . ' id="' . $slug . '" name="' . $slug . '" class="cpt-dropdown">' . "\n";
-        foreach ( $option_list as $option_label => $option ) {
-
-            $dropdown .= '<option value="' . $option . '" ';
-            if ( $value == $option ) {
-                $dropdown .= 'selected';
-            }
-
-            $dropdown .= '>' . $option_label . '</option>' . "\n";
-        }
-        $dropdown .= '</select>' . "\n";
-        $dropdown .= '<p class="plse-option-select-description">' . __( 'Select one option from the list' ) . '</p></div>';
-
-        echo $dropdown;
-    }
 
     /**
      * Create an input field similar to the old 'combox' - typing narrows the 
@@ -635,15 +606,13 @@ class PLSE_Metabox {
 
         $dropdown = '<div class="plse-options-datalist"><input type="text" title="' . $args['title'] . '" id="' . $slug . '" name="' . $slug . '" autocomplete="off" class="plse-datalist" value="' . $value . '" list="';
 
-        if (is_array( $option_list ) ) {
-            // generate an <datalist>...
-            $dropdown .= $slug . '-data">'; // complete the <input list="...
-            $dropdown .= '<datalist id="' . $slug . '-data' . '">';
-            foreach ( $option_list as $option_label => $option ) {
-                $dropdown .= '<option value="' . $option . '">' . $option_label . '</option>';
-            }
-            $dropdown .= '</datalist>';
-        } else {
+        if ( is_array( $option_list ) ) { // option list in field definition
+
+            $dropdown = $this->datalists->get_datalist( $option_list, $slug . '-data' );
+            //$dropdown .= '</datalist>';
+
+        } else { // option list specifies a standard list in PLSE_Datalists
+
             // load the datalist (note they must follow naming conventions)
             $dropdown .= 'plse-' . $option_list . '-data' . '">'; // option list id 
             $method = 'get_' . $option_list . '_datalist';
@@ -659,6 +628,28 @@ class PLSE_Metabox {
     }
 
     /**
+     * Render a pulldown menu with only one option selectable.
+     * TODO:
+     * TODO:
+     * TODO: autocomplete? https://www.sitepoint.com/html5-datalist-autocomplete/
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    array    $args field parameters, select
+     * @param    string   $value    the field value
+     */
+    public function render_select_single_field ( $args, $value ) {
+        $option_list = $args['option_list'];
+        $slug = $args['slug'];
+        $dropdown = '<div class="plse-option-select"><select title="' . $args['title'] . ' id="' . $slug . '" name="' . $slug . '" class="cpt-dropdown">' . "\n";
+        $dropdown .= $this->datalists->get_select( $option_list, $value );
+        $dropdown .= '</select>' . "\n";
+        $dropdown .= '<p class="plse-option-select-description">' . __( 'Select one option from the list' ) . '</p></div>';
+
+        echo $dropdown;
+    }
+
+    /**
      * Render a scrolling list of options allowing multiple select.
      * 
      * @since    1.0.0
@@ -667,12 +658,20 @@ class PLSE_Metabox {
      * @param    array    $value    an array with all options selected
      */
     public function render_select_multiple_field ( $args, $value ) {
+
         $option_list = $args['option_list'];
         if ( ! $option_list ) return; // options weren't added
         $slug = $args['slug'];
-        // if multi-select, value is an array with a sub-array of values
+
+        // if multi-select, $value is an array with a sub-array of values
         if ( is_array( $value) ) $value = $value[0];
+
+        // create the scrolling list
         $dropdown = '<div class="plse-option-select"><select multiple="multiple" title="' . $args['title'] . ' id="' . $slug . '" name="' . $slug . '[]" class="cpt-dropdown" >' . "\n";
+        
+        $dropdown .= $this->datalists->get_select( $option_list, $value );
+
+        /*
         foreach ( $option_list as $option_label => $option ) {
             $dropdown .= '<option value="' . $option . '" ';
             if ( is_array( $value ) ) {
@@ -687,7 +686,9 @@ class PLSE_Metabox {
 
             $dropdown .= '>' . $option_label . '</option>' . "\n";
         }
+        */
         $dropdown .= '</select>' . "\n";
+
         $dropdown .= '<p class="plse-option-select-description">' . __( '(CTL-Click to for select and deselect)') . '</p></div>';
 
         echo $dropdown;
@@ -729,9 +730,37 @@ class PLSE_Metabox {
      * @param    array    $value an array with multiple values
      */
     public function render_repeater_field ( $args, $value ) {
-        // TODO:
         $slug = $args['slug'];
         $size = '50';
+        $option_list = $args['option_list'];
+        $datalist_id = '';
+        $datalist = '';
+
+        ///////////////////////////////////////////////////////////////
+        // TODO: optional size="xxxx" in $args
+        // create a datalist, if data is present
+
+        if ( isset( $option_list ) ) {
+            if ( is_array( $option_list ) ) { // $option_list is an array
+                $datalist_id = $slug . '-data';
+                $datalist = $this->datalists->get_datalist( $option_list, $datalist_id );
+            } else { // option list specifies a standard list in PLSE_Datalists
+                // load the datalist (note they must follow naming conventions)
+                $method = 'get_' . $option_list . '_datalist';
+                if ( method_exists( $this->datalists, $method ) ) { 
+                    $datalist .= $this->datalists->$method();
+                    $datalist_id = $option_list;
+                    $datalist_id = 'plse-' . $datalist_id . '-data'; // $option list is the id value 
+                }
+    
+            }
+            echo $datalist;
+            $list_attr = 'list="' . $datalist_id . '"';
+        }
+
+        //////////////////////////////////////////////////////////////
+
+        // begin rendering the table with repeater options
         ?>
         <div id="plse-repeater-<?php echo $slug; ?>" class="plse-repeater">
             <table id="plse-repeater-table" width="60%">
@@ -742,20 +771,20 @@ class PLSE_Metabox {
                         foreach( $value as $field ) { 
                             if ( ! empty( $field ) ) { ?>
                             <tr>
-                            <td><input name="<?php echo $slug; ?>[]" type="text" class="plse-repeater-input" value="<?php if($field != '') echo esc_attr( $field ); ?>" size="<?php echo $size; ?>" placeholder="existing" /></td>
+                            <td><input name="<?php echo $slug; ?>[]" type="text" <?php echo $list_attr; ?> class="plse-repeater-input" value="<?php if($field != '') echo esc_attr( $field ); ?>" size="<?php echo $size; ?>" placeholder="existing" /></td>
                             <td><a class="button plse-repeater-remove-row-btn" href="#1">Remove</a></td>
                         </tr>
                         <?php } }
                     else: ?>
                     <tr class="plse-repeater-default-row" style="display: table-row">
-                        <td><input name="<?php echo $slug; ?>[]" type="text" class="plse-repeater-input" size="<?php echo $size; ?>" placeholder="<?php echo __( 'enter text here' ); ?>"/></td>
+                        <td><input name="<?php echo $slug; ?>[]" type="text" <?php echo $list_attr; ?> class="plse-repeater-input" size="<?php echo $size; ?>" placeholder="<?php echo __( 'enter text here' ); ?>"/></td>
                         <td><a class="button plse-repeater-remove-row-btn button-disabled" href="#">Remove</a></td>
                     </tr>
                     <?php endif;
                     ?>
                     <!--invisible blank row-->
                     <tr class="plse-repeater-empty-row" style="display: none">
-                        <td><input name="<?php echo $slug; ?>[]" type="text" class="plse-repeater-input" size="<?php echo $size; ?>" placeholder="<?php echo __( 'enter text here' ); ?>"/></td>
+                        <td><input name="<?php echo $slug; ?>[]" type="text" <?php echo $list_attr; ?> class="plse-repeater-input" size="<?php echo $size; ?>" placeholder="<?php echo __( 'enter text here' ); ?>"/></td>
                         <td><a class="button plse-repeater-remove-row-btn" href="#">Remove</a></td>
                     </tr>
                 </tbody>
