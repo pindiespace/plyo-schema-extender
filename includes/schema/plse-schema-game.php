@@ -91,6 +91,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'select_multiple' => false
             ),
 
+            /*
             'game_in_language' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-in_language',
                 'label' => 'Languages supported in the game:',
@@ -110,6 +111,20 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 ),
                 'select_multiple' => true
             ),
+            */
+            'game_in_language' => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-in_language',
+                'label' => 'Language supported in the game:',
+                'title' => 'Choose language(s) from the list',
+                'type'  => 'DATALIST',
+                'required' => '',
+                'wp_data' => 'post_meta',
+                // NOTE: option_list is the id of the datalist in PLSE_Datalists
+                'option_list' => 'languages',
+                'select_multiple' => false
+            ),
+
+
 
             'screenshot' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-screenshot',
@@ -169,10 +184,13 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'option_list' => array(
                     'PlayStation' => 'playstation',
                     'XBox' => 'xbox',
+                    'Nintendo' => 'nintendo',
                     'iOS' => 'ios',
                     'Android' => 'android',
                     'MacOS' => 'macos',
-                    'Windows' => 'windows'
+                    'Windows' => 'windows',
+                    'Linux' => 'linux',
+                    'Web-Based' => 'web'
                 ),
                 'select_multiple' => true
             ),
@@ -187,8 +205,10 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'option_list' => array(
                     'Android' => 'android',
                     'iOS' => 'ios',
+                    'SteamOS' => 'steamos',
                     'MacOS' => 'macos',
-                    'Windows' => 'windows'
+                    'Windows' => 'windows',
+                    'Linux' => 'linux'
                 ),
                 'select_multiple' => true
             ),
@@ -207,14 +227,10 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-trailer_video_in_language',
                 'label' => 'Trailer Video Language:',
                 'title' => 'Link to video showing gameplay',
-                'type'  => 'SELECT_SINGLE',
+                'type'  => 'DATALIST',
                 'required' => '',
                 'wp_data' => 'post_meta',
-                'option_list' => array(
-                    'English' => 'en',
-                    'Spanish' => 'es',
-                    'German'  => 'de'
-                ),
+                'option_list' => 'languages', // datalist reference in PLSE_Datalist
                 'select_multiple' => false
             ),
 

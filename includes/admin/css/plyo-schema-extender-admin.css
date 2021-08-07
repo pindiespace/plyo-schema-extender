@@ -125,6 +125,16 @@
     display:inline-block;
 }
 
+.plse-options-datalist {
+    height: 50px;
+    display: flex;
+    align-items: center
+}
+
+.plse-options-datalist p {
+    margin-left:6px;
+}
+
 /*
  * META FIELDS
  */

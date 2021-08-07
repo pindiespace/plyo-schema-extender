@@ -186,10 +186,10 @@ if ( ! defined( 'PLSE_INPUT_TYPES' ) ) {
         'EMAIL' => 'email',
         'URL' => 'url',
         'CHECKBOX' => 'checkbox',
-        'SELECT_SINGLE' => 'select_single',
-        'SELECT_MULTIPLE' => 'select_multiple',
-        'REPEATER' => 'repeater',
-        'COMBOBOX' => 'combobox',
+        'SELECT_SINGLE' => 'select_single', // uses <select>
+        'SELECT_MULTIPLE' => 'select_multiple', // uses <select multiple>
+        'REPEATER' => 'repeater', // table of text fields for expandable lists
+        'DATALIST' => 'datalist', // uses <datalist>
         'CPT' => 'cpt',
         'CAT' => 'cat',
         'IMAGE' => 'image',
@@ -288,6 +288,10 @@ add_action( 'plugins_loaded', function () {
 
                     // decide whether to load options page (admin), or metabox custom fields (in post)
                     if ( $pagenow == 'post.php' ) {
+
+                        // load datalists
+                        require_once PLSE_SCHEMA_EXTENDER_PATH . '/includes/admin/plse-datalists.php';
+                        $plse_datalists = PLSE_Datalists::getInstance();
 
                         // load metabox class
                         require_once PLSE_SCHEMA_EXTENDER_PATH . '/includes/admin/plse-metabox.php';

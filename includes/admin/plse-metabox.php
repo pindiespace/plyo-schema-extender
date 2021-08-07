@@ -70,6 +70,9 @@ class PLSE_Metabox {
         // shared field definitions, Schema data is loaded separately
         $this->options_data = PLSE_Options_Data::getInstance();
 
+        // datalists, e.g. country name lists
+        $this->datalists = PLSE_Datalists::getInstance();
+
         // initialze metaboxes assigned by plugin options
         add_action( 'admin_init', [ $this, 'setup' ] );
 
@@ -603,7 +606,7 @@ class PLSE_Metabox {
     public function render_select_single_field ( $args, $value ) {
         $option_list = $args['option_list'];
         $slug = $args['slug'];
-        $dropdown = '<div class="plse-option-select"><select title="' . $args['title'] . ' id="' . $slug . '" name="' . $slug . '" class="cpt-dropdown" >' . "\n";
+        $dropdown = '<div class="plse-option-select"><select title="' . $args['title'] . ' id="' . $slug . '" name="' . $slug . '" class="cpt-dropdown">' . "\n";
         foreach ( $option_list as $option_label => $option ) {
 
             $dropdown .= '<option value="' . $option . '" ';
@@ -614,7 +617,43 @@ class PLSE_Metabox {
             $dropdown .= '>' . $option_label . '</option>' . "\n";
         }
         $dropdown .= '</select>' . "\n";
-        $dropdown .= '<p class="plse-option-select-description">' . __( 'Select one option from the list' ) . '</p>';
+        $dropdown .= '<p class="plse-option-select-description">' . __( 'Select one option from the list' ) . '</p></div>';
+
+        echo $dropdown;
+    }
+
+    /**
+     * Create an input field similar to the old 'combox' - typing narrows the 
+     * results of the list, but users can type in a value not on the list.
+     * 
+     * @since    1.0.0
+     * @access   public
+     */
+    public function render_datalist_field ( $args, $value ) {
+        $option_list = $args['option_list'];
+        $slug = $args['slug'];
+
+        $dropdown = '<div class="plse-options-datalist"><input type="text" title="' . $args['title'] . '" id="' . $slug . '" name="' . $slug . '" autocomplete="off" class="plse-datalist" value="' . $value . '" list="';
+
+        if (is_array( $option_list ) ) {
+            // generate an <datalist>...
+            $dropdown .= $slug . '-data">'; // complete the <input list="...
+            $dropdown .= '<datalist id="' . $slug . '-data' . '">';
+            foreach ( $option_list as $option_label => $option ) {
+                $dropdown .= '<option value="' . $option . '">' . $option_label . '</option>';
+            }
+            $dropdown .= '</datalist>';
+        } else {
+            // load the datalist (note they must follow naming conventions)
+            $dropdown .= 'plse-' . $option_list . '-data' . '">'; // option list id 
+            $method = 'get_' . $option_list . '_datalist';
+            if ( method_exists( $this->datalists, $method ) ) { 
+                $dropdown .= $this->datalists->$method(); 
+            }
+
+        }
+
+        $dropdown .= '<p>' . __( 'Begin typing to find value, or type in your own value. Delete all text, click in the field, and re-type to search for a new value.' ) . '</p></div>';
 
         echo $dropdown;
     }
@@ -649,7 +688,7 @@ class PLSE_Metabox {
             $dropdown .= '>' . $option_label . '</option>' . "\n";
         }
         $dropdown .= '</select>' . "\n";
-        $dropdown .= '<p class="plse-option-select-description">' . __( '(CTL-Click to for select and deselect)') . '</p>';
+        $dropdown .= '<p class="plse-option-select-description">' . __( '(CTL-Click to for select and deselect)') . '</p></div>';
 
         echo $dropdown;
     }
@@ -726,16 +765,6 @@ class PLSE_Metabox {
 
 <?php 
 
-    }
-
-    /**
-     * Render a combox box, allowing either selection or typing in values
-     * TODO: autocomplete? https://www.sitepoint.com/html5-datalist-autocomplete/
-     * 
-     * @since    1.0.0
-     */
-    public function render_combobox ( $args, $value ) {
-        // TODO:
     }
 
     /**
