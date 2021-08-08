@@ -40,6 +40,7 @@ class PLSE_Options_Data {
                     'slug' => 'plse-' . PLSE_SCHEMA_SERVICE . '-used',
                     'description' => 'Check this to enable the ' . PLSE_SCHEMA_SERVICE . ' Schema',
                     'title' => 'Use this Schema',
+                    'label' => 'If checked, Schema applied to the Custom Post Types and Categories selected below',
                     'type' => PLSE_INPUT_TYPES['CHECKBOX']
                 )
 
@@ -60,6 +61,7 @@ class PLSE_Options_Data {
                     'slug' => 'plse-' . PLSE_SCHEMA_GAME . '-used',
                     'description' => 'Check this to enable the ' . PLSE_SCHEMA_GAME . ' Schema',
                     'title' => 'Use this Schema',
+                    'label' => 'If checked, Schema applied to the Custom Post Types and Categories selected below',
                     'type' => PLSE_INPUT_TYPES['CHECKBOX']
                 )
 
@@ -79,6 +81,7 @@ class PLSE_Options_Data {
                     'slug' => 'plse-' . PLSE_SCHEMA_EVENT . '-used',
                     'description' => 'Check this to enable the ' . PLSE_SCHEMA_EVENT . ' Schema',
                     'title' => 'Use this Schema',
+                    'label' => 'If checked, Schema applied to the Custom Post Types and Categories selected below',
                     'type' => PLSE_INPUT_TYPES['CHECKBOX']
                 )
             )
@@ -100,6 +103,7 @@ class PLSE_Options_Data {
                         'slug' => 'plse-' . PLSE_SCHEMA_PRODUCT_REVIEW . '-used',
                         'description' => 'Check this to enable the ' . PLSE_SCHEMA_PRODUCT_REVIEW . ' Schema',
                         'title' => 'Use this Schema',
+                        'label' => 'If checked, Schema applied to the Custom Post Types and Categories selected below',
                         'type' => PLSE_INPUT_TYPES['CHECKBOX']
                     )
 
@@ -144,6 +148,39 @@ class PLSE_Options_Data {
 
         ),
 
+        // Config the plugin (first visible tab on plugins options page)
+
+        'CONFIG' => array(
+            'section_slug'    => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_CONFIG,
+            'section_title'   => 'Plugin Configuration',
+            'section_message' => 'Plugin configuration. This plugin stores data from Yoast, but can copy the Yoast Local SEO fields if the plugin is installed. The data is a copy, so if you edit it, it won\'t affect your Yoast settings',
+            'section_box'     =>  PLSE_OPTIONS_SLUG . PLSE_SCHEMA_CONFIG . '-box',// <div> for section
+            'tab'             => 'content-tabl0',
+            'tab_title'       => 'Config',
+
+            'fields' => array(
+
+                'import_yoast_local' => array(
+                    'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_CONFIG . '-import-yoast-local',
+                    'description'  => 'Click to load Yoast Local SEO values into these fields. Changing the values here won\'t affect the values you entered into Yoast.',
+                    'type'   => PLSE_INPUT_TYPES['BUTTON'],
+                    'label' => 'Copy SEO values',
+                    'title' => 'Copy Yoast Local SEO Data',
+                ),
+
+                'use_yoast_metadata' => array(
+                    'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_CONFIG . '-import-yoast-metadata',
+                    'description'  => 'If this is selected, the plugin will use Yoast SEO Meta Descriptions, if present in the Schema the plugin supplies. Overriden by excerpts added to pages and posts.',
+                    'type'   => PLSE_INPUT_TYPES['CHECKBOX'],
+                    'label' => 'Check to use Yoast meta data descriptions in the new Schema, if an excerpt isn\'t available.',
+                    'title' => 'Yoast Local SEO values',
+                )
+
+            )
+        ),
+
+        // general data, which may be imported from Yoast Local SEO if it exists
+
         'GENERAL' => array(
             'section_slug'    => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_GENERAL,
             'section_title'   => 'General Settings for Schema',
@@ -159,7 +196,8 @@ class PLSE_Options_Data {
                     'description'  => 'Organization Phone (if different from Wordpress Admin)',
                     'type'   => PLSE_INPUT_TYPES['PHONE'],
                     'label' => 'Phone format: xxx-xxx-xxxx',
-                    'title' => 'US and international phone numbers may be entered'
+                    'title' => 'US and international phone numbers may be entered',
+                    'yoast_slug' => 'location_phone' // check for Yoast Local SEO value when initialized
                 ),
 
                 'email' => array(
@@ -167,7 +205,8 @@ class PLSE_Options_Data {
                     'description'  => 'Organization Email contact (if different from Wordpress Admin)',
                     'type'   => PLSE_INPUT_TYPES['EMAIL'],
                     'label'  => 'Email format: xxxx@novyunlimited.com',
-                    'title'  => 'Provide a valid contact email for your organization'
+                    'title'  => 'Provide a valid contact email for your organization',
+                    'yoast_slug'  => 'location_email'
                 ),
     
                 'contact_url' => array(
@@ -175,12 +214,15 @@ class PLSE_Options_Data {
                     'description'  => 'Contact URL for organization on website',
                     'type'   => PLSE_INPUT_TYPES['URL'],
                     'label'  => 'URL format: https://domain/page',
-                    'title'  => 'Provide the web address of the contact page for your organization'
+                    'title'  => 'Provide the web address of the contact page for your organization',
+                    'yoast_slug'  => 'location_url'
                 )
 
             )
 
         ),
+
+        // organization address, which may be imported from Yoast Local SEO if it exists.
 
         'ADDRESS' => array(
             'section_slug'    => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_ADDRESS,
@@ -194,10 +236,20 @@ class PLSE_Options_Data {
 
                 'street' => array(
                     'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_ADDRESS . '-street-field',
-                    'description'  => 'Organization Street Address (uses Yoast Local SEO if present)',
+                    'description'  => 'Organization Street Number (uses Yoast Local SEO if present)',
                     'type'   => PLSE_INPUT_TYPES['TEXT'],
-                    'label'  => 'Address and street',
-                    'title'  => 'US and international street addresses are ok'
+                    'label'  => 'Address (apartment or office number)',
+                    'title'  => 'US and international street addresses are ok',
+                    'yoast_slug'  => 'location_address'
+                ),
+
+                'street2' => array(
+                    'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_ADDRESS . '-street2-field',
+                    'description'  => 'Street Name (uses Yoast Local SEO if present)',
+                    'type'   => PLSE_INPUT_TYPES['TEXT'],
+                    'label'  => 'Address (street name)',
+                    'title'  => 'US and international street addresses are ok',
+                    'yoast_slug'  => 'location_address_2'
                 ),
 
                 'city' => array(
@@ -205,7 +257,8 @@ class PLSE_Options_Data {
                     'description'  => 'Organization City (uses Yoast Local SEO if present)',
                     'type'   => PLSE_INPUT_TYPES['TEXT'],
                     'label'  => 'Full name of city',
-                    'title'  => 'Use the full name of the city (not an abbreviation)'
+                    'title'  => 'Use the full name of the city (not an abbreviation)',
+                    'yoast_slug'  => 'location_city'
                 ),
 
                 'state' => array(
@@ -213,7 +266,8 @@ class PLSE_Options_Data {
                     'description'  => 'Organization State or region (uses Yoast Local SEO if present)',
                     'type'   => PLSE_INPUT_TYPES['TEXT'],
                     'label'  => 'Full name or abbreviation',
-                    'title'  => 'supply the state, province, regional location'
+                    'title'  => 'supply the state, province, regional location',
+                    'yoast_slug'  => 'location_state'
                 ),
 
                 'country' => array(
@@ -221,7 +275,8 @@ class PLSE_Options_Data {
                     'description'  => 'Organization Country (uses Yoast Local SEO if present)',
                     'type'   => PLSE_INPUT_TYPES['TEXT'],
                     'label'  => 'Full name or abbreviation',
-                    'title'  => 'Full name of country is best for Schema'
+                    'title'  => 'Full name of country is best for Schema',
+                    'yoast_slug'  => 'location_country'
                 ),
 
                 'postal' => array(
@@ -229,7 +284,8 @@ class PLSE_Options_Data {
                     'description' =>  'Organization Postal Code (uses Yoast Local SEO if present)',
                     'type'  =>  PLSE_INPUT_TYPES['POSTAL'],
                     'label' => 'Complete postal code',
-                    'title' => 'US or international postal codes ok, but should be alphanumeric'
+                    'title' => 'US or international postal codes ok, but should be alphanumeric',
+                    'yoast_slug' => 'location_zipcode'
                 )
 
             )
@@ -696,7 +752,7 @@ class PLSE_Options_Data {
      * @return   string    $tab_href    the stored tab value from the last option
      */
     public function get_tabsel () {
-        $tab_href = $tab_href = 'content-tab1';
+        $tab_href = 'content-tab1';
         $option = get_option( $this->options['HIDDEN']['fields']['tabsel']['slug'] );
         if ( $option ) {
             $option = filter_var( $option, FILTER_SANITIZE_NUMBER_INT );

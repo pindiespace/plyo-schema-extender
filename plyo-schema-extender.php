@@ -153,6 +153,10 @@ if ( ! defined( 'PLSE_SCHEMA_PRODUCT_REVIEW' ) ) {
  * --------------------------------------------------------------------------
  */
 
+if ( ! defined( 'PLSE_SCHEMA_CONFIG ' ) ) {
+    define( 'PLSE_SCHEMA_CONFIG', 'config' ); // option to import Yoast Local SEO
+}
+
 if ( ! defined( 'PLSE_SCHEMA_GENERAL' ) ) {
     define( 'PLSE_SCHEMA_GENERAL', 'general' );
 }
@@ -175,12 +179,11 @@ if ( ! defined( 'PLSE_INPUT_TYPES' ) ) {
 
     define( 'PLSE_INPUT_TYPES', array(
         'HIDDEN' => 'hidden',
+        'BUTTON' => 'button',
         'TEXT' => 'text',
         'TEXTAREA' => 'textarea',
-        'DATE' => 'date',
-        'TIME' => 'time',
-        'DATETIME' => 'datetime',
-        'DATERANGE' => 'daterange',
+        'DATE' => 'date', // DD:MM:YEAR
+        'TIME' => 'time', // HH:MM:AM/PM
         'POSTAL' => 'text',
         'PHONE' => 'tel',
         'EMAIL' => 'email',

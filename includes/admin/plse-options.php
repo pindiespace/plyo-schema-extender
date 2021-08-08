@@ -66,6 +66,16 @@ class PLSE_Options {
      */
     private $options_js_name = 'plse_plugin_options';
 
+
+    /**
+     * array storing Yoast Local SEO information, if present
+     * 
+     * @since    1.0.0
+     * @access   private
+     * @var      array    $wpseo_local;
+     */
+    private $wpseo_local = null;
+
     /**
      * CSS panel style
      * 
@@ -151,6 +161,13 @@ class PLSE_Options {
      * @access   public
      */
     public function setup_options () {
+
+        /*
+         * if Yoast Local SEO is present, get the data. Data is initially 
+         * copied into the blank fields in this plugin, and can be reset 
+         * from Yoast Local SEO, using a button in the plugin options UI page.
+         */
+        $this->wpseo_local = get_option( 'wpseo_local' );
 
         // load fields
         $this->admin_init_fields();
@@ -315,7 +332,7 @@ class PLSE_Options {
         $panel_display = 'none';
 
         // default active tab href
-        $tab_href = 'content-tab1';
+        ////////////////////////$tab_href = 'content-tab1'; // TODO: DELETE
 
         // wraps the whole page
         echo '<div class="plyo-schema-extender">' . "\n";
@@ -365,7 +382,6 @@ class PLSE_Options {
         echo '</div>' . "\n"; // end of big row
 
     }
-
 
     /**
      * Initialize all the fields in the options tab panel using WP Settings API. The
@@ -441,6 +457,47 @@ class PLSE_Options {
          * depending on how they are rendered in the UI.
          */
         $args = [ $field['slug'], $state, $field['label'] . ':', $field['title'] ];
+
+/////////////////////////////////////////////////
+/*
+        $args = array(
+            'slug' => $field['slug'],
+            'state' => $state,
+            'label' => $field['label'] . ':',
+            'title' => $field['title'],
+            'type' => $field['type']
+        );
+
+        switch ( $field['type'] ) {
+            case PLSE_INPUT_TYPES['TEXT']:
+            case PLSE_INPUT_TYPES['POSTAL']:
+            case PLSE_INPUT_TYPES['PHONE']:
+            case PLSE_INPUT_TYPES['EMAIL']:
+            case PLSE_INPUT_TYPES['URL']:
+                $args['size'] = $field['size'];
+                break;
+
+            case PLSE_INPUT_TYPES['TEXTAREA']:
+                $args['rows'] = $field['rows'];
+                $args['cols'] = $field['cols'];
+                break;
+
+            case PLSE_INPUT_TYPES['IMAGE']:
+                $args['width'] = $field['width'];
+                $args['height'] = $field['height'];
+                break;
+
+            case PLSE_INPUT_TYPES['SELECT_SINGLE']:
+            case PLSE_INPUT_TYPES['SELECT_MULTIPLE']:
+                $args[] = $field['option_list'];
+                break;
+
+            default:
+                break;
+        }
+*/
+/////////////////////////////////////////////////////
+
 
         switch ( $field['type'] ) {
 
@@ -526,6 +583,32 @@ class PLSE_Options {
         $option = get_option( $slug );
         echo '<label style="display:block;" for="' . $slug . '">' . esc_html_e( 'Descriptive name of type of schema.') . '</label>';
         echo '<input type="hidden" id="' . $slug . '" name="' . $slug . '" value="' . $option . '" />';	
+    }
+
+    public function render_simple_field ( $args ) {
+        $slug = $args[0];
+        $state = $args[1];
+        $title = $args[2];
+        print_r( $args );
+        $option = get_option( $slug );
+
+    }
+
+    /**
+     * Render a button.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    array    $args    arguments neeeded to render the field
+     * @param    string   $value   serialized or unserialized field value
+     */
+    public function render_button_field ( $args ) {
+        $slug = sanitize_key( $args[0] );
+        $state = $args[1];
+        $label = esc_html( $args[2] );
+        $title = esc_attr( $args[3] );
+        echo '<label style="display:block;" for="' . $slug . '">' . esc_html_e( $label ) . '</label>';
+        echo '<input type="button" style="padding:2px 6px 2px 6px;" title="' . $title . '" id="' . $slug . '" name="' . $slug . '" value="' . $title . '">';
     }
 
     /**
@@ -638,6 +721,7 @@ class PLSE_Options {
     public function render_date_field ( $args ) {
         $slug = $args[0];
         $state = $args[1];
+        $label = $args[2];
         $option = get_option( $slug );
         echo '<label style="display:block;" for="' . $slug . '">' . esc_html_e( 'Descriptive text.') . '</label>';
         echo '<input style="display:block;" type="date" id="' . $slug . '" name="' . $slug . '" value="' . $option . '" />';	
@@ -653,9 +737,10 @@ class PLSE_Options {
     public function render_checkbox_field ( $args ) {
         $slug = $args[0];
         $state = $args[1];
+        $label = $args[2];
         $option = get_option( $slug );
         ///////echo "ON for slug: " . $slug . " IS:" . $option;
-        echo '<label style="display:block;" for="' . $slug . '">' . esc_html_e( 'If checked, Schema applied to the following Custom Post Types and Categories' ) . '</label>';
+        echo '<label style="display:block;" for="' . $slug . '">' . $label . '</label>';
         echo '<input style="display:block;" type="checkbox" id="' . $slug . '" name="' . $slug . '"';
         if ( $option == $this->init->get_checkbox_on() ) echo ' CHECKED';
         echo ' />';	

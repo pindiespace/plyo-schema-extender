@@ -279,7 +279,15 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'select_multiple' => false
             ),
 
-
+            // when checked by the user, the Schema will try to substitute URLs for text where possible
+            'favor_urls' => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-favor-urls',
+                'label' => 'Favor URLs over text:',
+                'title' => 'Values with URLs (e.g. Wikipedia link for a word) will be used in the Schema',
+                'type'  => 'CHECKBOX',
+                'required' => '',
+                'wp_data' => 'post_meta',
+            ),
         )
 
     );

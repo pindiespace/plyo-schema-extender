@@ -330,57 +330,7 @@
     position: relative;
 }
 
-/* 
- * datetimepicker CSS
- * @link https://codepen.io/herteleo/pen/LraqoZ
- */
-
-.plse-datetimepicker {
-    display: inline-flex;
-    align-items: center;
-    background-color: #fff;
-    border: 4px solid darkturquoise;
-    border-radius: 8px;
-}
-
-.plse-datetimepicker:focus-within {
-    border-color: teal;
-}
-.plse-datetimepicker input {
-    font: inherit;
-    color: inherit;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-            appearance: none;
-outline: none;
-    border: 0;
-    background-color: transparent;
-}
-.plse-datetimepicker input[type=date] {
-    width: 10rem;
-    padding: 0.25rem 0 0.25rem 0.5rem;
-    border-right-width: 0;
-}
-.plse-datetimepicker input[type=time] {
-    width: 5.5rem;
-    padding: 0.25rem 0.5rem 0.25rem 0;
-    border-left-width: 0;
-}
-.plse-datetimepicker span {
-    height: 1rem;
-    margin-right: 0.25rem;
-    margin-left: 0.25rem;
-    border-right: 1px solid #ddd;
-}
-
-.plse-datetimepicker-info {
-    padding-top: 0.5rem;
-    font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.5);
-}
-
 /* video */
-
 .plse-auto-resizable-iframe iframe {
     width: 180px; /* 227px; */
     height: 102px; /* 128px; */
