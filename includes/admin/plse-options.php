@@ -97,6 +97,9 @@ class PLSE_Options {
         // shared field definitions, Schema data is loaded separately
         $this->options_data = PLSE_Options_Data::getInstance();
 
+        // datalists, e.g. country name lists
+        $this->datalists = PLSE_Datalists::getInstance();
+
         //add the menu, setup_options_page for rendering
         add_action('admin_menu', [ $this, 'setup_options_menu'] );
 
@@ -456,70 +459,8 @@ class PLSE_Options {
          * Different field types pass different elements of the $field object, 
          * depending on how they are rendered in the UI.
          */
-        $args = [ $field['slug'], $state, $field['label'] . ':', $field['title'] ];
-
-/////////////////////////////////////////////////
-/*
-        $args = array(
-            'slug' => $field['slug'],
-            'state' => $state,
-            'label' => $field['label'] . ':',
-            'title' => $field['title'],
-            'type' => $field['type']
-        );
-
-        switch ( $field['type'] ) {
-            case PLSE_INPUT_TYPES['TEXT']:
-            case PLSE_INPUT_TYPES['POSTAL']:
-            case PLSE_INPUT_TYPES['PHONE']:
-            case PLSE_INPUT_TYPES['EMAIL']:
-            case PLSE_INPUT_TYPES['URL']:
-                $args['size'] = $field['size'];
-                break;
-
-            case PLSE_INPUT_TYPES['TEXTAREA']:
-                $args['rows'] = $field['rows'];
-                $args['cols'] = $field['cols'];
-                break;
-
-            case PLSE_INPUT_TYPES['IMAGE']:
-                $args['width'] = $field['width'];
-                $args['height'] = $field['height'];
-                break;
-
-            case PLSE_INPUT_TYPES['SELECT_SINGLE']:
-            case PLSE_INPUT_TYPES['SELECT_MULTIPLE']:
-                $args[] = $field['option_list'];
-                break;
-
-            default:
-                break;
-        }
-*/
-/////////////////////////////////////////////////////
-
-
-        switch ( $field['type'] ) {
-
-            case PLSE_INPUT_TYPES['TEXTAREA']:
-                $args[] = $field['rows'];
-                $args[] = $field['cols'];
-                break;
-
-            case PLSE_INPUT_TYPES['IMAGE']:
-                $args[] = $field['width'];
-                $args[] = $field['height'];
-                break;
-
-            case PLSE_INPUT_TYPES['SELECT_SINGLE']:
-            case PLSE_INPUT_TYPES['SELECT_MULTIPLE']:
-                $args[] = $field['option_list'];
-                break;
-
-            default:
-                break;
-
-        }
+        $args = $field;
+        $args['state'] = $state;
 
         // add the field
         add_settings_field(
@@ -577,21 +518,14 @@ class PLSE_Options {
      * @param    array    $args name of field, state, additional properties
      */
     public function render_hidden_field ( $args ) {
-        $slug = $args[0];
-        $state = $args[1];
-        $title = $args[2];
+        $slug = sanitize_key( $args['slug'] );
+        $state = $args['state'];
+        $title = esc_html( $args['title'] );
+        $label = esc_html( $args['label'] );
+
         $option = get_option( $slug );
-        echo '<label style="display:block;" for="' . $slug . '">' . esc_html_e( 'Descriptive name of type of schema.') . '</label>';
+        echo '<label style="display:block;" for="' . $slug . '">' . esc_html_e( 'Descriptive name of type of Schema.') . '</label>';
         echo '<input type="hidden" id="' . $slug . '" name="' . $slug . '" value="' . $option . '" />';	
-    }
-
-    public function render_simple_field ( $args ) {
-        $slug = $args[0];
-        $state = $args[1];
-        $title = $args[2];
-        print_r( $args );
-        $option = get_option( $slug );
-
     }
 
     /**
@@ -603,12 +537,34 @@ class PLSE_Options {
      * @param    string   $value   serialized or unserialized field value
      */
     public function render_button_field ( $args ) {
-        $slug = sanitize_key( $args[0] );
-        $state = $args[1];
-        $label = esc_html( $args[2] );
-        $title = esc_attr( $args[3] );
+        $slug = sanitize_key( $args['slug'] );
+        $state = $args['state'];
+        $label = esc_html( $args['label'] );
+        $title = esc_html( $args['title'] );
+
         echo '<label style="display:block;" for="' . $slug . '">' . esc_html_e( $label ) . '</label>';
         echo '<input type="button" style="padding:2px 6px 2px 6px;" title="' . $title . '" id="' . $slug . '" name="' . $slug . '" value="' . $title . '">';
+    }
+
+    /**
+     * Render textlike fields.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    array $args name of field, state, additional properties
+     * @return   string   $option    the stored option value, used to validate text field subtypes
+     */
+    public function render_simple_field ( $args ) {
+        $slug = sanitize_key( $args['slug'] );
+        $state = $args['state'];
+        $title = esc_html( $args['title'] );
+        $label = esc_html( $args['label'] );
+        $type = $args['type'];
+
+        $option = get_option( $slug );
+        echo '<label class="plse-option-description" for="' . $slug . '">' . esc_html( $label ) . '</label>';
+        echo '<input title="'. $title .'" class="plse-option-input" type="' . $type . '" id="' . $slug . '" name="' . $slug . '" size="40" value="' . $option . '" />';	
+        return $option; // for error checks
     }
 
     /**
@@ -617,15 +573,20 @@ class PLSE_Options {
      * @access   public
      * @param    array    $args name of field, state, additional properties
      */
-    public function render_text_field ( $args ) {
-        $slug = $args[0];
-        $state = $args[1];
-        $label = $args[2];
-        $title = $args[3];
-        $option = get_option( $slug );
-        echo '<label class="plse-option-description" for="' . $slug . '">' . esc_html( $label ) . '</label>';
-        echo '<input title="'. $title .'" class="plse-option-input" type="text" id="' . $slug . '" name="' . $slug . '" size="40" value="' . $option . '" />';	
+    public function render_text_field ( $args ) { 
+        $option = $this->render_simple_field( $args );
+    }
 
+    public function render_datalist_field ( $args ) {
+        $option_value = $args['option_value'];
+        if ( isset( $option_value ) ) {
+            if ( is_array( $option_value ) ) {
+                // apply custom array of options specified in the field
+            }
+            else {
+                // apply a standard datalist
+            }
+        }
     }
 
     /**
@@ -635,13 +596,10 @@ class PLSE_Options {
      * @param    array    $args name of field, state, additional properties
      */
     public function render_postal_field ( $args ) {
-        $slug = $args[0];
-        $state = $args[1];
-        $label = $args[2];
-        $title = $args[3];
-        $option = get_option( $slug );
-        echo '<label class="plse-option-description" for="' . $slug . '">' . esc_html( $label ) . '</label>';
-        echo '<input title="'. $title .'" class="plse-option-input" type="text" id="' . $slug . '" name="' . $slug . '" value="' . $option . '" />';	
+        $option = $this->render_simple_field( $args );
+        if ( ! $this->init->is_postal( $option ) ) {
+            echo $this->add_error_to_field( __( 'Invalid postal address') );
+        }
     }
 
     /**
@@ -651,13 +609,10 @@ class PLSE_Options {
      * @param    array    $args name of field, state, additional properties
      */
     public function render_tel_field ( $args ) {
-        $slug = $args[0];
-        $state = $args[1];
-        $label = $args[2];
-        $title = $args[3];
-        $option = get_option( $slug );
-        echo '<label class="plse-option-description" for="' . $slug . '">' . esc_html( $label ) . '</label>';
-        echo '<input title="'. $title .'" class="plse-option-input" type="tel" id="' . $slug . '" name="' . $slug . '" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" size="30" value="' . esc_html( $option ) . '" />';	
+        $option = $this->render_simple_field( $args );
+        if ( ! $this->init->is_phone( $option ) ) {
+            echo $this->add_error_to_field( __( 'Invalid phone') );
+        }
     }
 
     /**
@@ -667,13 +622,10 @@ class PLSE_Options {
      * @param    array    $args name of field, state, additional properties
      */
     public function render_email_field ( $args ) {
-        $slug = $args[0];
-        $state = $args[1];
-        $label = $args[2];
-        $title = $args[3];
-        $option = get_option( $slug );
-        echo '<label class="plse-option-description" for="' . $slug . '">' . esc_html( $label ) . '</label>';
-        echo '<input title="'. $title .'" class="plse-option-input" type="email" id="' . $slug . '" name="' . $slug . '" pattern=".+@novyunlimited.com" size="40" value="' . esc_html( $option ) . '" />';	
+        $option = $this->render_simple_field( $args );
+        if ( ! $this->init->is_email( $option ) ) {
+            echo $this->add_error_to_field( __( 'Invalid email' ) );
+        }
     }
 
     /**
@@ -683,13 +635,10 @@ class PLSE_Options {
      * @param    array    $args name of field, state, additional properties
      */
     public function render_url_field ( $args ) {
-        $slug = $args[0];
-        $state = $args[1];
-        $label = $args[2];
-        $title = $args[3];
-        $option = get_option( $slug );
-        echo '<label class="plse-option-description" for="' . $slug . '">' . esc_html( $label ) . '</label>';
-        echo '<input title="'. $title .'" class="plse-option-input" type="url" id="' . $slug . '" name="' . $slug . '" pattern="https://.*" size="60" value="' . esc_url( $option ) . '" required/>';	
+        $option = $this->render_simple_field( $args );
+        if ( ! $this->init->is_url( $option ) ) {
+            echo $this->add_error_to_field( __( 'Invalid URL') );
+        }
     }
 
     /**
@@ -700,15 +649,15 @@ class PLSE_Options {
      * @param    array    $args name of field, state, additional properties
      */
     public function render_textarea_field ( $args ) {
-        $slug = $args[0];
-        $state = $args[1];
-        $label = $args[2];
-        $title = $args[3];
-        $rows = $args[4];
-        $cols = $args[5];
+        $slug = sanitize_key( $args['slug'] );
+        $state = $args['state'];
+        $title = esc_html( $args['title'] );
+        $label = esc_html( $args['label'] );
+        $rows = $args['rows'];
+        $cols = $args['cols'];
 
         $option = get_option( $slug );
-        echo '<label class="plse-option-description" for="' . $slug . '">' . esc_html( $label ) . '</label>';
+        echo '<label class="plse-option-description" for="' . $slug . '">' . $label . '</label>';
         echo '<textarea title="' . $title . '" id="' . $slug . '" name="' . $slug .'" rows="' . $rows . '" cols="' . $cols . '"></textarea>';
     }
 
@@ -719,11 +668,13 @@ class PLSE_Options {
      * @param    array    $args name of field, state, additional properties
      */
     public function render_date_field ( $args ) {
-        $slug = $args[0];
-        $state = $args[1];
-        $label = $args[2];
+        $slug = sanitize_key( $args['slug'] );
+        $state = $args['state'];
+        $title = esc_html( $args['title'] );
+        $label = esc_html( $args['label'] );
+
         $option = get_option( $slug );
-        echo '<label style="display:block;" for="' . $slug . '">' . esc_html_e( 'Descriptive text.') . '</label>';
+        echo '<label style="display:block;" for="' . $slug . '">' . $label . '</label>';
         echo '<input style="display:block;" type="date" id="' . $slug . '" name="' . $slug . '" value="' . $option . '" />';	
     }
 
@@ -735,11 +686,12 @@ class PLSE_Options {
      * @param    array    $args name of field, state, additional properties
      */
     public function render_checkbox_field ( $args ) {
-        $slug = $args[0];
-        $state = $args[1];
-        $label = $args[2];
+        $slug = sanitize_key( $args['slug'] );
+        $state = $args['state'];
+        $title = esc_html( $args['title'] );
+        $label = esc_html( $args['label'] );
+
         $option = get_option( $slug );
-        ///////echo "ON for slug: " . $slug . " IS:" . $option;
         echo '<label style="display:block;" for="' . $slug . '">' . $label . '</label>';
         echo '<input style="display:block;" type="checkbox" id="' . $slug . '" name="' . $slug . '"';
         if ( $option == $this->init->get_checkbox_on() ) echo ' CHECKED';
@@ -756,20 +708,27 @@ class PLSE_Options {
     public function render_select_single_field ( $args ) {
         // TODO: NOT TESTED
         // select fields need an option list
-        $option_list = $args[4];
+        $option_list = $args['option_list'];
         if ( ! $option_list ) return;
-        $slug = $args[0];
-        $state = $args[1];
-        $label = $args[2];
-        $title = $args[3];
-        $option = get_option( $slug ); // selected
+        if ( is_array( $option_list ) ) {
+
+        } else {
+
+        }
+
+        $slug = sanitize_key( $args['slug'] );
+        $state = $args['state'];
+        $title = esc_html( $args['title'] );
+        $label = esc_html( $args['label'] );
+
+        $option = get_option( $slug ); // selected, a single value
         $dropdown = '<div class="plse-option-select"><select title="' . $title . '" name="' . $slug . '" class="plse-option-select-dropdown" >' . "\n";
-        foreach ( $cpts as $cpt ) {
-            $dropdown .= '<option value="' . $option_list['slug'] . '" ';
-            if ( $option == $option_list['slug'] ) {
+        foreach ( $option_list as $key => $opt ) {
+            $dropdown .= '<option value="' . $opt . '" ';
+            if ( $option == $opt ) {
                 $dropdown .= 'selected';
             }
-            $dropdown .= '>' . $cpt->label . '</option>' . "\n";
+            $dropdown .= '>' . $key . '</option>' . "\n";
         }
         $dropdown .= '</select>' . "\n";
 
@@ -790,32 +749,35 @@ class PLSE_Options {
      */
     public function render_select_multiple_field ( $args ) {
         // TODO: NOT TESTED
-        $options_list = $args[4];
+        $option_list = $args['option_list'];
         if ( ! $option_list ) return;
-        $slug = $args[0];
-        $state = $args[1];
-        $label = $args[2];
-        $title = $args[3];
+        if ( is_array( $option_list ) ) {
+
+        } else {
+
+        }
+
+        $slug = sanitize_key( $args['slug'] );
+        $state = $args['state'];
+        $title = esc_html( $args['title'] );
+        $label = esc_html( $args['label'] );
+
         $options = get_option( $slug );
 
         // note $slug[], which specifies multiple values stored in one option.
         $dropdown = '<div class="plse-option-select"><select multiple name="' . $slug .'[' . $slug . '][]" class="plse-option-select-dropdown" >' . "\n";
 
-        foreach ( $option_list as $option ) {
-            $dropdown .= '<option title="' . $title . '" value="' . $option->rewrite['slug'] . '" ';
+        foreach ( $option_list as $key => $option ) {
+            $dropdown .= '<option title="' . $title . '" value="' . $key . '" ';
             // highlight stored options in dropdown
             if ( is_array( $options ) ) {
                 foreach ( $options as $opt ) {
-                    if ( is_array( $opt ) ) {
-                        foreach ( $opt as $subopt ) {
-                            if ( $subopt == $option->rewrite['slug'] ) {
-                                $dropdown .= 'selected';
-                            }
-                        }
+                    if ( $option == $opt ) {
+                        $dropdown .= 'selected';
                     }
                 }
             }
-            $dropdown .= '>' . $option_list->label . '</option>' . "\n";
+            $dropdown .= '>' . $option . '</option>' . "\n";
         }
         $dropdown .= '</select>' . "\n";
 
@@ -835,20 +797,26 @@ class PLSE_Options {
      * @since    1.0.0
      * @access   public
      * @param    array    $args name of field, state, additional properties
-     * 
-     * TODO:
-     * TODO: confirm Custom Post Type still exists
-     * TODO: if it does not, remove the stored option for the CPT
-     * TODO:
-     * 
      */
     public function render_cpt_field ( $args ) {
+
         // no dropdown if no Custom Post Types
         $cpts = $this->init->get_all_cpts(); // get all potential selections
-        if ( ! $cpts ) return;
-        $slug = $args[0];
-        $state = $args[1];
-        $label = $args[2];
+        if ( ! $cpts ) {
+            echo __( 'No Custom Post Types are defined yet.' );
+            return;
+        }
+
+        $slug = sanitize_key( $args['slug'] );
+        $state = $args['state'];
+        $title = esc_html( $args['title'] );
+        $label = esc_html( $args['label'] );
+
+        /*
+         * NOTE: if a CPT was delected, we may still be storing the name of an extinct 
+         * post type. However, the <select multiple... box is constructed without it.
+         * the next time options are saved, the extinct CPT will be deleted from $options
+         */
         $options = get_option( $slug );
 
         $dropdown = '<div class="plse-option-select"><select multiple name="' . $slug .'[' . $slug . '][]" class="plse-option-select-dropdown" >' . "\n";
@@ -888,12 +856,25 @@ class PLSE_Options {
     public function render_cat_field ( $args ) {
         // no dropdown if categories don't exist
         $cats = $this->init->get_all_cats();
-        if ( ! $cats ) return;
-        $slug = $args[0];
-        $state = $args[1];
-        $label = $args[2];
+        if ( ! $cats ) {
+            echo __( 'No categories are defined yet.' );
+            return;
+        }
+
+        $slug = sanitize_key( $args['slug'] );
+        $state = $args['state'];
+        $title = esc_html( $args['title'] );
+        $label = esc_html( $args['label'] );
+
+        /*
+         * NOTE: if a CPT was delected, we may still be storing the name of an extinct 
+         * post type. However, the <select multiple... box is constructed without it.
+         * the next time options are saved, the extinct CPT will be deleted from $options
+         */
         $options = get_option( $slug );
+
         $dropdown = '<div class="plse-option-select"><select multiple name="' . $slug .'[' . $slug . '][]" class="plse-option-select-dropdown">' . "\n";
+
         foreach ( $cats as $cat ) {
             $dropdown .= '<option value="' . $cat->slug . '" ';
             // highlight stored options in dropdown
@@ -926,24 +907,36 @@ class PLSE_Options {
      * @param    array    $args name of field, state, additional properties
      */
     public function render_image_field ( $args ) {
+        $slug = sanitize_key( $args['slug'] );
+        $state = $args['state'];
+        $title = esc_html( $args['title'] );
+        $label = esc_html( $args['label'] );
+        $width = $args['width'];
+        if ( ! isset( $width ) ) $width = '128';
+        $height = $args['height'];
+        if ( ! isset( $height ) ) $height = '128';
 
-        $slug = $args[0];
-        $state = $args[1];
-        $label  = $args[2];
-        $title  = $args[3];
-        $width = $args[4];
-        $height = $args[5];
         $option = esc_attr( get_option ( $slug ) );
 
-        // current image (default to plugin blank if not set)
-        $plse_init = PLSE_Init::getInstance();
+        // adjust shorter dimension of image so it scales properly
+        $image_properties = $this->init->get_image_properties_from_url ( $option );
 
+        // find the largest side of the image, keep that value, and proprotionaly scale the smaller side
+        if ( intval( $width ) > intval( $height ) ) {
+            $ratio = $width / $image_properties['width'];
+            $height = $image_properties['height'] * $ratio;
+        } else {
+            $ratio = $height / $image_properties['height'];
+            $width = $image_properties['width'] * $ratio;
+        }
+
+        // image control
         echo '<div class="plse-option-wrapper">';
         echo '<div class="plse-meta-image-col">';
 
         // show the image specified by the URL accessed via $slug
         if ( $option ) {
-            echo '<img title="' . $title . '" class="plse-upload-img-box" id="' . $slug . '-img-id" src="' . $option . '" width="128" height="128">';
+            echo '<img title="' . $title . '" class="plse-upload-img-box" id="' . $slug . '-img-id" src="' . $option . '" width="' . $width . '" height="' . $height . '">';
         } else {
             echo '<img title="' . $title .'" class="plse-upload-img-box" id="'. $slug . '-img-id" src="' . $plse_init->get_default_placeholder_icon_url() . '" width="128" height="128">';
         }
@@ -972,7 +965,31 @@ class PLSE_Options {
      */
 
     /**
-     * Validate hidden (text-like) field.
+     * Display standard errors in the Settings API.
+     * 
+     * @since    1.0.0
+     * @access   public
+     */
+    public function options_show_errors () {
+        settings_errors();
+    }
+
+    /**
+     * Used when rendering. If the data in is invalid for the field format, put 
+     * a small message next to the input field.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    string    $msg  error message
+     * @return   string    wrap the error message in HTML for display
+     */
+    public function add_error_to_field ( $msg = '' ) {
+        return '<span class="plse-input-err-msg">' . $msg . '</span>';
+    }
+
+    /**
+     * Validate hidden (text-like) field. Used when the Options API saves a value.
+     * 
      * @since    1.0.0
      * @access   public
      * @param    $string    $in    data input into the field.
@@ -995,6 +1012,7 @@ class PLSE_Options {
     /**
      * Validate phone field, after WooCommerce method, check for string length 
      * after stripping all valid characters.
+     * 
      * @since    1.0.0
      * @access   public
      * @param    $string    $in    data input into the field.
@@ -1016,7 +1034,8 @@ class PLSE_Options {
     }
 
     /**
-     * Validate postal code
+     * Validate postal code.
+     * 
      * @since    1.0.0
      * @access   public
      * @param    $string    $in    data input into the field.
@@ -1028,7 +1047,7 @@ class PLSE_Options {
             add_settings_error(
                 $this->option_group,
                 'phone_validation_error',
-                '<span style="color:red">Error:</span> Invalid Postal Code, extra characters: ('.$out.'), please re-enter',
+                '<span style="color:red">Error:</span>' . __( 'Invalid Postal Code, extra characters: ('.$out.'), please re-enter' ),
                 'error'
             );
         }
@@ -1036,7 +1055,8 @@ class PLSE_Options {
     }
 
     /**
-     * Validate email field
+     * Validate email field.
+     * 
      * @since    1.0.0
      * @access   public
      * @param    $string    $in    data input into the field.
@@ -1048,7 +1068,7 @@ class PLSE_Options {
             add_settings_error(
                 $this->option_group,
                 'email_validation_error',
-                '<span style="color:red">Error:</span> Invalid Email ('. sanitize_email( $in ) .'), please re-enter',
+                '<span style="color:red">Error:</span>' . __( 'Invalid Email ('. sanitize_email( $in ) .'), please re-enter' ),
                 'error'
             );
         }
@@ -1056,7 +1076,12 @@ class PLSE_Options {
     }
 
     /**
-     * validate URL field
+     * validate URL field.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    $string    $in    data input into the field.
+     * @return   mixed      use apply_filters to return $in and $out
      */
     public function validate_url_field ( $in ) {
         $in = sanitize_text_field( trim( $in ) );
@@ -1065,7 +1090,7 @@ class PLSE_Options {
             add_settings_error(
                 $this->option_group,
                 'url_validation_error',
-                '<span style="color:red">Error:</span> Invalid URL ('.$out.'), please re-enter',
+                '<span style="color:red">Error:</span>' . __( 'Invalid URL ('.$out.'), please re-enter' ),
                 'error'
             );
         }
@@ -1075,6 +1100,7 @@ class PLSE_Options {
 
     /**
      * Validate checkbox.
+     * 
      * @since    1.0.0
      * @access   public
      * @param    $string    $in    data input into the field.
@@ -1088,6 +1114,7 @@ class PLSE_Options {
 
     /**
      * Validate multi-select dropdown for available Custom Post Types.
+     * 
      * @since    1.0.0
      * @access   public
      * @param    $string    $in    data input into the field.
@@ -1116,7 +1143,8 @@ class PLSE_Options {
     }
 
     /**
-     * Validate file upload data (and let WP do the upload)
+     * Validate file upload data (and let WP do the upload).
+     * 
      * @since    1.0.0
      * @access   public
      * @param    $string    $in    data input into the field.
@@ -1129,19 +1157,35 @@ class PLSE_Options {
         return apply_filters( [ $this, 'validate_image_field' ], $out, $in );
     }
 
+    /**
+     * Validate the value of a field as an integer.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    $string    $in    data input into the field.
+     * @return   mixed      use apply_filters to return $in and $out
+     */
     public function validate_int_field ( $in ) {
         $out = sanitize_text_field( trim( $in ) );
         if ( ! is_int( $out ) ) {
             add_settings_error(
                 $this->option_group,
                 'int_validation_error',
-                '<span style="color:red">Error:</span> Invalid Integer ('.$out.'), please re-enter',
+                '<span style="color:red">Error:</span>' . __( 'Invalid Integer ('.$out.'), please re-enter' ),
                 'error'
             );
         }
         return apply_filters( [ $this, 'validate_int_field' ], $out, $in );
     }
 
+    /**
+     * Validate the value of a field as floating-point.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    $string    $in    data input into the field.
+     * @return   mixed      use apply_filters to return $in and $out
+     */
     public function validate_float_field ( $in ) {
         $out = sanitize_text_field( trim( $in ) );
         if ( ! is_float( $out ) ) {
@@ -1153,13 +1197,6 @@ class PLSE_Options {
             );
         }
         return apply_filters( [ $this, 'validate_int_field' ], $out, $in );
-    }
-
-    /**
-     * Display standard errors.
-     */
-    public function options_show_errors () {
-        settings_errors();
     }
 
 } // end of class

@@ -776,11 +776,22 @@ class PLSE_Init {
      */
 
     /**
-     * Field is required
+     * Field is required.
      */
     public function is_required ( $in ) {
         if ( empty( $in ) && $in['required'] == 'required') {
            return true;
+        }
+        return false;
+    }
+
+    /**
+     * validate for letters, numbers, spaces only.
+     * 
+     */
+    public function is_alphanumeric ( $in ) {
+        if ( preg_match('/^[a-zA-Z0-9\s]+$/', $out ) ) {
+            return $in;
         }
         return false;
     }
@@ -844,6 +855,9 @@ class PLSE_Init {
         return false;
     }
 
+    public function is_email ( $in ) {
+        return is_email( $in );
+    }
 
     public function is_date ( $in ) {
         // TODO CHECK FORMATINCOMING
@@ -1101,6 +1115,24 @@ class PLSE_Init {
         );
         $cats = get_categories( $args );
         return $cats;
+    }
+
+    /**
+     * Get image properties from a URL
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @return   array
+     */
+    public function get_image_properties_from_url ( $url ) {
+        $image_url = attachment_url_to_postid( $url );
+        $props = wp_get_attachment_image_src( $image_url, 'full' );
+        return array(
+            'url' => $props[0],
+            'width' => $props[1],
+            'height' => $props[2],
+            'ratio' => intval( $props[1] ) / intval( $props[2] ) // width to height ratio
+        );
     }
 
     /**

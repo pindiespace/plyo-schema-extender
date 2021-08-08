@@ -255,6 +255,9 @@ add_action( 'plugins_loaded', function () {
                     // load options class
                     require_once PLSE_SCHEMA_EXTENDER_PATH . '/includes/admin/plse-options.php';
 
+                    // load datalists (e.g. list of countries)
+                    require_once PLSE_SCHEMA_EXTENDER_PATH . '/includes/admin/plse-datalists.php';
+
                     /*
                      * Reorder menus. Put the menu for this plugin right below the
                      * Yoast listing in the Admin menu.
@@ -286,20 +289,21 @@ add_action( 'plugins_loaded', function () {
 
                     } );
 
-                    // load admin options to add menu in WP_Admin
+                    // load admin options to add menu in WP_Admin (menu needed for options page and metabo)
                     $plse_options = PLSE_Options::getInstance();
 
                     // decide whether to load options page (admin), or metabox custom fields (in post)
                     if ( $pagenow == 'post.php' ) {
 
                         // load datalists
-                        require_once PLSE_SCHEMA_EXTENDER_PATH . '/includes/admin/plse-datalists.php';
-                        $plse_datalists = PLSE_Datalists::getInstance();
+                        //$plse_datalists = PLSE_Datalists::getInstance();
 
                         // load metabox class
                         require_once PLSE_SCHEMA_EXTENDER_PATH . '/includes/admin/plse-metabox.php';
                         $plse_metabox = PLSE_Metabox::getInstance();
 
+                    } else {
+                        
                     }
 
                 } else {

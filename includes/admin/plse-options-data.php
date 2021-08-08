@@ -120,6 +120,8 @@ class PLSE_Options_Data {
      * 
      * - These are global fields which will be associated with ALL Schema.
      * - Individual fields for each Schema are defined in /schema/plse-schema-xxx.php
+     * - NOTE: add an 'option_list' => array(...) to any $options['fields']['xxx'] to pass a static list.
+     * - NOTE: add an 'option_list' => string to any field to use a PLSE_Datalist
      * 
      * @since    1.0.0
      * @access   private
@@ -155,7 +157,7 @@ class PLSE_Options_Data {
             'section_title'   => 'Plugin Configuration',
             'section_message' => 'Plugin configuration. This plugin stores data from Yoast, but can copy the Yoast Local SEO fields if the plugin is installed. The data is a copy, so if you edit it, it won\'t affect your Yoast settings',
             'section_box'     =>  PLSE_OPTIONS_SLUG . PLSE_SCHEMA_CONFIG . '-box',// <div> for section
-            'tab'             => 'content-tabl0',
+            'tab'             => 'content-tab1', // MUST be 'content-tab' + number
             'tab_title'       => 'Config',
 
             'fields' => array(
@@ -166,6 +168,7 @@ class PLSE_Options_Data {
                     'type'   => PLSE_INPUT_TYPES['BUTTON'],
                     'label' => 'Copy SEO values',
                     'title' => 'Copy Yoast Local SEO Data',
+                    'action' => 'xxxxxxxxxxxxxxxxxxAjax action'
                 ),
 
                 'use_yoast_metadata' => array(
@@ -186,7 +189,7 @@ class PLSE_Options_Data {
             'section_title'   => 'General Settings for Schema',
             'section_message' => 'General settings, which provide some addtional fields not in the default Yoast installation',
             'section_box'     =>  PLSE_OPTIONS_SLUG . PLSE_SCHEMA_GENERAL . '-box',// <div> for section
-            'tab'             => 'content-tabl1',
+            'tab'             => 'content-tab2',
             'tab_title'       => 'Contact',
 
             'fields' => array(
@@ -229,7 +232,7 @@ class PLSE_Options_Data {
             'section_title'   => 'Local Business Address',
             'section_message' => 'Address providing fields missing from default Yoast installation',
             'section_box'     => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_ADDRESS . '-box',// <div> for section
-            'tab'             => 'content-tab1',
+            'tab'             => 'content-tab3',
             'tab_title'       => 'Address',
 
             'fields' => array(
@@ -298,7 +301,7 @@ class PLSE_Options_Data {
             'section_title'   => 'Service Settings for Schema',
             'section_message' => 'Parameters for Service Schema. These are global, and can be over-ridden on individual pages. Adjust individual pages and posts with custom fields.',
             'section_box'     => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-box', // <div> for section, used in display_options_page
-            'tab'             => 'content-tab2',
+            'tab'             => 'content-tab4',
             'tab_title'       => 'Service',
 
             'fields' => array(
@@ -334,8 +337,8 @@ class PLSE_Options_Data {
                     'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-logo',
                     'description'  => 'Service brand logo or icon (global to site)',
                     'type'   => PLSE_INPUT_TYPES['IMAGE'],
-                    'width'  => '120',
-                    'height' => '120',
+                    'width'  => '128',
+                    'height' => '128',
                     'label'  => 'Visual Brand or trademark',
                     'title'  => 'This should be the copyrighted or trademarked brand image'
                 ),
@@ -360,7 +363,7 @@ class PLSE_Options_Data {
             'section_title'   => 'Game Settings for Schema',
             'section_message' => 'Parameters for Game Schema. These apply to all instances of Game Schema loaded. These are global, and can be over-ridden. Adjust individual pages and posts with custom fields.',
             'section_box'     => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_GAME . '-box', // <div> for section, used in display_options_page()
-            'tab'             => 'content-tab3',
+            'tab'             => 'content-tab5',
             'tab_title'       => 'Game',
 
             'fields' => array(
@@ -414,7 +417,7 @@ class PLSE_Options_Data {
             'section_title'   => 'Event Settings for Schema',
             'section_message' => 'Parameters for Event Schema. These apply to all instances of Event Schema loaded. These are global, and can be over-ridden. Adjust individual pages and posts with custom fields.',
             'section_box'     => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_EVENT . '-box', // <div> for section, used in display_options_page()
-            'tab'             => 'content-tab4',
+            'tab'             => 'content-tab6',
             'tab_title'       => 'Event',
 
             'fields' => array(

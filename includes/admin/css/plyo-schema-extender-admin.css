@@ -168,7 +168,6 @@
 
 .plse-meta-image-col {
     display:inline-block;
-    width:145px;
     text-align: center;
     vertical-align: middle;
 }
@@ -221,18 +220,6 @@
     z-index: 10;
     color: #fff;
   }
-  .plse-tab-nav ul li a:hover.tab1::before {
-    background: #3e3e3e;
-  }
-  .plse-tab-nav ul li a:hover.tab2::before {
-    background: rgb(197, 134, 18);
-  }
-  .plse-tab-nav ul li a:hover.tab3::before {
-    background: rgb(0, 93, 0);
-  }
-  .plse-tab-nav ul li a:hover.tab4::before {
-    background: #55416d;
-  }
 
   /* rotates the chevron icon */
   .plse-tab-nav ul li a::before {
@@ -252,21 +239,50 @@
     transition: background 0.4s;
 }
 
-/* open */
+  /* tab colors on hover */
+  .plse-tab-nav ul li a:hover.tab1::before {
+    background: #3e3e3e;
+  }
+  .plse-tab-nav ul li a:hover.tab2::before {
+    background: rgb(197, 134, 18);
+  }
+  .plse-tab-nav ul li a:hover.tab3::before {
+    background: rgb(0, 93, 0);
+  }
+  .plse-tab-nav ul li a:hover.tab4::before {
+    background: #55416d;
+  }
+  .plse-tab-nav ul li a:hover.tab5::before {
+    background: #435e2d;
+  }
+  .plse-tab-nav ul li a:hover.tab6::before {
+    background: #3b0334;
+  }
+  .plse-tab-nav ul li a:hover.tab7::before {
+    background: #3b3f09;
+  }
+
+/* tab colors on open */
 .plse-tab-nav ul li a.tab1.open::before {
     background: gray;
 }
-
 .plse-tab-nav ul li a.tab2.open::before {
     background: orange;
 }
-
 .plse-tab-nav ul li a.tab3.open::before {
     background: green;
 }
-
 .plse-tab-nav ul li a.tab4.open::before {
     background: purple;
+}
+.plse-tab-nav ul li a.tab5.open::before {
+    background: #6e9b4a;
+}
+.plse-tab-nav ul li a.tab6.open::before {
+    background: #a0098c;
+}
+.plse-tab-nav ul li a.tab7.open::before {
+    background: rgb(70, 69, 5);
 }
 
 /* panels activated by tab selection */

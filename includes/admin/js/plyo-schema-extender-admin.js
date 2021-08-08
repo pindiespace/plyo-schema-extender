@@ -127,10 +127,21 @@
 
         /*
          * ---------------------------------------------------
-         * Check if a URL exists
+         * Load Yoast Local SEO data (if plugin is present)
+         * TODO: add button
          * ---------------------------------------------------
          */
-        $('.plse-check-urls').on('click', function (url) {
+        // https://www.jackreichert.com/2013/03/using-ajax-in-wordpress-development-the-quickstart-guide/
+        $('.plse-load-local-seo').on('click', function (e) {
+
+        });
+
+        /*
+         * ---------------------------------------------------
+         * Check if a URL exists TODO: add button
+         * ---------------------------------------------------
+         */
+        $('.plse-check-url').on('click', function (url) {
             $('<img src="'+ url +'">').load(function() {
                 return true;
                 // TODO: add error message to display
