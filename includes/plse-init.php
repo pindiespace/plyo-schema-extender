@@ -829,6 +829,7 @@ class PLSE_Init {
 
     /**
      * Check if the URL is active, or has a 301, 302 redirect
+     * VERY SLOW
      * {@link https://www.secondversion.com/blog/php-check-if-a-url-is-valid-exists/}
      * 
      * @since    1.0.0
@@ -836,23 +837,22 @@ class PLSE_Init {
      * @param    string    $in the URL string to test
      * @return   boolean   if valid, return true, else false
      */
-    function is_active_url( $in ) {
 
-        // break the URL into its components
-        if ( ! ( $in = @parse_url( $in ) ) ) return false;
-
-        // Check components for validity
-        $in['port']  = ( ! isset($in['port'])) ? 80 : (int)$in['port'];
-        $in['path']  = ( ! empty($in['path'])) ? $in['path'] : '/';
-        $in['path'] .= ( isset($in['query'])) ? "?$in[query]" : '';
-
-        // See if URL responds to a HTTP request (assume PHP version > 5)
-        if ( isset( $in['host'] ) AND $in['host'] != @gethostbyname( $in['host'] ) ) {
-            $headers = @implode( '', @get_headers( "$in[scheme]://$in[host]:$in[port]$in[path]" ) );
-            return (bool)preg_match( '#^HTTP/.*\s+[(200|301|302)]+\s#i', $headers );
+    function url_exists ( $in ) {
+        // Remove all illegal characters from a url
+        $url = filter_var($in, FILTER_SANITIZE_URL);
+    
+        // Validate URI
+        if (filter_var($url, FILTER_VALIDATE_URL) === FALSE
+            // check only for http/https schemes.
+            || !in_array(strtolower(parse_url($url, PHP_URL_SCHEME)), ['http','https'], true )
+        ) {
+            return false;
         }
-
-        return false;
+    
+        // Check that URL exists
+        $file_headers = @get_headers($url);
+        return !(!$file_headers || $file_headers[0] === 'HTTP/1.1 404 Not Found');
     }
 
     public function is_email ( $in ) {

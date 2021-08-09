@@ -485,6 +485,7 @@ class PLSE_Metabox {
 
     /**
      * Render a URL field (http or https).
+     * {@link https://stackoverflow.com/questions/2280394/how-can-i-check-if-a-url-exists-via-php}
      * 
      * @since    1.0.0
      * @access   public
@@ -495,13 +496,18 @@ class PLSE_Metabox {
         $err = '';
         if ( ! $this->init->is_url( $value ) ) {
             $err = $this->add_error_to_field( __( 'invalid address (URL)' ) );
-        } 
+        }
         // TODO: TOO SLOW - MAKE INTO A USER BUTTON
         // TODO:
-        //else if ( ! $this->init->is_active_url( $value ) ) {
-        //    $err = $this->add_error_to_field( __('the address does not go to a valid web page' ) );
-        //}
+        //if ( ! $this->init->is_active_url( $value ) ) {
+        if ( ! $this->init->url_exists( $value ) ) {
+            $err = $this->add_error_to_field( __('the address does not go to a valid web page' ) );
+        } else { 
+            // TODO: should put up valid symbol
+        }
         $this->render_simple_field( $args, $value, $err );
+        $slug = sanitize_key( $args['slug'] );
+
     }
 
     /**

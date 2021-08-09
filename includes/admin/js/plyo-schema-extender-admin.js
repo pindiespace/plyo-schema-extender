@@ -133,22 +133,7 @@
          */
         // https://www.jackreichert.com/2013/03/using-ajax-in-wordpress-development-the-quickstart-guide/
         $('.plse-load-local-seo').on('click', function (e) {
-
-        });
-
-        /*
-         * ---------------------------------------------------
-         * Check if a URL exists TODO: add button
-         * ---------------------------------------------------
-         */
-        $('.plse-check-url').on('click', function (url) {
-            $('<img src="'+ url +'">').load(function() {
-                return true;
-                // TODO: add error message to display
-            }).bind('error', function() {
-                // TODO: add error message to display
-                return false;
-            });
+            console.log('getting local seo');
         });
 
         /*
