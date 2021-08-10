@@ -349,7 +349,7 @@ class PLSE_Metabox {
             }
 
             // use dynamic method to fire the rendering function for the field
-            $render_method = 'render_' . PLSE_INPUT_TYPES[ $field['type'] ] . '_field';
+            $render_method = 'render_' . $field['type'] . '_field';
 
             if ( method_exists( $this, $render_method ) ) { 
                 $this->$render_method( $field, $value ); 
@@ -403,7 +403,7 @@ class PLSE_Metabox {
         if ( empty( $value ) && $args['required'] == 'required') {
             $err = $this->init->add_status_to_field( __( 'this field is required....') );
         }
-        $type = $this->init->label_to_slug( $args['type'] );
+        $type = $args['type'];
         if ( $args['class'] ) $class = $args['class']; else $class = '';
         if ( $args['size'] ) $size = $args['size']; else $size = '40';
         echo '<input title="' . $args['title'] . '" type="' . $type . '" class="' . $class . '" id="' . $slug . '" name="' . $slug .'" size="' . $size . '" value="' . $value . '" />';
@@ -578,8 +578,8 @@ class PLSE_Metabox {
     }
 
     /**
-     * Create an input field similar to the old 'combox' - typing narrows the 
-     * results of the list, but users can type in a value not on the list.
+     * Create an input field similar to the old 'combobox' - typing narrows the 
+     * results of the list, but users can type in a value not in the list.
      * 
      * @since    1.0.0
      * @access   public
@@ -593,11 +593,12 @@ class PLSE_Metabox {
 
         if ( is_array( $option_list ) ) { // option list in field definition
 
+            // build <datalist> from the array
             $dropdown = $this->datalists->get_datalist( $option_list, $slug . '-data' );
 
         } else { // option list specifies a standard list in PLSE_Datalists
 
-            // load the datalist (note they must follow naming conventions)
+            // load the standard datalist (note they must follow naming conventions)
             $dropdown .= 'plse-' . $option_list . '-data' . '">'; // option list id 
             $method = 'get_' . $option_list . '_datalist';
             if ( method_exists( $this->datalists, $method ) ) { 
@@ -926,8 +927,10 @@ class PLSE_Metabox {
 
                         $value = $_POST[ $slug ];
 
+                        // TODO:
+                        // TODO: convert from 'GAME' to PLSE_INPUT_TYPES['game']
                         // switch, converting our uppercase label to a lowercase slug
-                        switch ( $this->init->label_to_slug( $field['type'] ) ) {
+                        switch ( $field['type'] ) {
 
                             case PLSE_INPUT_TYPES['EMAIL']:
                                 $value = sanitize_email( trim( $value ) );

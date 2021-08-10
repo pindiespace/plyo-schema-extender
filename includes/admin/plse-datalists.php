@@ -516,6 +516,7 @@ class PLSE_Datalists {
         'project management' => 'Project Management',
         'marketing' => 'Marketing',
         'public relations' => 'Public Relations',
+        'game PR' => 'Game PR',
         'banking' => 'Banking',
         'sales' => 'Sales',
         'retail' => 'Retail',
@@ -603,6 +604,8 @@ class PLSE_Datalists {
 
      /**
       * Datalist attaches a list to an <input type="text"... field.
+      * This method converts a standard associative array to datalist HTML
+      *
       * @since    1.0.0
       * @access   public
       * @return   string    $list the complete datalist element
@@ -738,7 +741,7 @@ class PLSE_Datalists {
      * @access   public
      */
     public function get_service_genres_datalist ( $id = '' ) {
-        if ( ! $id ) $id = 'plse-os-data';
+        if ( ! $id ) $id = 'plse-service_genres-data';
         return $this->get_datalist( $this->service_genres, $id );
     }
 

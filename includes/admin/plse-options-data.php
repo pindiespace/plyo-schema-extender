@@ -327,9 +327,11 @@ class PLSE_Options_Data {
                 'service_type' => array(
                     'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-type-field',
                     'description'  => 'Service Type (e.g. Game Public Relations)"',
-                    'type'   => PLSE_INPUT_TYPES['TEXT'],
+                    //'type'   => PLSE_INPUT_TYPES['TEXT'],
+                    'type' => PLSE_INPUT_TYPES['DATALIST'],
                     'label' => 'Descriptive type',
-                    'title' => 'Enter a specific service type'
+                    'title' => 'Enter a specific service type',
+                    'option_list' => 'service_genres'
                 ),
 
                 'logo' => array(
@@ -389,10 +391,12 @@ class PLSE_Options_Data {
                 // genre
                 'genre' => array(
                     'slug'   => 'plse-' . PLSE_SCHEMA_GAME . '-type-field',
-                    'description'  => 'Game Genre (e.g. "Platformer")',
-                    'type'   => PLSE_INPUT_TYPES['TEXT'],
+                    'description'  => 'Game Genre (e.g. "Platformer") for entire site/organization.',
+                    //'type'   => PLSE_INPUT_TYPES['TEXT'],
+                    'type'   => PLSE_INPUT_TYPES['DATALIST'],
                     'label'  => 'Industry Genre (e.g. platformer):',
-                    'title'  => 'Use a common game genre'
+                    'title'  => 'Use a common game genre',
+                    'option_list' => 'game_genres', // datalist method in PLSE_Datalists
 
                 ),
 

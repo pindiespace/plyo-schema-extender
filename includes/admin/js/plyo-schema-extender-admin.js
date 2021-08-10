@@ -125,11 +125,6 @@
 
         } // end of if(tabs)
 
-        // TODO:
-        // TODO:
-        // TODO: flag if changes have happened, let user know
-        // TODO: so they save them
-
         /*
          * ---------------------------------------------------
          * Load Yoast Local SEO data (if plugin is present) 
