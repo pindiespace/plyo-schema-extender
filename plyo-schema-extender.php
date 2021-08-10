@@ -214,6 +214,20 @@ if ( ! defined( 'PLSE_CAT_SLUG' ) ) {
     define ( 'PLSE_CAT_SLUG', '-cat-slug' );
 }
 
+// slug for error status on fields
+if ( ! defined( 'PLSE_INPUT_ERROR_MESSAGE' ) ) {
+    define ( 'PLSE_INPUT_ERROR_MESSAGE', 'plse-input-err-msg');
+}
+
+// slug for ok status on fields
+if ( ! defined( 'PLSE_INPUT_OK_MESSAGE' ) ) {
+    define ( 'PLSE_INPUT_OK_MESSAGE', 'plse-input-ok-msg' );
+}
+
+if ( ! defined( 'PLSE_INPUT_UNKNOWN_MESSAGE' ) ) {
+    define ( 'PLSE_INPUT_UNKNOWN_MESSAGE', 'plse-input-unknown-msg' );
+}
+
 /**
  * --------------------------------------------------------------------------
  * LOADER - loads classes depending on context

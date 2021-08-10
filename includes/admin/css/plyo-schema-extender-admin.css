@@ -62,14 +62,25 @@
   background-color: #f9f9f9;
 }
 
-/* errors on input fields */
-.plse-input-err-msg {
+.plse-input-msg {
     padding: 6px;
     margin-left: 6px;
     border: 1px solid black;
     border-radius: 6px;
     color: white;
-    background-color:rgb(255, 0, 0)
+}
+
+/* errors on input fields */
+.plse-input-err-msg {
+    background-color:rgb(255, 0, 0);
+}
+
+.plse-input-ok-msg {
+    background-color:rgb(255, 0, 0);
+}
+
+.plse-input-unknown-msg {
+    background-color:rgb(100, 100, 100);
 }
 
 /*

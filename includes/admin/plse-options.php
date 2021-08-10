@@ -66,6 +66,16 @@ class PLSE_Options {
      */
     private $options_js_name = 'plse_plugin_options';
 
+    /**
+     * Name of default WPSEO data, if present, which can be triggered to replace 
+     * values in some of the plugin options fields (not saved to database).
+     * 
+     * @since    1.0.0
+     * @access   private
+     * @var      string    $wpseo_local_options_name the values from Yoast Local SEO, if present
+     */
+    private $wpseo_local_options_js_name = 'plse_wpseo_local_options';
+
 
     /**
      * array storing Yoast Local SEO information, if present
@@ -74,7 +84,7 @@ class PLSE_Options {
      * @access   private
      * @var      array    $wpseo_local;
      */
-    private $wpseo_local = null;
+    private $wpseo_local = array();
 
     /**
      * CSS panel style
@@ -190,6 +200,18 @@ class PLSE_Options {
                 $script_label,
                 $this->options_js_name,
                 $this->options_data->get_options_fields()
+            );
+
+            // DUMMY WPSEO LOCAL TEST
+            $this->wpseo_local = array(
+                'location_phone' => '339-298-29839'
+            );
+
+            // if Yoast Local SEO is present, inject the values into JS
+            $plse_init->load_js_passthrough_script(
+                $script_label,
+                $this->wpseo_local_options_js_name,
+                $this->wpseo_local
             );
 
         } );
@@ -598,7 +620,7 @@ class PLSE_Options {
     public function render_postal_field ( $args ) {
         $option = $this->render_simple_field( $args );
         if ( ! $this->init->is_postal( $option ) ) {
-            echo $this->add_error_to_field( __( 'Invalid postal address') );
+            echo $this->init->add_error_to_field( __( 'Invalid postal address') );
         }
     }
 
@@ -611,7 +633,7 @@ class PLSE_Options {
     public function render_tel_field ( $args ) {
         $option = $this->render_simple_field( $args );
         if ( ! $this->init->is_phone( $option ) ) {
-            echo $this->add_error_to_field( __( 'Invalid phone') );
+            echo $this->init->add_error_to_field( __( 'Invalid phone') );
         }
     }
 
@@ -624,7 +646,7 @@ class PLSE_Options {
     public function render_email_field ( $args ) {
         $option = $this->render_simple_field( $args );
         if ( ! $this->init->is_email( $option ) ) {
-            echo $this->add_error_to_field( __( 'Invalid email' ) );
+            echo $this->init->add_error_to_field( __( 'Invalid email' ) );
         }
     }
 
@@ -637,7 +659,7 @@ class PLSE_Options {
     public function render_url_field ( $args ) {
         $option = $this->render_simple_field( $args );
         if ( ! $this->init->is_url( $option ) ) {
-            echo $this->add_error_to_field( __( 'Invalid URL') );
+            echo $this->init->add_error_to_field( __( 'Invalid URL') );
         }
     }
 
@@ -972,19 +994,6 @@ class PLSE_Options {
      */
     public function options_show_errors () {
         settings_errors();
-    }
-
-    /**
-     * Used when rendering. If the data in is invalid for the field format, put 
-     * a small message next to the input field.
-     * 
-     * @since    1.0.0
-     * @access   public
-     * @param    string    $msg  error message
-     * @return   string    wrap the error message in HTML for display
-     */
-    public function add_error_to_field ( $msg = '' ) {
-        return '<span class="plse-input-err-msg">' . $msg . '</span>';
     }
 
     /**

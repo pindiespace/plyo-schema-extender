@@ -235,17 +235,25 @@ class PLSE_Init {
 
         $js = "\nvar " . $script_var_name . " = {\n";
 
-            foreach( $field_group as $field ) {
+            foreach( $field_group as $key => $field ) {
+
+                // this is something from PLSE_Options_Data, or a plse-schema-xxxx.php file
+                if ( isset( $field['type'] ) ) {
+                    $js .= "\n'" . $field['slug'] . "': { 'yoast_slug':'" . $field['yoast_slug'] . "', 'value': ''},";
+                }
+
+                else { // assume it is a simple associative array
+                    $js .= "\n'" . $key . "':'" . $field . "',";
+                }
 
                 // note that property name is in single quotes
-                switch ( $field['type'] ) {
+                //switch ( $field['type'] ) {
 
-                    // TODO: nothing added bu field property names at present
-                    default:
-                        $js .= "\n'" . $field['slug'] . "': {},";
-                        break;
-
-                }
+                // TODO: nothing added bu field property names at present
+                //    default:
+                //       $js .= "\n'" . $field['slug'] . "': {},";
+                //        break;
+                // }
 
         }
 
@@ -840,19 +848,19 @@ class PLSE_Init {
 
     function url_exists ( $in ) {
         // Remove all illegal characters from a url
-        $url = filter_var($in, FILTER_SANITIZE_URL);
+        $url = filter_var( $in, FILTER_SANITIZE_URL );
     
         // Validate URI
-        if (filter_var($url, FILTER_VALIDATE_URL) === FALSE
+        if ( filter_var($url, FILTER_VALIDATE_URL ) === FALSE
             // check only for http/https schemes.
-            || !in_array(strtolower(parse_url($url, PHP_URL_SCHEME)), ['http','https'], true )
+            || !in_array( strtolower( parse_url( $url, PHP_URL_SCHEME ) ), ['http','https'], true )
         ) {
             return false;
         }
     
         // Check that URL exists
         $file_headers = @get_headers($url);
-        return !(!$file_headers || $file_headers[0] === 'HTTP/1.1 404 Not Found');
+        return ! ( ! $file_headers || $file_headers[0] === 'HTTP/1.1 404 Not Found' );
     }
 
     public function is_email ( $in ) {
@@ -1141,6 +1149,18 @@ class PLSE_Init {
      * Used when the plugin can't work (e.g. no Yoast)
      * -----------------------------------------------------------------------
      */
+
+    /**
+     * Add an error description next to the Schema field.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    string    $msg  error message
+     * @return   string    wrap the error message in HTML for display
+     */
+    public function add_status_to_field ( $msg = '', $status = PLSE_INPUT_ERROR_MESSAGE ) {
+        return '<span class="plse-input-msg ' . $status .'">' . $msg . '</span>';
+    }
 
     /**
      * Add an error dialog at the top of the WP_Admin options explaining prblems.

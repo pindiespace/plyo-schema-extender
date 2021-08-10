@@ -125,15 +125,42 @@
 
         } // end of if(tabs)
 
+        // TODO:
+        // TODO:
+        // TODO: flag if changes have happened, let user know
+        // TODO: so they save them
+
         /*
          * ---------------------------------------------------
-         * Load Yoast Local SEO data (if plugin is present)
-         * TODO: add button
+         * Load Yoast Local SEO data (if plugin is present) 
+         * into matching plugin fields like phone, email, address
+         * NOTE: this just puts the values in, NOT saved to database
          * ---------------------------------------------------
          */
         // https://www.jackreichert.com/2013/03/using-ajax-in-wordpress-development-the-quickstart-guide/
-        $('.plse-load-local-seo').on('click', function (e) {
-            console.log('getting local seo');
+        $('#plse-settings-config-import-yoast-local').on('click', function (e) {
+
+            console.log('loading local seo');
+            e.preventDefault(); // stop click from refreshing page
+
+            // when we built the plugin page, we injected two JS variables
+            // plse_plugin_options field names for plugin options
+            // plse_wpseo_local_options Yoast SEO local
+            if ( plse_plugin_options && plse_wpseo_local_options) {
+
+                for (let i in plse_plugin_options) {
+                    if (plse_plugin_options[i].yoast_slug) {
+                        let slug = plse_plugin_options[i].yoast_slug;
+                        let value = plse_wpseo_local_options[slug];
+                        if (value) {
+                            console.log('assigning value:' + value + ' to field id:' + i)
+                            $('#' + i ).val(value);
+                        }
+                    }
+                }
+
+            }
+
         });
 
         /*

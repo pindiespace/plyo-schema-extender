@@ -167,8 +167,7 @@ class PLSE_Options_Data {
                     'description'  => 'Click to load Yoast Local SEO values into these fields. Changing the values here won\'t affect the values you entered into Yoast.',
                     'type'   => PLSE_INPUT_TYPES['BUTTON'],
                     'label' => 'Copy SEO values',
-                    'title' => 'Copy Yoast Local SEO Data',
-                    'action' => 'xxxxxxxxxxxxxxxxxxAjax action'
+                    'title' => 'Copy Yoast Local SEO Data'
                 ),
 
                 'use_yoast_metadata' => array(

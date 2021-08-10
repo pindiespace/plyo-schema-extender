@@ -376,18 +376,6 @@ class PLSE_Metabox {
      */
 
     /**
-     * Add an error description next to the Schema field.
-     * 
-     * @since    1.0.0
-     * @access   public
-     * @param    string    $msg  error message
-     * @return   string    wrap the error message in HTML for display
-     */
-    public function add_error_to_field ( $msg = '' ) {
-        return '<span class="plse-input-err-msg">' . $msg . '</span>';
-    }
-    
-    /**
      * Render a hidden field (not the nonce).
      * 
      * @since    1.0.0
@@ -413,7 +401,7 @@ class PLSE_Metabox {
         $slug = sanitize_key( $args['slug'] );
         $value = esc_attr( $value );
         if ( empty( $value ) && $args['required'] == 'required') {
-            $err = $this->add_error_to_field( __( 'this field is required....') );
+            $err = $this->init->add_status_to_field( __( 'this field is required....') );
         }
         $type = $this->init->label_to_slug( $args['type'] );
         if ( $args['class'] ) $class = $args['class']; else $class = '';
@@ -446,7 +434,7 @@ class PLSE_Metabox {
     public function render_postal_field ( $args, $value ) {
         $err = '';
         if ( ! $this->init->is_postal( $value ) ) {
-            $err = $this->add_error_to_field( __( 'this is not a valid postal code' ) );
+            $err = $this->init->add_status_to_field( __( 'this is not a valid postal code' ) );
         }
         return $this->render_simple_field( $args, $value, $err );
     }
@@ -462,7 +450,7 @@ class PLSE_Metabox {
     public function render_tel_field ( $args, $value ) {
         $err = '';
         if ( ! $this->init->is_phone( $value ) ) {
-            $err = $this->add_error_to_field( __( 'this is not a valid phone number' ) );
+            $err = $this->init->add_status_to_field( __( 'this is not a valid phone number' ) );
         }
         return $this->render_simple_field( $args, $value, $err );
     }
@@ -478,7 +466,7 @@ class PLSE_Metabox {
     public function render_email_field ( $args, $value ) {
         $err = '';
         if ( ! $this->init->is_email( $value ) ) {
-            $err = $this->add_error_to_field( __( 'this is not a valid email' ) );
+            $err = $this->init->add_status_to_field( __( 'this is not a valid email' ) );
         }
         return $this->render_simple_field( $args, $value, $err );
     }
@@ -495,15 +483,15 @@ class PLSE_Metabox {
     public function render_url_field ( $args, $value ) {
         $err = '';
         if ( ! $this->init->is_url( $value ) ) {
-            $err = $this->add_error_to_field( __( 'invalid address (URL)' ) );
+            $err = $this->init->add_status_to_field( __( 'invalid address (URL)' ) );
         }
         // TODO: TOO SLOW - MAKE INTO A USER BUTTON
         // TODO:
         //if ( ! $this->init->is_active_url( $value ) ) {
         if ( ! $this->init->url_exists( $value ) ) {
-            $err = $this->add_error_to_field( __('the address does not go to a valid web page' ) );
+            $err = $this->init->add_status_to_field( __( 'the address does not go to a valid web page' ) );
         } else { 
-            // TODO: should put up valid symbol
+            //$err = $this->init->add_status_to_field( __( 'URL is ok' ), PLSE_INPUT_OK_MESSAGE );
         }
         $this->render_simple_field( $args, $value, $err );
         $slug = sanitize_key( $args['slug'] );
@@ -527,7 +515,7 @@ class PLSE_Metabox {
         if ( isset( $args['rows'] ) ) $rows = $args['rows'];
         if ( isset( $args['cols'] ) ) $cols = $args['cols'];
         if ( $this->init->is_required( $args ) ) {
-            $err = $this->add_error_to_field( __( 'this field is required....' ) );
+            $err = $this->init->add_status_to_field( __( 'this field is required....' ) );
         }
         echo '<textarea title="' . $args['title'] . '" id="' . $slug . '" name="' . $slug .'" rows="' . $rows . '" cols="' . $cols . '">' . $value . '</textarea>';
         if ( ! empty( $err ) ) echo $err;
@@ -546,7 +534,7 @@ class PLSE_Metabox {
         $slug = sanitize_key( $args['slug'] );
         $value = esc_attr( $value );
         if ( $this->init->is_required( $args ) ) {
-            $err = $this->add_error_to_field( __( 'this field is required....' ) );
+            $err = $this->init->add_status_to_field( __( 'this field is required....' ) );
         }
         echo '<input title="' . $args['title'] . '" id="' . $slug . '" type="date" name="' . $slug . '" value="' . $value . '">';
         if ( ! empty( $err ) ) echo $err;
@@ -565,7 +553,7 @@ class PLSE_Metabox {
         $slug = sanitize_key( $args['slug'] );
         $value = esc_attr( $value );
         if ( $this->init->is_required( $args ) ) {
-            $err = $this->add_error_to_field( __( 'this field is required....' ) );
+            $err = $this->init->add_status_to_field( __( 'this field is required....' ) );
         }
         echo '<input title="' . $args['title'] . '" id="' . $slug . '" type="time" name="' . $slug . '" value="' . $value . '">';
         if ( ! empty( $err ) ) echo $err;
