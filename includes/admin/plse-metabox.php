@@ -59,6 +59,15 @@ class PLSE_Metabox {
     private $schema_transient = 'plse-schema-metabox-transient';
 
     /**
+     * Maximum for meta repeater fields.
+     * 
+     * @since    1.0.0
+     * @access   private
+     * @var      string    $repeater_max    max number of repeater fields
+     */
+    private $repeater_max = 1000;
+
+    /**
      * Initialize the class and set its properties.
      * @since    1.0.0
      */
@@ -133,7 +142,6 @@ class PLSE_Metabox {
         );
 
     }
-
 
     /**
      * Based on required Schema, get data from the Schema class into the metabox.
@@ -399,6 +407,8 @@ class PLSE_Metabox {
      */
     public function render_simple_field ( $args, $value, $err = '' ) {
         $slug = sanitize_key( $args['slug'] );
+        // if it's an array, flatten it
+        if ( is_array( $value ) ) $value = $value[0];
         $value = esc_attr( $value );
         if ( empty( $value ) && $args['required'] == 'required') {
             $err = $this->init->add_status_to_field( __( 'this field is required....') );
@@ -485,14 +495,15 @@ class PLSE_Metabox {
         if ( ! $this->init->is_url( $value ) ) {
             $err = $this->init->add_status_to_field( __( 'invalid address (URL)' ) );
         }
-        // TODO: TOO SLOW - MAKE INTO A USER BUTTON
-        // TODO:
-        //if ( ! $this->init->is_active_url( $value ) ) {
-        if ( ! $this->init->url_exists( $value ) ) {
-            $err = $this->init->add_status_to_field( __( 'the address does not go to a valid web page' ) );
-        } else { 
-            //$err = $this->init->add_status_to_field( __( 'URL is ok' ), PLSE_INPUT_OK_MESSAGE );
+
+        // Only check if active checking was set in plugin options
+        $option = get_option('plse-settings-config-check-urls');
+        if ( $option ) {
+            if ( ! $this->init->url_exists( $value ) ) {
+                $err = $this->init->add_status_to_field( __( 'the address does not go to a valid web page' ) );
+            }
         }
+
         $this->render_simple_field( $args, $value, $err );
         $slug = sanitize_key( $args['slug'] );
 
@@ -511,6 +522,7 @@ class PLSE_Metabox {
         $rows = '5';
         $cols = '60';
         $slug = sanitize_key( $args['slug'] );
+        if ( is_array( $value ) ) $value = $value[0];
         $value = esc_html( $value );
         if ( isset( $args['rows'] ) ) $rows = $args['rows'];
         if ( isset( $args['cols'] ) ) $cols = $args['cols'];
@@ -532,6 +544,7 @@ class PLSE_Metabox {
     public function render_date_field ( $args, $value ) {
         $err = '';
         $slug = sanitize_key( $args['slug'] );
+        if ( is_array( $value ) ) $value = $value[0];
         $value = esc_attr( $value );
         if ( $this->init->is_required( $args ) ) {
             $err = $this->init->add_status_to_field( __( 'this field is required....' ) );
@@ -551,6 +564,7 @@ class PLSE_Metabox {
     public function render_time_field ( $args, $value ) {
         $err = '';
         $slug = sanitize_key( $args['slug'] );
+        if ( is_array( $value ) ) $value = $value[0];
         $value = esc_attr( $value );
         if ( $this->init->is_required( $args ) ) {
             $err = $this->init->add_status_to_field( __( 'this field is required....' ) );
@@ -570,6 +584,7 @@ class PLSE_Metabox {
     public function render_checkbox_field ( $args, $value ) {
         $slug = sanitize_key( $args['slug'] );
         $title = esc_html( $args['title'] );
+        if ( is_array( $value ) ) $value = $value[0];
         $value = esc_attr( $value );
         echo '<input title="' . $title . '" style="display:inline-block;" type="checkbox" id="' . $slug . '" name="' . $slug . '"';
         if ( $value == $this->init->get_checkbox_on() ) echo ' CHECKED';
@@ -578,8 +593,8 @@ class PLSE_Metabox {
     }
 
     /**
-     * Create an input field similar to the old 'combobox' - typing narrows the 
-     * results of the list, but users can type in a value not in the list.
+     * Create an input field similar to the old 'combox' - typing narrows the 
+     * results of the list, but users can type in a value not on the list.
      * 
      * @since    1.0.0
      * @access   public
@@ -587,18 +602,19 @@ class PLSE_Metabox {
     public function render_datalist_field ( $args, $value ) {
         $option_list = $args['option_list'];
         $slug = sanitize_key( $args['slug'] );
+        if ( isset( $args['size'] ) ) $size = $args['size']; else $size = '30';
+        if ( is_array( $value ) ) $value = $value[0];
         $value = esc_attr( $value );
 
-        $dropdown = '<div class="plse-options-datalist"><input type="text" title="' . $args['title'] . '" id="' . $slug . '" name="' . $slug . '" autocomplete="off" class="plse-datalist" value="' . $value . '" list="';
+        $dropdown = '<div class="plse-options-datalist"><input type="text" title="' . $args['title'] . '" id="' . $slug . '" name="' . $slug . '" autocomplete="off" class="plse-datalist" size="' . $size . '" value="' . $value . '" list="';
 
         if ( is_array( $option_list ) ) { // option list in field definition
 
-            // build <datalist> from the array
             $dropdown = $this->datalists->get_datalist( $option_list, $slug . '-data' );
 
         } else { // option list specifies a standard list in PLSE_Datalists
 
-            // load the standard datalist (note they must follow naming conventions)
+            // load the datalist (note they must follow naming conventions)
             $dropdown .= 'plse-' . $option_list . '-data' . '">'; // option list id 
             $method = 'get_' . $option_list . '_datalist';
             if ( method_exists( $this->datalists, $method ) ) { 
@@ -623,6 +639,7 @@ class PLSE_Metabox {
      */
     public function render_select_single_field ( $args, $value ) {
         $option_list = $args['option_list'];
+        if ( is_array( $value ) ) $value = $value[0];
         $slug = sanitize_key( $args['slug'] );
         $value = esc_attr( $value );
         $dropdown = '<div class="plse-option-select"><select title="' . $args['title'] . ' id="' . $slug . '" name="' . $slug . '" class="cpt-dropdown">' . "\n";
@@ -700,12 +717,19 @@ class PLSE_Metabox {
         $option_list = $args['option_list'];
         $datalist_id = '';
         $datalist = '';
+        $max = $this->repeater_max; // maximum number of repeater fields allowed
+
+        // NOTE: $value is supposed to be an array, unlike other fields
+
+        // TODO: STOP ADDING REPEATERS IF WE EXCEED THE SIZE OF THE DATALIST ARRAY
+        // TODO: UNIQUE-IFY the RESULTS (no duplicates)
 
         // create a datalist, if data is present
         if ( isset( $option_list ) ) {
             if ( is_array( $option_list ) ) { // $option_list is an array
                 $datalist_id = $slug . '-data';
                 $datalist = $this->datalists->get_datalist( $option_list, $datalist_id );
+                $max = count( $option_list ); // size of array
             } else { // option list specifies a standard list in PLSE_Datalists
                 // load the datalist (note they must follow naming conventions)
                 $method = 'get_' . $option_list . '_datalist';
@@ -713,6 +737,10 @@ class PLSE_Metabox {
                     $datalist .= $this->datalists->$method();
                     $datalist_id = $option_list;
                     $datalist_id = 'plse-' . $datalist_id . '-data'; // $option list is the id value 
+                }
+                $method = 'get_' . $option_list . '_size';
+                if ( method_exists( $this->datalists, $method ) ) {
+                    $max = $this->datalists->$method();
                 }
     
             }
@@ -723,7 +751,8 @@ class PLSE_Metabox {
         // begin rendering the table with repeater options
         ?>
         <div id="plse-repeater-<?php echo $slug; ?>" class="plse-repeater">
-            <table id="plse-repeater-table" width="60%">
+            <div id="plse-repeater-max-warning" class="plse-repeater-max-warning" style="display:none;">You have reached the maximum number of values</div>
+            <table id="plse-repeater-table" width="60%" data-max="<?php echo $max; ?>">
                 <tbody>
                     <!--default row, or rows from datatbase-->
                     <?php 
@@ -773,6 +802,7 @@ class PLSE_Metabox {
 
         $plse_init = PLSE_Init::getInstance();
         $slug = sanitize_key( $args['slug'] );
+        if ( is_array( $value ) ) $value = $value[0];
         $value = esc_url( $value );
         $title = $args['title'];
 
@@ -815,6 +845,7 @@ class PLSE_Metabox {
         $args['class'] = 'plse-embedded-video-url';
         $args['size'] = '60';
         $args['type'] = 'URL';
+        if ( is_array( $value ) ) $value = $value[0];
         $value = esc_url( $value );
         //$this->render_url_field( $args, $value );
 
@@ -927,8 +958,6 @@ class PLSE_Metabox {
 
                         $value = $_POST[ $slug ];
 
-                        // TODO:
-                        // TODO: convert from 'GAME' to PLSE_INPUT_TYPES['game']
                         // switch, converting our uppercase label to a lowercase slug
                         switch ( $field['type'] ) {
 

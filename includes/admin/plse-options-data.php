@@ -176,6 +176,14 @@ class PLSE_Options_Data {
                     'type'   => PLSE_INPUT_TYPES['CHECKBOX'],
                     'label' => 'Check to use Yoast meta data descriptions in the new Schema, if an excerpt isn\'t available.',
                     'title' => 'Yoast Local SEO values',
+                ),
+
+                'check_urls' => array(
+                    'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_CONFIG . '-check-urls',
+                    'description'  => 'If this is selected, URLs typed into custom Schema fields in posts will be checked online. It may result in slow loading.',
+                    'type'   => PLSE_INPUT_TYPES['CHECKBOX'],
+                    'label' => 'Check to have plugin actively check if URLs can be reached on the Internet.',
+                    'title' => 'Check to actively test typed-in URLs',
                 )
 
             )
@@ -327,11 +335,9 @@ class PLSE_Options_Data {
                 'service_type' => array(
                     'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-type-field',
                     'description'  => 'Service Type (e.g. Game Public Relations)"',
-                    //'type'   => PLSE_INPUT_TYPES['TEXT'],
-                    'type' => PLSE_INPUT_TYPES['DATALIST'],
+                    'type'   => PLSE_INPUT_TYPES['TEXT'],
                     'label' => 'Descriptive type',
-                    'title' => 'Enter a specific service type',
-                    'option_list' => 'service_genres'
+                    'title' => 'Enter a specific service type'
                 ),
 
                 'logo' => array(
@@ -391,12 +397,12 @@ class PLSE_Options_Data {
                 // genre
                 'genre' => array(
                     'slug'   => 'plse-' . PLSE_SCHEMA_GAME . '-type-field',
-                    'description'  => 'Game Genre (e.g. "Platformer") for entire site/organization.',
+                    'description'  => 'Game Genre (e.g. "Platformer")',
                     //'type'   => PLSE_INPUT_TYPES['TEXT'],
                     'type'   => PLSE_INPUT_TYPES['DATALIST'],
                     'label'  => 'Industry Genre (e.g. platformer):',
                     'title'  => 'Use a common game genre',
-                    'option_list' => 'game_genres', // datalist method in PLSE_Datalists
+                    'option_list' => 'game_genres'
 
                 ),
 

@@ -582,13 +582,12 @@ class PLSE_Options {
         $title = esc_html( $args['title'] );
         $label = esc_html( $args['label'] );
         $type = $args['type'];
-        $list_id = $args['list_slug'];
+        $list_id = $args['list_id'];
 
         $option = get_option( $slug );
-        echo '<label class="plse-option-description" for="' . $slug . '">' . esc_html( $label ) . '</label>';
-        echo '<input title="'. $title .'" class="plse-option-input" type="' . $type . '" list="' . $list_id .'" id="' . $slug . '" name="' . $slug . '" size="40" value="' . $option . '" />';	
-        // descriptive for datalist
-        echo '<span>This sets a default/global value. You can override this for individual posts.</span>';
+        echo '<label class="plse-option-description" for="' . $slug . '">' . $label . '</label>';
+        echo '<input title="'. $title .'" class="plse-option-input" type="' . $type . '" list="' . $list_id . '" id="' . $slug . '" name="' . $slug . '" size="40" value="' . $option . '" />';	
+        echo '<span>' . __( 'These are global settings. You can override them in individual posts.' ) . '</span>';
         return $option; // for error checks
     }
 
@@ -603,40 +602,34 @@ class PLSE_Options {
     }
 
     /**
-     * Render a text field with a datalist.
+     * Render a datalist.
      * 
      * @since    1.0.0
      * @access   public
-     * @param    array
+     * @param    array    $args    field arguments
      */
     public function render_datalist_field ( $args ) {
-
+        $args['type'] = 'text';
         $slug = sanitize_key( $args['slug'] );
-        $args['list_slug'] = ''; // set to default
-        $list = '';
-
         $option_list = $args['option_list'];
 
-        // if a list was specified, build it or call it from PLSE_Datalists
         if ( isset( $option_list ) ) {
-
             if ( is_array( $option_list ) ) {
-                // $option_list is an array, convert to datalist options
-                $args['list_slug'] = $slug . '-data';
-                $list = $this->datalists->get_datalist( $option_list, $args['list_slug'] );
+                // apply custom array of options specified in the field
+                $args['list_id'] = $slug . '-data'; // NOTE: wrong method name causes save to FAIL
+                echo $this->datalists->get_datalist( $option_list, $args['list_id'] );
             }
             else {
-                // apply a standard datalist from PLSE_Datalists, $option_list is the string id
-                $args['list_slug'] = 'plse-' . $option_list . '-data';
+                // apply a standard datalist
                 $method = 'get_' . $option_list . '_datalist';
-                if ( method_exists( $this->datalists, $method ) ) { 
-                    $list = $this->datalists->$method(); 
+                $args['list_id'] = 'plse-' . $option_list . '-data';
+                if ( method_exists( $this->datalists, $method ) ) {
+                    echo $this->datalists->$method(); 
                 }
-
             }
-            echo $list;
         }
-        $this->render_text_field( $args ); // pass in $list id
+
+        $option = $this->render_simple_field( $args );
 
     }
 

@@ -516,7 +516,6 @@ class PLSE_Datalists {
         'project management' => 'Project Management',
         'marketing' => 'Marketing',
         'public relations' => 'Public Relations',
-        'game PR' => 'Game PR',
         'banking' => 'Banking',
         'sales' => 'Sales',
         'retail' => 'Retail',
@@ -604,11 +603,12 @@ class PLSE_Datalists {
 
      /**
       * Datalist attaches a list to an <input type="text"... field.
-      * This method converts a standard associative array to datalist HTML
-      *
+      * 
       * @since    1.0.0
       * @access   public
-      * @return   string    $list the complete datalist element
+      * @param    array     $arr    an associative array
+      * @param    string    $id     id to associated with text field
+      * @return   string    $list   the complete datalist element
       */
      public function get_datalist ( $arr, $id ) {
         $list = '<datalist id="' . $id . '">';
@@ -673,6 +673,10 @@ class PLSE_Datalists {
         return $this->get_datalist( $this->languages, $id );
     }
 
+    public function get_languages_size () {
+        return count( $this->languages );
+    }
+
     /**
      * Provide a list of countries country fields. Users type in 
      * values to progressively select the correct value
@@ -685,8 +689,14 @@ class PLSE_Datalists {
         return $this->get_datalist( $this->countries, $id );
     }
 
+
+
     public function get_countries_select () {
         return $this->get_select( $this->countries );
+    }
+
+    public function get_countries_size () {
+        return count( $this->countries );
     }
 
     /**
@@ -704,6 +714,10 @@ class PLSE_Datalists {
         return $this->get_select( $this->game_genres );
     }
 
+    public function get_game_genres_size () {
+        return count( $this->game_genres );
+    }
+
     /**
      * Provide a list of common videogame platforms (hardware/software).
      * 
@@ -717,6 +731,10 @@ class PLSE_Datalists {
 
     public function get_platforms_select () {
         return $this->get_select( $this->platforms );
+    }
+
+    public function get_platforms_size () {
+        return count( $this->platforms );
     }
 
     /**
@@ -734,6 +752,10 @@ class PLSE_Datalists {
         return $this->get_select( $this->os );
     }
 
+    public function get_os_size () {
+        return count( $this->os );
+    }
+
     /**
      * Provide a list of common videogame operating systems.
      * 
@@ -741,12 +763,16 @@ class PLSE_Datalists {
      * @access   public
      */
     public function get_service_genres_datalist ( $id = '' ) {
-        if ( ! $id ) $id = 'plse-service_genres-data';
+        if ( ! $id ) $id = 'plse-service-genres-data';
         return $this->get_datalist( $this->service_genres, $id );
     }
 
-    public function get_service_select () {
+    public function get_service_genres_select () {
         return $this->get_select( $this->service_genres );
+    }
+
+    public function get_service_genres_size () {
+        return count( $this->service_genres );
     }
 
 } // end of class

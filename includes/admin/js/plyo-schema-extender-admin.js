@@ -125,6 +125,11 @@
 
         } // end of if(tabs)
 
+        // TODO:
+        // TODO:
+        // TODO: flag if changes have happened, let user know
+        // TODO: so they save them
+
         /*
          * ---------------------------------------------------
          * Load Yoast Local SEO data (if plugin is present) 
@@ -230,21 +235,39 @@
 
             let btnP = $(this).parent(); // enclosing <p></p>
             let fieldSet = btnP.parent(); // enclosing <div>, with <table> inside
+            let table = fieldSet.find('table');
 
-            // find the last table row in the control <table> holding repeated fields
-            let prev = fieldSet.find('tbody>tr:last');
+            // find the number of rows on the table. If it is >= max, keep it at max
+            length = table.find('tbody>tr').length;
+            let max = table.attr('data-max'); 
 
-            let emptyRow = $(fieldSet).find('.plse-repeater-empty-row').clone(true);
-            emptyRow.removeClass( 'plse-repeater-empty-row' ).css('display','table-row');
-            emptyRow.insertBefore( prev );
+            if (length > max) {
+                $('.plse-repeater-max-warning').css('display','block');
+            } else {
+                // find the last table row in the control <table> holding repeated fields
+                let prev = fieldSet.find('tbody>tr:last');
 
-            console.log('adding');
+                let emptyRow = $(fieldSet).find('.plse-repeater-empty-row').clone(true);
+                emptyRow.removeClass( 'plse-repeater-empty-row' ).css('display','table-row');
+                emptyRow.insertBefore( prev );
+
+                console.log('adding');
+            }
+
+            //////////console.log('table:' + table + ' length:' + length + ' max:' + max)
 
         });
 
         // remove a text input repeater row
         $('.plse-repeater-remove-row-btn').on('click', function(e) {
+            let table = $(this).parents('table'); // enclosing table
             $(this).parents('tr').remove();
+            let length = table.find('tbody>tr').length;
+            let max = table.attr('data-max'); 
+            /////////console.log('table:' + table + ' length:' + length + ' max:' + max)
+            if ( length < max+1) { // number of rows not updated
+                $('.plse-repeater-max-warning').css('display','none');
+            }
         });
 
         /*

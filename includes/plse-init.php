@@ -237,7 +237,7 @@ class PLSE_Init {
 
             foreach( $field_group as $key => $field ) {
 
-                // this is a $field array from PLSE_Options_Data, or from a plse-schema-xxxx.php file
+                // this is something from PLSE_Options_Data, or a plse-schema-xxxx.php file
                 if ( isset( $field['type'] ) ) {
                     $js .= "\n'" . $field['slug'] . "': { 'yoast_slug':'" . $field['yoast_slug'] . "', 'value': ''},";
                 }
@@ -245,6 +245,15 @@ class PLSE_Init {
                 else { // assume it is a simple associative array
                     $js .= "\n'" . $key . "':'" . $field . "',";
                 }
+
+                // note that property name is in single quotes
+                //switch ( $field['type'] ) {
+
+                // TODO: nothing added bu field property names at present
+                //    default:
+                //       $js .= "\n'" . $field['slug'] . "': {},";
+                //        break;
+                // }
 
         }
 

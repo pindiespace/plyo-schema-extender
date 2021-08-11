@@ -83,6 +83,11 @@
     background-color:rgb(100, 100, 100);
 }
 
+/* error on repeater fields (too many entires) */
+.plse-repeater-max-warning {
+    background-color:rgb(255, 222, 162);
+}
+
 /*
  * BOX WITH OPTIONS
  */
