@@ -165,12 +165,14 @@
 
         /*
          * ---------------------------------------------------
-         * Load YouTube Video when input URL is typed in
+         * Load YouTube or Vimeo video embedded player and image thumbnail
+         * when input URL is typed in
          * https://developers.google.com/youtube/iframe_api_reference
          * ---------------------------------------------------
          */
         $('.plse-embedded-video-url').on('blur', function (e) {
 
+            e.preventDefault(); // stop click from refreshing page
             let url = e.target.value;
 
             // https://gist.github.com/yangshun/9892961
@@ -194,7 +196,27 @@
                 };
             }
 
+            // look for a field for 'thumbnailURL' and add the thumbnail we get from Youtube or Vimeo to it as the first field.
+            function addThumbnailURL (elem, thumb_link) {
+                // see if 
+                let table = $(elem).parent().parent().parent();
+                //////console.log('TABLE IS:' + table)
+                if(table) {
+                    // look for first repeater <input> field holding thumbnail URLs
+                    let urls = table.find('input[name*="-trailer_video_thumbnail_url[]"]');
+                    window.urls = urls;
+                    //////console.log('URLS are:' + urls);
+                    if (urls[0]) {
+                        //////console.log('URLS[0]:' + urls[0])
+                        if ( ! urls[0].value ) {
+                            urls[0].value = thumb_link;
+                        }
+                    }
+                }
+            }
+
             var id = getVideoId(url);
+            let url_field = this;
 
             if(id.type == 'youtube') {
 
@@ -206,15 +228,19 @@
 
                 $('.plse-upload-img-video-box').attr('src', thumb_link);
 
+                // add to trailer_thumbnail_url field
+                addThumbnailURL(url_field, thumb_link);
+
             } else if(id.type == 'vimeo') {
 
                 // load the video
                 $('.plse-embed-video').html('<iframe src="https://player.vimeo.com/video/' + id.id + '?portrait=0" width="600" height="320" frameborder="0"></iframe> ');
 
-                // load thumbnail
-
                 $.getJSON('https://vimeo.com/api/oembed.json?url=https://vimeo.com/' + id.id, {format: "json"}, function(data) {
                     $('.plse-upload-img-video-box').attr('src', data.thumbnail_url);
+
+                    // add to trailer_thumbnail_url field
+                    addThumbnailURL(url_field, data.thumbnail_url);
                 });
 
             }
@@ -254,8 +280,6 @@
                 console.log('adding');
             }
 
-            //////////console.log('table:' + table + ' length:' + length + ' max:' + max)
-
         });
 
         // remove a text input repeater row
@@ -269,6 +293,46 @@
                 $('.plse-repeater-max-warning').css('display','none');
             }
         });
+
+        /**
+         * ---------------------------------------------------
+         * add an <img> tag when an image repeater URL input field is present. 
+         * Each time the user enters an image and exits the field, it checks for validity
+         * ---------------------------------------------------
+         */
+        $("input[name*='_thumbnail_url'").on('blur', function(e) {
+            ///////console.log("blurred out of video thumbnail")
+            let url = this.value;
+            let col = $(this).parents('td');
+
+            // delete any previously-attached images
+            $(col).find('.repeater-thumbnail-img').remove();
+
+            // try to add an image, using the input field URL
+            if (!$(col).find('.repeater-thumbnail-img').length) {
+
+                // check if image actually exists
+                function imageExists(url, callback) {
+                    var img = new Image();
+                    img.onload = function() { callback(true); };
+                    img.onerror = function() { callback(false); };
+                    img.src = url;
+                }
+
+                // if the image exists, show it. Otherwise, create a dummy image that is invisible
+                imageExists(this.value, function(exists) {
+                    if (exists == true)
+                    $(col).append('<img style="display:inline-block;border:1px solid black;vertical-align:middle;border:1px solid black;" class="repeater-thumbnail-img" src="' + url + '" width="30" height="30" />');
+                    else
+                    $(col).append('<img style="display:inline-block;border:1px solid black;vertical-align:middle;" class="repeater-thumbnail-img" width="30" height="30" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==">')
+                });
+
+            }
+
+        });
+
+        // TODO: fire this for all thumbnails on load
+        $("input[name*='_thumbnail_url'").trigger('blur');
 
         /*
          * ---------------------------------------------------
@@ -385,7 +449,7 @@
             // if we just "click away" from the plugin, put up a warning message
             window.onbeforeunload = function(e) {
 
-                console.log('onbeforeunload event fired')
+                ////////console.log('onbeforeunload event fired')
 
                 var e = e || window.event, simon = "go"; //, needToConfirm = false;
 

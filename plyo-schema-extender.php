@@ -311,6 +311,7 @@ add_action( 'plugins_loaded', function () {
 
                         // load datalists
                         //$plse_datalists = PLSE_Datalists::getInstance();
+                        //$plse_init = PLSE_Init::getInstance();
 
                         // load metabox class
                         require_once PLSE_SCHEMA_EXTENDER_PATH . '/includes/admin/plse-metabox.php';

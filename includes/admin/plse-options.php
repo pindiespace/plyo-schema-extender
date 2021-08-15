@@ -642,7 +642,7 @@ class PLSE_Options {
     public function render_postal_field ( $args ) {
         $option = $this->render_simple_field( $args );
         if ( ! $this->init->is_postal( $option ) ) {
-            echo $this->init->add_error_to_field( __( 'Invalid postal address') );
+            echo $this->init->add_status_to_field( __( 'Invalid postal address') );
         }
     }
 
@@ -655,7 +655,7 @@ class PLSE_Options {
     public function render_tel_field ( $args ) {
         $option = $this->render_simple_field( $args );
         if ( ! $this->init->is_phone( $option ) ) {
-            echo $this->init->add_error_to_field( __( 'Invalid phone') );
+            echo $this->init->add_status_to_field( __( 'Invalid phone') );
         }
     }
 
@@ -668,7 +668,7 @@ class PLSE_Options {
     public function render_email_field ( $args ) {
         $option = $this->render_simple_field( $args );
         if ( ! $this->init->is_email( $option ) ) {
-            echo $this->init->add_error_to_field( __( 'Invalid email' ) );
+            echo $this->init->add_status_to_field( __( 'Invalid email' ) );
         }
     }
 
@@ -680,8 +680,8 @@ class PLSE_Options {
      */
     public function render_url_field ( $args ) {
         $option = $this->render_simple_field( $args );
-        if ( ! $this->init->is_url( $option ) ) {
-            echo $this->init->add_error_to_field( __( 'Invalid URL') );
+        if ( ! $this->init->get_final_url( $option ) ) {
+            echo $this->init->add_status_to_field( __( 'Invalid URL') );
         }
     }
 
@@ -1117,7 +1117,7 @@ class PLSE_Options {
     public function validate_url_field ( $in ) {
         $in = sanitize_text_field( trim( $in ) );
         $out = esc_url( $in, [ 'http', 'https' ] );
-        if ( $out != $in || ! $this->init->is_url( $out ) ) {
+        if ( $out != $in || ! $this->init->get_final_url( $out) ) {
             add_settings_error(
                 $this->option_group,
                 'url_validation_error',

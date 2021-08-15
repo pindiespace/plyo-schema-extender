@@ -283,7 +283,7 @@ class PLSE_Metabox {
         // actually add the metabox
         add_meta_box(
             $schema_data['slug'],
-            $schema_data['title'], // visible name
+            $schema_data['title'] . '<span class="dashicons dashicons-networking" style="width:50px;"></span>', // visible name
             [ $this, 'render_metabox'], // render callback
             $post->post_type, // CPT, can be 'post'
             'normal',
@@ -324,7 +324,7 @@ class PLSE_Metabox {
         }
 
         // descriptive metabox message
-        echo '<p class="plse-meta-message">' . $msg . ' Schema.' . $meta_field_args['message'] . '</p>';
+        echo '<p class="plse-meta-message">' . ucfirst( $msg ) . ' Schema. ' . $meta_field_args['message'] . '</p>';
         echo '<ul class="plse-meta-list">';
 
         // add nonce
@@ -332,6 +332,8 @@ class PLSE_Metabox {
         $context = $meta_field_args['slug'];
 
         wp_nonce_field( $context, $nonce );
+
+        $count = 0;
 
         // loop through each Schema field
         foreach ( $fields as $field ) {
@@ -443,7 +445,7 @@ class PLSE_Metabox {
      */
     public function render_postal_field ( $args, $value ) {
         $err = '';
-        if ( ! $this->init->is_postal( $value ) ) {
+        if ( ! empty( $value ) && ! $this->init->is_postal( $value ) ) {
             $err = $this->init->add_status_to_field( __( 'this is not a valid postal code' ) );
         }
         return $this->render_simple_field( $args, $value, $err );
@@ -459,7 +461,7 @@ class PLSE_Metabox {
      */
     public function render_tel_field ( $args, $value ) {
         $err = '';
-        if ( ! $this->init->is_phone( $value ) ) {
+        if ( ! empty( $value ) && ! $this->init->is_phone( $value ) ) {
             $err = $this->init->add_status_to_field( __( 'this is not a valid phone number' ) );
         }
         return $this->render_simple_field( $args, $value, $err );
@@ -475,7 +477,7 @@ class PLSE_Metabox {
      */
     public function render_email_field ( $args, $value ) {
         $err = '';
-        if ( ! $this->init->is_email( $value ) ) {
+        if ( ! empty( $value ) && ! $this->init->is_email( $value ) ) {
             $err = $this->init->add_status_to_field( __( 'this is not a valid email' ) );
         }
         return $this->render_simple_field( $args, $value, $err );
@@ -491,21 +493,23 @@ class PLSE_Metabox {
      * @param    string   $value    the field value
      */
     public function render_url_field ( $args, $value ) {
-        $err = '';
-        if ( ! $this->init->is_url( $value ) ) {
-            $err = $this->init->add_status_to_field( __( 'invalid address (URL)' ) );
-        }
 
-        // Only check if active checking was set in plugin options
-        $option = get_option('plse-settings-config-check-urls');
-        if ( $option ) {
-            if ( ! $this->init->url_exists( $value ) ) {
-                $err = $this->init->add_status_to_field( __( 'the address does not go to a valid web page' ) );
+        // TODO: THIS CHECK IS NOT WORKING...
+        // TODO: FOR REDIRECT
+        // TODO: redo URL check
+
+        $err = '';
+        if ( ! empty( $value ) ) {
+            // Only check if active checking was set in plugin options
+            $option = get_option('plse-settings-config-check-urls'); // value is 'on' or nothing
+            if ( $option ) {
+                if ( ! $this->init->get_final_url( $value ) ) {
+                    $err = $this->init->add_status_to_field( __( 'the address may not go to a valid web page (check it!)' ) );
+                }
             }
         }
 
         $this->render_simple_field( $args, $value, $err );
-        $slug = sanitize_key( $args['slug'] );
 
     }
 
@@ -606,6 +610,10 @@ class PLSE_Metabox {
         if ( is_array( $value ) ) $value = $value[0];
         $value = esc_attr( $value );
 
+        if ( $this->init->is_required( $args ) ) {
+            $err = $this->init->add_status_to_field( __( 'this field is required....' ) );
+        }
+ 
         $dropdown = '<div class="plse-options-datalist"><input type="text" title="' . $args['title'] . '" id="' . $slug . '" name="' . $slug . '" autocomplete="off" class="plse-datalist" size="' . $size . '" value="' . $value . '" list="';
 
         if ( is_array( $option_list ) ) { // option list in field definition
@@ -713,16 +721,23 @@ class PLSE_Metabox {
      */
     public function render_repeater_field ( $args, $value ) {
         $slug = sanitize_key( $args['slug'] );
-        $size = '50';
+        // adjust size of fields
+        if ( isset( $args['size'] ) ) $size = $args['size']; else $size = '50';
+        // adjust text field subtype (url, date, time...)
+        if ( isset( $args['subtype'] ) ) $type = $args['subtype']; else $type ='text';
         $option_list = $args['option_list'];
         $datalist_id = '';
         $datalist = '';
         $max = $this->repeater_max; // maximum number of repeater fields allowed
+        $is_image = $args['is_image'];
+        if( $is_image == true ) $table_width = '80%';
+        else $table_width = '70%';
 
-        // NOTE: $value is supposed to be an array, unlike other fields
-
-        // TODO: STOP ADDING REPEATERS IF WE EXCEED THE SIZE OF THE DATALIST ARRAY
-        // TODO: UNIQUE-IFY the RESULTS (no duplicates)
+        /*
+         * $value is supposed to be an array, unlike other fields
+         * NOTE: a maximum number of repeates is calculated from the $option_list size, if present
+         * TODO: UNIQUE-IFY the RESULTS (no duplicates)
+         */
 
         // create a datalist, if data is present
         if ( isset( $option_list ) ) {
@@ -752,37 +767,53 @@ class PLSE_Metabox {
         ?>
         <div id="plse-repeater-<?php echo $slug; ?>" class="plse-repeater">
             <div id="plse-repeater-max-warning" class="plse-repeater-max-warning" style="display:none;">You have reached the maximum number of values</div>
-            <table id="plse-repeater-table" width="60%" data-max="<?php echo $max; ?>">
+            <table class="plse-repeater-table" width="<?php echo $table_width; ?>" data-max="<?php echo $max; ?>">
                 <tbody>
                     <!--default row, or rows from datatbase-->
                     <?php 
                     if( $value ):
                         foreach( $value as $field ) { 
-                            if ( ! empty( $field ) ) { ?>
+                            if ( ! empty( $field ) ) {
+                                $wroteflag = true;
+                            ?>
                             <tr>
-                            <td><input name="<?php echo $slug; ?>[]" type="text" <?php echo $list_attr; ?> class="plse-repeater-input" value="<?php if($field != '') echo esc_attr( $field ); ?>" size="<?php echo $size; ?>" placeholder="type in value" /></td>
+                            <td><input name="<?php echo $slug; ?>[]" type="<?php echo $type; ?>" <?php echo $list_attr; ?> class="plse-repeater-input" value="<?php if($field != '') echo esc_attr( $field ); ?>" size="<?php echo $size; ?>" placeholder="type in value" /></td>
                             <td><a class="button plse-repeater-remove-row-btn" href="#1">Remove</a></td>
-                        </tr>
-                        <?php } }
+                            </tr>
+                        <?php 
+                            }
+                        }
+                        if ( ! $wroteflag ):
+                            ?>
+                            <tr>
+                            <td><input name="<?php echo $slug; ?>[]" type="<?php echo $type; ?>" <?php echo $list_attr; ?> class="plse-repeater-input" value="<?php if($field != '') echo esc_attr( $field ); ?>" size="<?php echo $size; ?>" placeholder="type in value" /></td>
+                            <td><a class="button plse-repeater-remove-row-btn" href="#1">Remove</a></td>
+                            </tr>
+                            <?php 
+                        endif;
                     else: ?>
                     <tr class="plse-repeater-default-row" style="display: table-row">
-                        <td><input name="<?php echo $slug; ?>[]" type="text" <?php echo $list_attr; ?> class="plse-repeater-input" size="<?php echo $size; ?>" placeholder="<?php echo __( 'enter text here' ); ?>"/></td>
+                        <td><input name="<?php echo $slug; ?>[]" type="<?php echo $type; ?>" <?php echo $list_attr; ?> class="plse-repeater-input" size="<?php echo $size; ?>" placeholder="<?php echo __( 'enter text here' ); ?>"/>
+                        </td>
                         <td><a class="button plse-repeater-remove-row-btn button-disabled" href="#">Remove</a></td>
                     </tr>
                     <?php endif;
                     ?>
-                    <!--invisible blank row-->
+                    <!--invisible blank row, copied to create new visible row-->
                     <tr class="plse-repeater-empty-row" style="display: none">
-                        <td><input name="<?php echo $slug; ?>[]" type="text" <?php echo $list_attr; ?> class="plse-repeater-input" size="<?php echo $size; ?>" placeholder="<?php echo __( 'enter text here' ); ?>"/></td>
+                        <td><input name="<?php echo $slug; ?>[]" type="<?php echo $type; ?>" <?php echo $list_attr; ?> class="plse-repeater-input" size="<?php echo $size; ?>" placeholder="<?php echo __( 'enter text here' ); ?>"/>
+                        </td>
                         <td><a class="button plse-repeater-remove-row-btn" href="#">Remove</a></td>
                     </tr>
                 </tbody>
             </table>
         <p><a class="button plse-repeater-add-row-btn" href="#">Add another</a></p>
         <?php 
-            if ( isset( $option_list ) ){
+            if ( isset( $option_list ) ) {
             echo '<p>' . __( 'Begin typing to find value, or type in your own value. Delete all text, click in the field, and re-type to search for a new value.' ) . '</p>';
             }
+            if ( $is_image ) echo __( '<p>' . __( 'Hit the tab key after entering to check if the image is valid.' ) . '</p>' );
+
         ?>
         </div>
 
@@ -840,7 +871,7 @@ class PLSE_Metabox {
          * create the thumbnail URL
          * {@link https://ytimg.googleusercontent.com/vi/<insert-youtube-video-id-here>/default.jpg}
          */ 
-        echo '<div>';
+        echo '<div class="plse-video-metabox">';
         // add a special class for JS to the URL field for dynamic video embed
         $args['class'] = 'plse-embedded-video-url';
         $args['size'] = '60';
@@ -851,14 +882,16 @@ class PLSE_Metabox {
 
         echo '<table style="width:100%">';
         echo '<tr>';
+        // create the input field for the url
         echo '<td colspan="2" style="padding-bottom:4px;">' . $this->render_url_field( $args, $value ) . '</td>';
         echo '</td>';
         echo '<tr>';
         echo '<td style="width:50%; text-align:center;position:relative">';
         if ( $value ) {
-            $thumbnail_url = $this->init->get_video_thumb( $value );
+            // get a thumbnail image from the video URL
+            $thumbnail_url = esc_url( $this->init->get_video_thumb( $value ) );
             // clunky inline style removes offending hyperlink border see with onblur event
-            echo '<a href="' . $value . '" style="display:inline-block;height:0px;"><img title="' . $title . '" class="plse-upload-img-video-box" id="' . $slug . '-img-id" src="' . esc_url( $thumbnail_url ) . '" width="128" height="128"></a>';
+            echo '<a href="' . $value . '" style="display:inline-block;height:0px;"><img title="' . $title . '" class="plse-upload-img-video-box" id="' . $slug . '-img-id" src="' . $thumbnail_url . '" width="128" height="128"></a>';
         } else {
             echo '<img title="' . $title . '" class="plse-upload-img-video-box" id="'. $slug . '-img-id" src="' . $plse_init->get_default_placeholder_icon_url() . '" width="128" height="128">';
         }
@@ -994,8 +1027,22 @@ class PLSE_Metabox {
                                 // format: 
                                 break;
 
+                            case PLSE_INPUT_TYPES['AUDIO']:
+                                // might save a thumbnail, e.g. album cover
+                                break;
+
+                            case PLSE_INPUT_TYPES['VIDEO']:
+                                // saving a video URL, but must also save thumbnail if present
+                                break;
+
                             default: 
-                                $value = sanitize_text_field( trim( $value ) );
+                                if ( is_array( $value ) ) {
+                                    foreach ( $value as $val ) {
+                                        if ( ! is_array( $val ) ) $value = sanitize_text_field( $value );
+                                    }
+                                }
+                                if ( ! is_array( $value ) ) $value = sanitize_text_field( $value );
+                                // TODO: sanitize array
                                 break;
 
                         }

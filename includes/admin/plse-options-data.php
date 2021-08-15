@@ -122,6 +122,22 @@ class PLSE_Options_Data {
      * - Individual fields for each Schema are defined in /schema/plse-schema-xxx.php
      * - NOTE: add an 'option_list' => array(...) to any $options['fields']['xxx'] to pass a static list.
      * - NOTE: add an 'option_list' => string to any field to use a PLSE_Datalist
+     * - NOTE: NOT IDENTICAL TO METABOX FIELDS (e.g. yoast_slug not in metabox)
+     * 
+     * $field[]
+     * |- slug            = the id used to access the field, store in metabox data
+     * |- yoast_slug      = equivalent value in Yoast Local SEO (NOT IN METABOX)
+     * |- description     = field description (for UI to the left of the field)
+     * |- label           = the text in the <label>...</label> field
+     * |- title           = appears when user mouses over the field
+     * |- type            = type of control (PLSE_INPUT_TYPES[VALUE])
+     * |- width           = if PLSE_INPUT_TYPES['IMAGE'], the image width
+     * |- height          = if PLSE_INPUT_TYPES['IMAGE], the image height
+     * |- subtype         = if field is 'REPEATER' subtype is the field type for individual entries
+     * |- required        = field entry required
+     * |- select_multiple = if true, multiple options selected from a list
+     * |- option_list     = either an array of values, or a string specifying a datalist in PLSE_Datalists
+     * |- is_image        = for url fields, if the value is an image, show a thumbnail
      * 
      * @since    1.0.0
      * @access   private
@@ -214,7 +230,7 @@ class PLSE_Options_Data {
                     'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_GENERAL . '-email-field',
                     'description'  => 'Organization Email contact (if different from Wordpress Admin)',
                     'type'   => PLSE_INPUT_TYPES['EMAIL'],
-                    'label'  => 'Email format: xxxx@novyunlimited.com',
+                    'label'  => 'Email format: xxxx@domainname.com',
                     'title'  => 'Provide a valid contact email for your organization',
                     'yoast_slug'  => 'location_email'
                 ),
@@ -391,18 +407,6 @@ class PLSE_Options_Data {
                     'type'   => PLSE_INPUT_TYPES['CAT'],
                     'label'  => 'Select Multiple ok',
                     'title'  => 'Clicking one of the listed categories will add the Schema to all posts using the category'
-
-                ),
-
-                // genre
-                'genre' => array(
-                    'slug'   => 'plse-' . PLSE_SCHEMA_GAME . '-type-field',
-                    'description'  => 'Game Genre (e.g. "Platformer")',
-                    //'type'   => PLSE_INPUT_TYPES['TEXT'],
-                    'type'   => PLSE_INPUT_TYPES['DATALIST'],
-                    'label'  => 'Industry Genre (e.g. platformer):',
-                    'title'  => 'Use a common game genre',
-                    'option_list' => 'game_genres'
 
                 ),
 

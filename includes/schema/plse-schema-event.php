@@ -101,7 +101,7 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
             // FORMAT: 'HH:MM:SS'
             'event_start_time' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-start-time',
-                'label' => 'Start Time(Hour:Minute:Seconds):',
+                'label' => 'Start Time(Hour:Minute:AM or PM):',
                 'title' => 'Time when the event starts',
                 'type'  => PLSE_INPUT_TYPES['TIME'],
                 'required' => 'required',
@@ -124,6 +124,109 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
                 'title' => 'Time when the event ends',
                 'type'  => PLSE_INPUT_TYPES['TIME'],
                 'required' => 'required',
+                'wp_data' => 'post_meta',
+            ),
+
+            'sameAs' => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-sameas',
+                'label' => 'Same as These Links (enter URLs):',
+                'title' => 'Specific alternate URLs',
+                'type'  => PLSE_INPUT_TYPES['REPEATER'],
+                'subtype' => PLSE_INPUT_TYPES['URL'],
+                'required' => 'required',
+                'wp_data' => 'post_meta',
+            ),
+
+            'event_status' => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-event_attendance_mode',
+                'label' => 'Attendance Mode:',
+                'title' => 'Specify one or more attendance modes',
+                'type' => PLSE_INPUT_TYPES['SELECT_SINGLE'],
+                'required' => '',
+                'wp_data' => 'post_meta',
+                'option_list' => array(
+                    'Event Scheduled' => 'EventScheduled',
+                    'Event Canceled' => 'EventCancelled',
+                    'Event Moved Online' => 'EventMovedOnline',
+                    'Event Postphoned' => 'EventPostponed',
+                    'Event Rescheduled' => 'EventRescheduled',
+                ),
+            ),
+
+            'event_attendance_mode' => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-event_attendance_mode',
+                'label' => 'Attendance Mode:',
+                'title' => 'Specify one or more attendance modes',
+                'type' => PLSE_INPUT_TYPES['REPEATER'],
+                'subtype' => PLSE_INPUT_TYPES['TEXT'],
+                'required' => '',
+                'wp_data' => 'post_meta',
+                'option_list' => array(
+                    'Mixed Online and Offline' => 'MixedEventAttendanceMode',
+                    'Offline' => 'OfflineEventAttendanceMode',
+                    'Online' => 'OnlineEventAttendanceMode',
+                ),
+
+            ),
+
+            'event_location_name' => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-location_name',
+                'label' => 'Event Location Name:',
+                'title' => 'Official name of the location',
+                'type'  => PLSE_INPUT_TYPES['TEXT'],
+                'required' => 'required',
+                'wp_data' => 'post_meta',
+            ),
+
+            'event_street_address' => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-location_street_address',
+                'label' => 'Event Location Address:',
+                'title' => 'Address',
+                'type'  => PLSE_INPUT_TYPES['TEXT'],
+                'required' => 'required',
+                'wp_data' => 'post_meta',
+            ),
+            'event_address_locality' => array( //city
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-address_locality',
+                'label' => 'Event Location City:',
+                'title' => 'City for the the event',
+                'type'  => PLSE_INPUT_TYPES['TEXT'],
+                'required' => 'required',
+                'wp_data' => 'post_meta',
+            ),
+            'event_address_region' => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-address_region',
+                'label' => 'Event State or Region:',
+                'title' => 'Add a state or region of country',
+                'type'  => PLSE_INPUT_TYPES['TEXT'],
+                'required' => 'required',
+                'wp_data' => 'post_meta',
+            ),
+
+            'event_address_country' => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-address-country',
+                'label' => 'Event Country:',
+                'title' => 'Country in which the event is held',
+                'type'  => PLSE_INPUT_TYPES['TEXT'],
+                'required' => 'required',
+                'wp_data' => 'post_meta',
+            ),
+
+            'event_postal_code' => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-postal-code',
+                'label' => 'Event Address Postal Code:',
+                'title' => 'Postal Code for the event location',
+                'type'  => PLSE_INPUT_TYPES['TEXT'],
+                'required' => 'required',
+                'wp_data' => 'post_meta',
+            ),
+
+            'event_virtual_location' => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-virtual_location',
+                'label' => 'Online Location (URL) of where remote users can participate in event:',
+                'title' => 'URL giving online access to event',
+                'type'  => PLSE_INPUT_TYPES['URL'],
+                'required' => '',
                 'wp_data' => 'post_meta',
             ),
 
@@ -159,7 +262,6 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
         }
         return self::$__instance;
     }
-
 
     /**
      * Get the data associated with this Schema.
@@ -230,14 +332,107 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
 
         $post = $this->init->get_post();
 
-        // data must be at least an empty array
-        $data = array();
+        // since the arrays are static, access statically here
+        $fields = PLSE_Schema_Event::$schema_fields['fields'];
 
+        /**
+         * Assign values into the Schema array. We do this explicitly, rather than 
+         * trying to loop through $fields since
+         * - some fields go into subfields (e.g. ImageObject or VideoObject)
+         * - some fields are used in multiple locations
+         * 
+         * Rather than making repeated calls, get the entire meta data array 
+         * all at once. NOTE: this also gets Yoast-assigned values and values from 
+         * any other metaboxes.
+         */
+        $values = get_post_meta( $post->ID, '', true );
+
+        // data must be at least an empty array
+        $data = array(
+            '@type'            => 'Event',
+            '@id'              => $this->context->canonical . '#event',
+            'mainEntityOfPage' => array( '@id' => $this->context->canonical . Schema_IDs::WEBPAGE_HASH ),
+            'name' => $values[ $fields['event_name']['slug'] ][0],
+            'description' => $values[ $fields['event_description']['slug'] ][0],
+            'url' => $values[ $fields['event_url']['slug'] ][0],
+            'image' => $values[ $fields['event_image']['slug'] ][0],
+
+            'startDate' => $values[ $fields['event_start_date']['slug'] ][0],
+            'endDate' => $values[ $fields['event_end_date']['slug'] ][0],
+            'startTime' => $values[ $fields['event_start_time']['slug'] ][0],
+            'endTime' => $values[ $fields['event_end_time']['slug'] ][0],
+
+            'eventStatus' => $values[ $fields['event_status']['slug'] ][0],
+            'eventAttendanceMode' => $values[ $fields['event_attendance_mode']['slug'] ][0],
+
+            'location'  => array(
+                array(
+                    '@type' => 'VirtualLocation',
+                    'url' => $values[ $fields['event_virtual_location']['slug'] ][0],
+                ),
+
+                array( 
+                    '@type'   => 'Place',
+                    'name'    => $values[ $fields['event_location_name']['slug'] ][0],
+                    'address' => array(
+                        '@type'           => 'PostalAddress',
+                        "streetAddress"   => $values[ $fields['event_street_address']['slug'] ][0],
+                        "addressLocality" => $values[ $fields['event_address_locality']['slug'] ][0],
+                        "postalCode"      => $values[ $fields['event_postal_code']['slug'] ][0],
+                        "addressRegion"   => $values[ $fields['event_address_region']['slug'] ][0],
+                        "addressCountry"  => $values[ $fields['event_address_country']['slug'] ][0]
+                    ),
+                ),
+
+            ),
+/*
+            'offers' => array(
+                array(
+                    '@type' => 'Offer',
+                    'price' => $PLSE_Base_price,
+                    'priceCurrency' => $plse_currency,
+                    'url' => $plse_offer_url,
+                    //'availability => $plse_offer_full_availability,
+                    //'validFrom => $plse_offer_full_validFrom,
+                ),
+
+                array(
+                    '@type' => 'Offer',
+                    'price' => $plse_full_price,
+                    'priceCurrency' => $plse_currency,
+                    'url' => $plse_offer_url,
+                    //'availability => $plse_offer_full_availability,
+                    //'validFrom => $plse_offer_full_validFrom,
+                )
+*/
+
+        );
 
         return $data;
 
     }
 
+    /**
+     * ---------------------------------------------------------------------
+     * GETTERS - SCHEMA-SPECIFIC
+     * Handles logic for specific fields
+     * ---------------------------------------------------------------------
+     */
 
+    public function get_event_datetime () {
+
+    }
+
+    public function get_event_image () {
+
+    }
+
+    public function get_event_location () {
+
+    }
+
+    public function get_event_offers () {
+
+    }
 
 } // end of class

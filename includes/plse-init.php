@@ -369,6 +369,23 @@ class PLSE_Init {
      */
 
     /**
+     * Get text between specific HTML tags.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @return   array    $titles an array with all the content between the specified tags.
+     */
+    public function get_text_between_tags( $tagname, $post ) {
+        $content = wp_strip_all_tags( get_the_content( $post) );
+        $html = str_get_html( $content );
+        $titles = array();
+        foreach( $html->find( $tagname ) as $element) {
+            $titles[] = $element->plaintext; // remove sub-tags
+        }
+        return $titles;
+    }
+
+    /**
      * Get the post excerpt. Used in descriptions, if not over-ridden by 
      * Schema descriptions for values in plugin options.
      * 
@@ -376,7 +393,7 @@ class PLSE_Init {
      * @access   public
      * @return   string    the excerpt (which may be an empty string)
      */
-    public function get_the_excerpt( WP_Post $post, $trim_chars = 150, $more = '&hellip;' ) {
+    public function get_excerpt_from_content( WP_Post $post, $trim_chars = 150, $more = '&hellip;' ) {
 
         $excerpt = '';
 
@@ -826,30 +843,6 @@ class PLSE_Init {
     }
 
     public function is_url ( $in ) {
-        return filter_var( $in, FILTER_VALIDATE_URL );
-    }
-
-    //public function is_active_url ( $in ) {
-    //    $url = parse_url($in);
-    //    if ( ! isset( $in["host"] ) ) return false;
-    //    return ! ( gethostbyname( $in["host"] ) == $url["host"] );
-    //}
-
-    /**
-     * Check if the URL is active, or has a 301, 302 redirect
-     * VERY SLOW
-     * {@link https://www.secondversion.com/blog/php-check-if-a-url-is-valid-exists/}
-     * 
-     * @since    1.0.0
-     * @access   public
-     * @param    string    $in the URL string to test
-     * @return   boolean   if valid, return true, else false
-     */
-
-    function url_exists ( $in ) {
-        // Remove all illegal characters from a url
-        $url = filter_var( $in, FILTER_SANITIZE_URL );
-    
         // Validate URI
         if ( filter_var($url, FILTER_VALIDATE_URL ) === FALSE
             // check only for http/https schemes.
@@ -857,10 +850,7 @@ class PLSE_Init {
         ) {
             return false;
         }
-    
-        // Check that URL exists
-        $file_headers = @get_headers($url);
-        return ! ( ! $file_headers || $file_headers[0] === 'HTTP/1.1 404 Not Found' );
+        return true;
     }
 
     public function is_email ( $in ) {
@@ -875,6 +865,113 @@ class PLSE_Init {
 
     public function is_time ( $in ) {
         return strtotime( $in );
+    }
+
+    /**
+     * -----------------------------------------------------------------------
+     * URL VALIDATIONS
+     * See if URL resolves to a real Internet address
+     * {@link https://stackoverflow.com/questions/3799134/how-to-get-final-url-after-following-http-redirections-in-pure-php/7555543}
+     * -----------------------------------------------------------------------
+     */
+
+    /**
+     * get_redirect_url()
+     * 
+     * Gets the address that the provided URL redirects to,
+     * or FALSE if there's no redirect,
+     * or 'Error: No Response',
+     * or 'Error: 404 Not Found'
+     * {@link https://stackoverflow.com/questions/3799134/how-to-get-final-url-after-following-http-redirections-in-pure-php/7555543}
+     *
+     * @since    1.0.0
+     * @access   public
+     * @param    string    $url (http: or https: address)
+     * @return   string    if ok, return URL (redirected), else false
+     */
+    function get_redirect_url($url) {
+
+        $redirect_url = null;
+
+        $url_parts = @parse_url( $url );
+
+        if (!$url_parts) return false;
+        if ( ! isset( $url_parts['host'] ) ) return false; //can't process relative URLs
+        if ( ! isset( $url_parts['path'] ) ) $url_parts['path'] = '/';
+
+        $sock = @fsockopen( $url_parts['host'], ( isset($url_parts['port'] ) ? (int)$url_parts['port'] : 80 ), $errno, $errstr, 30 );
+        if ( ! $sock ) return 'Error: No Response';
+
+        $request = "HEAD " . $url_parts['path'] . ( isset($url_parts['query'] ) ? '?' . $url_parts['query'] : '' ) . " HTTP/1.1\r\n";
+        $request .= 'Host: ' . $url_parts['host'] . "\r\n";
+        $request .= "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36\r\n";
+        $request .= "Connection: Close\r\n\r\n";
+        fwrite( $sock, $request );
+        $response = '';
+
+        while ( ! feof( $sock ) ) $response .= fread($sock, 8192);
+        fclose($sock);
+
+        if ( stripos( $response, '404 Not Found' ) !== false ) {
+            return 'Error: 404 Not Found';
+        }
+
+        if ( preg_match( '/^Location: (.+?)$/m', $response, $matches ) ) {
+            if ( substr( $matches[1], 0, 1 ) == "/" )
+                return $url_parts['scheme'] . "://" . $url_parts['host'] . trim( $matches[1] );
+            else
+                return trim( $matches[1] );
+
+        } else {
+            return false;
+        }
+
+    }
+
+    /**
+     * get_all_redirects()
+     * 
+     * Follows and collects all redirects, in order, for the given URL.
+     * {@link https://stackoverflow.com/questions/3799134/how-to-get-final-url-after-following-http-redirections-in-pure-php/7555543}
+     * 
+     * @since    1.0.0
+     * @access   private
+     * @param    string   $url
+     * @return   array    $redirects
+     */
+    function get_all_redirects( $url ) {
+        $redirects = array();
+        while ( $newurl = $this->get_redirect_url( $url ) ) {
+            if ( in_array($newurl, $redirects ) ) { break; }
+            $redirects[] = $newurl;
+            $url = $newurl;
+        }
+        return $redirects;
+    }
+
+    /**
+     * get_final_url()
+     * 
+     * Gets the address that the URL ultimately leads to.
+     * Returns $url itself if it isn't a redirect,
+     * or 'Error: No Responce'
+     * or 'Error: 404 Not Found',
+     * {@link https://stackoverflow.com/questions/3799134/how-to-get-final-url-after-following-http-redirections-in-pure-php/7555543}
+     *
+     * @since    1.0.0
+     * @access   public
+     * @param    string $url
+     * @return   string|false if OK, return the final URL, else return false
+     */
+    function get_final_url( $url ) {
+        $redirects = $this->get_all_redirects( $url );
+        if (count($redirects) > 0) {
+            return array_pop( $redirects );
+
+        } else {
+            return false;
+        }
+
     }
 
     /**

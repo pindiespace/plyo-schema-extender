@@ -35,8 +35,24 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
 
     public $schema_slug = PLSE_SCHEMA_GAME;
 
+    public $valid = true;
+
     /** 
-     * information for creating metabox 
+     * information for creating metabox.
+     * Note: a partial description may cause a 500 error reported to the JS console. Look
+     * in the web server error_log.
+     * 
+     * $field[]
+     * |- slug            = the id used to access the field, store in metabox data
+     * |- label           = the text in the <label>...</label> field
+     * |- title           = appears when user mouses over the field
+     * |- type            = type of control (PLSE_INPUT_TYPES[VALUE])
+     * |- subtype         = if field is 'REPEATER' subtype is the field type for individual entries
+     * |- required        = field entry required
+     * |- wp_data         = whether values in post meta, or an option
+     * |- select_multiple = if true, multiple options selected from a list
+     * |- option_list     = either an array of values, or a string specifying a datalist in PLSE_Datalists
+     * |- is_image        = for url fields, if the value is an image, show a thumbnail
      * 
      * @since    1.0.0
      * @access   private
@@ -50,6 +66,16 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
 
         // fields in the metabox, set for each post
         'fields' => array(
+
+            // when checked by the user, the Schema will try to substitute URLs for text where possible
+            'favor_urls' => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-favor-urls',
+                'label' => 'Favor URLs over text:',
+                'title' => 'Values with URLs (e.g. Wikipedia link for a word) will be used in the Schema',
+                'type' => PLSE_INPUT_TYPES['CHECKBOX'],
+                'required' => '',
+                'wp_data' => 'post_meta',
+            ),
 
             'game_name' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-name',
@@ -96,6 +122,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'label' => 'Game Play Mode (single, multi-player):',
                 'title' => 'choose an ennumerated playmode',
                 'type' => PLSE_INPUT_TYPES['REPEATER'],
+                'subtype' => PLSE_INPUT_TYPES['TEXT'],
                 'required' => '',
                 'wp_data' => 'post_meta',
                 'option_list' => array(
@@ -103,30 +130,10 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                     'MultiPlayer' => 'MultiPlayer',
                     'SinglePlayer' => 'SinglePlayer'
                 ),
+                'is_image' => false
 
             ),
 
-            /*
-            'game_in_language' => array(
-                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-in_language',
-                'label' => 'Languages supported in the game:',
-                'title' => 'Choose language(s) from the list',
-                'type' => PLSE_INPUT_TYPES['SELECT_MULTIPLE'],
-                'required' => '',
-                'wp_data' => 'post_meta',
-                // https://techfunda.com/howto/1163/language-codes
-                // TODO: flag option list with callback function
-                'option_list' => array(
-                    'English' => 'en',
-                    'German' => 'de',
-                    'Spanish' => 'es',
-                    'Russian' => 'ru',
-                    'Chinese' => 'zn',
-                    'Arabic' => 'ar'
-                ),
-                'select_multiple' => true
-            ),
-            */
             'game_in_language' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-in_language',
                 'label' => 'Language supported in the game:',
@@ -183,9 +190,11 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'label' => 'Game Genre (e.g tower Defense):',
                 'title' => 'Category of game, type of game and gameplay',
                 'type' => PLSE_INPUT_TYPES['REPEATER'],
+                'subtype' => PLSE_INPUT_TYPES['TEXT'],
                 'required' => '',
                 'wp_data' => 'post_meta',
-                'option_list' => 'game_genres'
+                'option_list' => 'game_genres',
+                'is_image' => false
             ),
 
             'game_platform' => array(
@@ -211,12 +220,12 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
 
             'game_server' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-server',
-                'label' => 'Game Server:',
+                'label' => 'Game Server (URL):',
                 'title' => 'Server address where the game may be played, if online',
                 'type' => PLSE_INPUT_TYPES['URL'],
                 'required' => '',
                 'wp_data' => 'post_meta',
-                'select_multiple' => true
+                'select_multiple' => false // leaving this off causes validation to fail
             ),
 
             'operating_system' => array(
@@ -248,6 +257,17 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'required' => '',
                 'wp_data' => 'post_meta',
                 'select_multiple' => false
+            ),
+
+            'trailer_thumbnail_url' => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-trailer_video_thumbnail_url',
+                'label' => 'Thumbnail scenes from the video:',
+                'title' => 'Add one or more images captured from the video',
+                'type' => PLSE_INPUT_TYPES['REPEATER'],
+                'subtype' => PLSE_INPUT_TYPES['URL'],
+                'required' => '',
+                'wp_data' => 'post_meta',
+                'is_image' => true // for repeater fields
             ),
 
             'trailer_video_in_language' => array(
@@ -302,15 +322,6 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'select_multiple' => false
             ),
 
-            // when checked by the user, the Schema will try to substitute URLs for text where possible
-            'favor_urls' => array(
-                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-favor-urls',
-                'label' => 'Favor URLs over text:',
-                'title' => 'Values with URLs (e.g. Wikipedia link for a word) will be used in the Schema',
-                'type' => PLSE_INPUT_TYPES['CHECKBOX'],
-                'required' => '',
-                'wp_data' => 'post_meta',
-            ),
         )
 
     );
@@ -450,12 +461,36 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
         $data = array(
             '@type'  => 'VideoGame',
             '@id' => $this->context->canonical . Schema_IDs::WEBPAGE_HASH,
-            //'name'   => $values[ 'plyo-schema-extender-game-name' ],
             'name' => $values[ $fields['game_name']['slug'] ][0],
             'url' => $values[ $fields['game_url']['slug'] ][0],
             'image' => $values[ $fields['game_image']['slug'] ][0],
             'screenshot' => $values[ $fields['screenshot']['slug'] ][0],
             'description' => $values[ $fields['description']['slug'] ][0],
+            'trailer' => array(
+                "@context" => "https://schema.org",
+                "@type" => "VideoObject",
+                "name" => $this->get_game_name($fields['game_name'], $data, $post ), // "Introducing the self-driving bicycle in the Netherlands",
+                "description" => "This spring, Google is introducing the self-driving bicycle in Amsterdam, the world's premier cycling city. The Dutch cycle more than any other nation in the world, almost 900 kilometres per year per person, amounting to over 15 billion kilometres annually. The self-driving bicycle enables safe navigation through the city for Amsterdam residents, and furthers Google's ambition to improve urban mobility with technology. Google Netherlands takes enormous pride in the fact that a Dutch team worked on this innovation that will have great impact in their home country.",
+                "thumbnailUrl" => array(
+                  "https://example.com/photos/1x1/photo.jpg",
+                  "https://example.com/photos/4x3/photo.jpg",
+                  "https://example.com/photos/16x9/photo.jpg"
+                ),
+                "uploadDate" => "2016-03-31T08:00:00+08:00",
+                "duration" => "PT1M54S",
+                "contentUrl" => "https://www.example.com/video/123/file.mp4",
+                "embedUrl" => "https://www.example.com/embed/123",
+                "interactionStatistic" => array(
+                  "@type" => "InteractionCounter",
+                   "interactionType" => array(
+                        "@type" => "WatchAction"
+                   ),
+                  "userInteractionCount" => 5647018
+                ),
+                "regionsAllowed" => "US,NL"
+
+            ),
+            'playMode' => $values[ $fields['game_play_mode']['slug'] ][0],
             'author' => array(
                 '@type' => 'Organization',
                 'name' => $values[ $fields['game_company_name']['slug'] ][0],
@@ -468,26 +503,173 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
 
         );
 
-        /*
-         * cleanup for some fields, use $post data if the metaboxes
-         * aren't filled in...
-         */
-        if ( empty( $data['description'] ) ) {
-            $data['description'] = $this->init->get_the_excerpt( $post );
-        }
-
-        if ( empty( $data['image'] ) ) {
-            $data['image'] = $this->init->get_featured_image_url( $post );
-        }
-
-        if ( empty( $data['screenshot'] ) ) {
-            $data['screenshot'] = $this->init->get_first_post_image_url( $post );
-        }
+        if( $this->valid ) $data['REPORT'] = 'VVAALLLIIDDDD';
+        else $data['REPORT'] = 'EEERRRROOOORRRRR';
 
         return $data;
 
     }
 
+    /**
+     * ---------------------------------------------------------------------
+     * VALIDATION
+     * ---------------------------------------------------------------------
+     */
+    public function schema_data_valid ( $field ) {
+        if ( ! $field['slug'][0] && $this->schema_fields['slug']['required'] )
+            $this->valid = false;
+        return $this->valid;
+    }
 
+    /**
+     * ---------------------------------------------------------------------
+     * GETTERS - SCHEMA-SPECIFIC, SINGLE FIELDS
+     * Handles logic for specific fields
+     * ---------------------------------------------------------------------
+     */
+    public function get_game_name ( $field, &$data, &$post ) {
+        $val = $field['slug'][0];
+        if ( empty( $val ) ) {
+            // look for a H1 in the content, use it
+            $val = $this->init_get_text_between_tags( 'h1', $post );
+            if ( empty( $val ) ) {
+                // post title
+                $val = get_the_title( $post );
+            }
+            // add value, if present, return validation status.
+            if ( ! empty( $val ) ) $data['description'] = $val;
+        }
+        return $this->schema_data_valid( $field );
+    }
+
+    /**
+     * Get a description.
+     * 1. Try to use the meta field example.
+     * 2. If that fails, look for $post excerpt
+     * 3. If that fails, extract text content
+     */
+    public function get_game_description ( $field, &$data, &$post ) {
+        $val = $field['slug'][0];
+        if ( empty( $val ) ) {
+            if ( has_excerpt( $post ) ) {
+                $val = get_the_excerpt( $post ); // wordpress method
+            }
+            if ( empty( $val ) ) {
+                $val =  $this->init->get_excerpt_from_content( $post ); // our method
+            }
+
+        }
+        if ( ! empty( $val ) ) $data['description'] = $val;
+        return $this->schema_data_valid( $field );
+    }
+
+    /**
+     * Get image of the game, a logo, brand.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @return   string    URL of game image
+     */
+    public function get_game_image ( $field, &$data, &$post ) {
+
+        $val = $field['slug'][0];
+        if ( empty( $val ) ) {
+            $val = $this->init->get_featured_image_url( $post );
+            if ( empty( $val ) ) {
+                $val = $this->init->$get_first_post_image_url( $post );
+                if (empty( $val ) ) {
+                    $val = get_option( 'plse-' . PLSE_SCHEMA_GAME . '-image' ); // from plugin options
+                }
+            }
+        }
+        if ( ! empty( $val ) ) $data['image'] = $val;
+    }
+
+    public function get_game_screenshot ( $field, &$data, &$post ) {
+        return $this->get_game_image( $field, $data, $post );
+    }
+
+    /**
+     * ---------------------------------------------------------------------
+     * GETTERS - SCHEMA-SPECIFIC, MULTIPLE FIELDS
+     * Handles logic for specific blocks (e.g. VideoObject, ImageObject, Organization) 
+     * that are not explicit Schemas in the plugin
+     * ---------------------------------------------------------------------
+     */
+
+    /**
+     * Get all VideoObject information related to the game trailer.
+     * Required properties:
+     * Name: the title of the video. 
+     * Description: the description of the video. HTML tags are ignored.
+     * uploadDate: the date the video was first published, in ISO 8601 format
+     * ThumbnailURL: a URL pointing to the video thumbnail image file.
+     * 
+     */
+    public function get_game_trailer ( &$fields, &$data, &$post ) {
+
+        $data['trailer'] =array(
+            '@context' => 'https://schema.org',
+            '@type' => 'VideoObject',
+            'name' => $fields['trailer_video_name']['slug'][0],
+            'description' => $fields['trailer_video_description']['slug'][0],
+            'inLanguage' => $fields['trailer_video_in_language']['slug'][0],
+            'url' => $fields['trailer_video_url']['slug'][0],
+            'contentUrl' => 'https://www.example.com/video/123/file.mp4',
+            'embedUrl' => 'https://www.example.com/embed/123',
+            'thumbnailUrl' => array(
+                ////////////////////////$slug . '-img-id
+                'https://example.com/photos/1x1/photo.jpg',
+                'https://example.com/photos/4x3/photo.jpg',
+                'https://example.com/photos/16x9/photo.jpg',
+            ),
+            'uploadDate' => '2016-03-31T08:00:00+08:00',
+            //  ISO 8601 format. For example, T00H30M5S represents a duration of “thirty minutes and five seconds”.
+            'duration' => 'PT1M54S',
+            'interactionStatistic' => array(
+              '@type' => 'InteractionCounter',
+               'interactionType' => array(
+                    '@type' => 'WatchAction'
+               ),
+              'userInteractionCount' => 5647018
+            ),
+            'regionsAllowed' => 'US,NL'
+
+        );
+
+    }
+
+    /**
+     * Create a MusicGroup Schema for incorporation into other Schemas.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    &array    $fields    fields used to create a MusicGroup Schema.
+     * @param    &array    $data      the Yoast data object for schema
+     * @param    &WP_Post  $post      current post
+     */
+    public function get_game_music_by ( &$fields, &$data, &$post ) {
+
+        $data['musicBy'] = array(
+            '@context' => 'http://schema.org',  
+            '@type' => 'MusicGroup',  
+            'name' => 'London has Fallen',  
+            'url' => 'http://www.londonhasfallenband.com',  
+            'image' => 'https://upload.wikimedia.org/wikipedia/commons/6/63/London_has_Fallen_%28Band%29.jpg',  
+            'sameAs' => array(
+                'http://www.facebook.com/londonhasfallen',
+                'http://www.twitter.com/londonhasfallen',
+                'http://www.instagram.com/londonhasfallenband',
+                'http://www.youtube.com/londonhasfallen1',
+                'http://plus.google.com/+LondonhasFallen',
+            ),
+
+        );
+
+    }
+
+    public function get_game_publisher ( &$fields, &$data, &$post ) {
+
+    }
 
 } // end of class
