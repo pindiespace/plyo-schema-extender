@@ -137,7 +137,6 @@
          * NOTE: this just puts the values in, NOT saved to database
          * ---------------------------------------------------
          */
-        // https://www.jackreichert.com/2013/03/using-ajax-in-wordpress-development-the-quickstart-guide/
         $('#plse-settings-config-import-yoast-local').on('click', function (e) {
 
             console.log('loading local seo');

@@ -482,6 +482,7 @@ class PLSE_Datalists {
         'xbox360' => 'XBox 360',
         'xbox one' => 'XBox One',
         'playstation' => 'PlayStation',
+        'plastation' => 'Playstation 3',
         'playstation 4' => 'Playstation 4',
         'playstation 5' => 'Playstation 5',
         'nintendo wii' => 'Nintendo Wii',

@@ -785,13 +785,23 @@ class PLSE_Init {
 
     }
 
+    /**
+     * Get an array, filtering out empty entries.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    mixed    $value    a serialized array
+     * @param    array    $value    standard array, suitable for JSON
+     */
     public function get_array_from_serialized ( $value ) {
         $value = maybe_unserialize( $value );
-        $value = unserialize($value[0]);
-        if ( is_array( $value )) {
-            return $value;
+        if ( is_array( $value ) ) {
+            $value = unserialize($value[0]);
+            $value = array_filter( $value, function ( $var ) {
+                return ($var !== NULL && $var !== FALSE && $var !== "");
+            });
         }
-        return array();
+        return $value;
     }
 
     /**

@@ -333,8 +333,6 @@ class PLSE_Metabox {
 
         wp_nonce_field( $context, $nonce );
 
-        $count = 0;
-
         // loop through each Schema field
         foreach ( $fields as $field ) {
 
@@ -850,7 +848,7 @@ class PLSE_Metabox {
         echo '<div>' . __( 'Image URL in WordPress' ) . '</div>';
         echo '<div>';
 
-        // media library button (ajax)
+        // media library button (ajax call)
         echo '<input type="text" name="' . sanitize_key( $slug ) . '" id="' . $slug . '" value="' . $value . '">';
         echo '<input title="' . $title . '" type="button" class="button plse-media-button" data-media="'. $slug . '" value="Upload Image" />';
 

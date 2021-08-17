@@ -410,6 +410,15 @@ class PLSE_Options_Data {
 
                 ),
 
+                // if the entire site is about the game, check this
+                'site_is_game_site' => array(
+                    'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_GAME . '-is-game-site-field',
+                    'description'  => 'If the entire site is about one game, check this',
+                    'type'   => PLSE_INPUT_TYPES['CHECKBOX'],
+                    'label' => 'Check to use Yoast Organization info to describe the',
+                    'title' => 'Check to make this site about one game'
+                ),
+
                 'image' => array(
                     'slug'   => 'plse-' . PLSE_SCHEMA_GAME . '-image',
                     'description'  => 'Image of Game (global to site)',

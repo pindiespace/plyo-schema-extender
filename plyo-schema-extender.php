@@ -28,6 +28,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+ * 
+ * Note: If you are using the AMP plugin, make sure you are set to "Standard" and 
+ * you enable Advanced Settings -> Content Types -> Your Custom Post Type. Otherwise, 
+ * you may see an error in the Web Console.
  * -----------------------------------------------------------------------
  * 
 **/
@@ -272,17 +276,15 @@ add_action( 'plugins_loaded', function () {
                     // load datalists (e.g. list of countries)
                     require_once PLSE_SCHEMA_EXTENDER_PATH . '/includes/admin/plse-datalists.php';
 
-                    /*
-                     * Reorder menus. Put the menu for this plugin right below the
-                     * Yoast listing in the Admin menu.
-                     */
+                     // Reorder menus. Put the menu for this plugin below the Yoast listing
+
                     add_filter('custom_menu_order', function() { return true; });
                     add_filter( 'menu_order', function ( $menu_order ) {
 
                         $yoast_pos = 0;
                         $plse_pos  = 0;
 
-                        // find the position of Yoas
+                        // find the position of Yoast
                         foreach ($menu_order as $key => $value ) {
                             if ( $value == YOAST_MENU_SLUG ) {
                                 $yoast_pos = $key;
@@ -308,10 +310,6 @@ add_action( 'plugins_loaded', function () {
 
                     // decide whether to load options page (admin), or metabox custom fields (in post)
                     if ( $pagenow == 'post.php' ) {
-
-                        // load datalists
-                        //$plse_datalists = PLSE_Datalists::getInstance();
-                        //$plse_init = PLSE_Init::getInstance();
 
                         // load metabox class
                         require_once PLSE_SCHEMA_EXTENDER_PATH . '/includes/admin/plse-metabox.php';

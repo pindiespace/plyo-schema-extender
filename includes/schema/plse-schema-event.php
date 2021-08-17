@@ -333,7 +333,7 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
         $post = $this->init->get_post();
 
         // since the arrays are static, access statically here
-        $fields = PLSE_Schema_Event::$schema_fields['fields'];
+        $fields = self::$schema_fields['fields'];
 
         /**
          * Assign values into the Schema array. We do this explicitly, rather than 
