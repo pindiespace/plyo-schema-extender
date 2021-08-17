@@ -322,31 +322,6 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'select_multiple' => false
             ),
 
-            'trailer_thumbnail_url' => array(
-                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-trailer_video_thumbnail_url',
-                'label' => 'Thumbnail scenes from the video:',
-                'title' => 'Add one or more images captured from the video',
-                'type' => PLSE_INPUT_TYPES['REPEATER'],
-                'subtype' => PLSE_INPUT_TYPES['URL'],
-                'required' => '',
-                'wp_data' => 'post_meta',
-                'is_image' => true // for repeater fields
-            ),
-
-            // trailer video duration
-
-
-            'trailer_video_in_language' => array(
-                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-trailer_video_in_language',
-                'label' => 'Trailer Video Language:',
-                'title' => 'Link to video showing gameplay',
-                //'type' => PLSE_INPUT_TYPES['DATALIST'],
-                'type' => PLSE_INPUT_TYPES['SELECT_SINGLE'],
-                'required' => '',
-                'wp_data' => 'post_meta',
-                'option_list' => 'languages', // datalist reference in PLSE_Datalist
-                'select_multiple' => false
-            ),
 
             'trailer_video_name' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-trailer_video_name',
@@ -365,6 +340,40 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'type' => PLSE_INPUT_TYPES['TEXTAREA'],
                 'required' => '',
                 'wp_data' => 'post_meta',
+                'select_multiple' => false
+            ),
+
+            'trailer_video_duration' => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-trailer_video_duration',
+                'label' => 'Trailer Video Duration (Hours:Minutes:Seconds):',
+                'title' => 'video duration',
+                'type' => PLSE_INPUT_TYPES['DURATION'],
+                'required' => '',
+                'wp_data' => 'post_meta',
+                'max' => '21600', // 6 hours, in seconds
+                'select_multiple' => false
+            ),
+
+            'trailer_thumbnail_url' => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-trailer_video_thumbnail_url',
+                'label' => 'Thumbnail scenes from the video:',
+                'title' => 'Add one or more images captured from the video',
+                'type' => PLSE_INPUT_TYPES['REPEATER'],
+                'subtype' => PLSE_INPUT_TYPES['URL'],
+                'required' => '',
+                'wp_data' => 'post_meta',
+                'is_image' => true // for repeater fields
+            ),
+
+            'trailer_video_in_language' => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-trailer_video_in_language',
+                'label' => 'Trailer Video Language:',
+                'title' => 'Link to video showing gameplay',
+                //'type' => PLSE_INPUT_TYPES['DATALIST'],
+                'type' => PLSE_INPUT_TYPES['SELECT_SINGLE'],
+                'required' => '',
+                'wp_data' => 'post_meta',
+                'option_list' => 'languages', // datalist reference in PLSE_Datalist
                 'select_multiple' => false
             ),
 
@@ -804,7 +813,8 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
             //'uploadDate' => '2016-03-31T08:00:00+08:00',
 
             //  ISO 8601 format. For example, T00H30M5S represents a duration of 'thirty minutes and five seconds'
-            'duration' => 'PT1M54S',
+            //'duration' => 'PT1M54S',
+            'duration' => $this->init->seconds_to_ISO860_duration( $values[ $fields['trailer_video_duration']['slug'] ][0] ),
             'interactionStatistic' => array(
               '@type' => 'InteractionCounter',
                'interactionType' => array(

@@ -330,7 +330,7 @@
 
         });
 
-        // TODO: fire this for all thumbnails on load
+        // fire this once,for all thumbnails on load
         $("input[name*='_thumbnail_url'").trigger('blur');
 
         /*
@@ -338,14 +338,27 @@
          * Datetimepicker
          * ---------------------------------------------------
          */
-        $('.plse-datetimepicker').on('change', function () {
-            //var dateEl = document.getElementById('date');
-            //var timeEl = document.getElementById('time');
-            this.querySelector('[type="date"]')[0].innerHTML = dateE1.type;
-            this.queryselector('[type="time"]')[0].innerHTML = timeE1.type;
-            //document.getElementById('date-output').innerHTML = dateEl.type === 'date';
-            //document.getElementById('time-output').innerHTML = timeEl.type === 'time';
+
+        /*
+         * ---------------------------------------------------
+         * Duration Picker (HTML5 range slider)
+         * use with <input type="range" min="0" max="1000">
+         * ---------------------------------------------------
+         */
+
+        $('.plse-duration-picker').on('input', function (e) {
+        //    console.log('in duration picker');
+            let val = e.target.value;
+            let hms = new Date(val * 1000).toISOString().substr(11, 8);
+            // NOTE: "value=" is only the INITIAL value - have to force the attribute
+            this.setAttribute('value', val );
+            let p = $(this).parents('div')[0];
+            p.getElementsByClassName('plse-slider-output')[0].innerHTML = hms;
+
         });
+
+        // fire this once on load
+        $('.plse-duration-picker').trigger('input');
 
         /*
          * ---------------------------------------------------

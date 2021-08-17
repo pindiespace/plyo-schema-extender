@@ -805,42 +805,6 @@ class PLSE_Init {
     }
 
     /**
-     * Convert an HTML5 time duration to ISO860
-     * 
-     * @since    1.0.0
-     * @access   public
-     * @return   string   $duration the ISO860 formated duration
-     */
-    function dateIntervalToISO860Duration(\DateInterval $d) {
-        $duration = 'P';
-        if (!empty($d->y)) {
-            $duration .= "{$d->y}Y";
-        }
-        if (!empty($d->m)) {
-            $duration .= "{$d->m}M";
-        }
-        if (!empty($d->d)) {
-            $duration .= "{$d->d}D";
-        }
-        if (!empty($d->h) || !empty($d->i) || !empty($d->s)) {
-            $duration .= 'T';
-            if (!empty($d->h)) {
-                $duration .= "{$d->h}H";
-            }
-            if (!empty($d->i)) {
-                $duration .= "{$d->i}M";
-            }
-            if (!empty($d->s)) {
-                $duration .= "{$d->s}S";
-            }
-        }
-        if ($duration === 'P') {
-            $duration = 'PT0S'; // Empty duration (zero seconds)
-        }
-        return $duration;
-    }
-
-    /**
      * -----------------------------------------------------------------------
      * FIELD VALIDATIONS
      * -----------------------------------------------------------------------
@@ -911,6 +875,42 @@ class PLSE_Init {
 
     public function is_time ( $in ) {
         return strtotime( $in );
+    }
+
+    /**
+     * -----------------------------------------------------------------------
+     * DATE AND TIME VALIDATIONS
+     * -----------------------------------------------------------------------
+     */
+
+    /**
+     * Convert time duration, in seconds to ISO8601
+     * {@link https://stackoverflow.com/questions/30916902/php-convert-integer-number-of-seconds-to-iso8601-format}
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @return   string   $duration the ISO860 formated duration
+     */
+    public function seconds_to_ISO860_duration ( $seconds ) {
+
+        $intervals = array('D' => 60*60*24, 'H' => 60*60, 'M' => 60, 'S' => 1);
+        $result = '';
+
+        foreach ( $intervals as $tag => $divisor ) {
+            $qty = floor( $seconds/$divisor );
+            if ( !$qty && $result == '' ) {
+                $pt = 'T';
+                continue;
+            }
+            
+            $seconds -= $qty * $divisor;
+            $result  .= "$qty$tag";
+        }
+
+        if ( $result=='' ) $result='0S';
+
+        return 'P' . $result;
+
     }
 
     /**

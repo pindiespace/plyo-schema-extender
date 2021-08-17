@@ -593,6 +593,38 @@ class PLSE_Metabox {
     }
 
     /**
+     * Render a slider for time duration (0-24 hours, minutes, seconds)
+     * The slider saves seconds, which need to be converted to ISO format 
+     * in plse-schema-xxx.php classes.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    array    $args    field parameters, select
+     * @param    number   $value   duration, in seconds.
+     */
+    public function render_duration_field ( $args, $value ) {
+        $err = '';
+        $slug = sanitize_key( $args['slug'] );
+        // max is defined in seconds. 21600 = 6 hours default
+        if ( isset( $args['max'] ) ) $max = $args['max']; else $max = '21600';
+        if ( is_array( $value ) ) $value = $value[0];
+        $value = esc_attr( $value );
+        if ( ! $value ) $value = '0';
+        if ( $this->init->is_required( $args ) ) {
+            $err = $this->init->add_status_to_field( __( 'this field is required....' ) );
+        }
+
+        echo '<div class="plse-slider">';
+        echo '<input title="' . $args['title']. '" name="' . $slug . '" id="' . $slug . '" class="plse-duration-picker plse-slider-input" id="range-control" type="range" min="0" max="' . $max . '" step="1" value="' . $value . '">';
+        echo '<span class="plse-slider-output"></span>';
+        echo '</div>';
+        echo '<p>Slide the slider, or use keyboard arrow keys to adjust.</p>';
+
+        if ( ! empty( $err ) ) echo $err;
+
+    }
+
+    /**
      * Render a checkbox.
      * 
      * @since    1.0.0
@@ -1040,6 +1072,9 @@ class PLSE_Metabox {
 
                             case PLSE_INPUT_TYPES['TIME']:
                                 // format: 
+                                break;
+
+                            case PLSE_INPUT_TYPES['DURATION']:
                                 break;
 
                             case PLSE_INPUT_TYPES['AUDIO']:
