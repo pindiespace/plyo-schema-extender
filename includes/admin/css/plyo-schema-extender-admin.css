@@ -10,23 +10,39 @@
 }
 
 /*
- * STYLES USED IN OPTIONS AND METABOXES
+ * STYLES USED IN OPTION AND METABOXES
  */
 
-/* surrounds some images in the UI */
+/* for box that surrounds images in the UI */
 .plse-upload-img-box {
     margin: 6px;
     border: 1px solid black;
     border-radius: 4px;
 }
 
+/* for box that surrounds video in the UI */
 .plse-upload-img-video-box {
     line-height:0;
     font-size:0;
 }
 
+/* detail message when an input field is invalid, but not necessarily empty */
+ .plse-input-msg {
+    display:inline-block;
+    padding: 0 0 2px 3px;
+    border-radius: 4px;
+    font-variant-caps: small-caps;
+    background-color:rgba(124, 99, 32, 0.8);
+    color:white;
+}
+
+/* error on repeater fields (too many entires) */
+.plse-repeater-max-warning {
+    background-color:rgb(255, 222, 162);
+}
+
 /*
- * STYLES USED IN PLUGIN OPTIONS PAGE
+ * STYLES USED IN PLUGIN OPTIONS PAGES
  */
 
 /* the header with the title and logo */
@@ -62,32 +78,6 @@
   background-color: #f9f9f9;
 }
 
-.plse-input-msg {
-    padding: 6px;
-    margin-left: 6px;
-    border: 1px solid black;
-    border-radius: 6px;
-    color: white;
-}
-
-/* errors on input fields */
-.plse-input-err-msg {
-    background-color:rgb(255, 0, 0);
-}
-
-.plse-input-ok-msg {
-    background-color:rgb(255, 0, 0);
-}
-
-.plse-input-unknown-msg {
-    background-color:rgb(100, 100, 100);
-}
-
-/* error on repeater fields (too many entires) */
-.plse-repeater-max-warning {
-    background-color:rgb(255, 222, 162);
-}
-
 /*
  * BOX WITH OPTIONS
  */
@@ -116,7 +106,7 @@
     display: block;
 }
 
-/* formatting text <label> next to field */
+/* formatting options <label> next to field */
 .plse-option-description {
     display: inline-block;
     margin-left: 4px;
@@ -155,7 +145,7 @@
  * META FIELDS
  */
 
-/* metabox container, similar to Yoast */
+/* metabox container for all fields, styled similar to Yoast */
 .plse-meta-container {
     max-width: 600px;
     width: 100%;
@@ -165,21 +155,45 @@
     border: 1px solid rgba(0,0,0,.2);
 }
 
+/* descriptive message for the entire metabox, at top */
 .plse-meta-message {
     margin: 5px;
     background-color: rgba(255, 240, 103, 0.2)
 }
 
+/* the <li> box enclosing each individual field or field group */
 .plse-meta-list li {
-    list-style-type: none!important; /* Remove bullets */
-    margin: 5px;
-    border-radius: 2px;
-    background-color: #efefef;
-    padding: 8px 4px 8px 4px;
+ position: relative;
+ list-style-type: none!important; /* Remove bullets */
+ margin: 5px;
+ border-radius: 2px;
+ background-color: #efefef;
+ padding: 8px 4px 8px 4px;
 }
 
+/* <label> above an input field in metabox */
 .plse-meta-list label {
     display:block;
+    margin:0;
+    padding:4px 0 2px 2px;
+    width:fit-content;
+}
+
+/* place a 'required' message in the upper-right corner of metabox <li> element */
+.plse-required-field {
+    display:inline-block;
+    position: absolute;
+    top:0;
+    right: 0;
+    padding: 0 0 2px 3px;
+    border-radius: 4px;
+    font-variant-caps: small-caps;
+    background-color:rgba(167, 43, 43, 0.8);
+    color:white;
+}
+
+.plse-required-missing-field {
+    background-color:rgb(255, 0, 0);
 }
 
 .plse-meta-image-col {

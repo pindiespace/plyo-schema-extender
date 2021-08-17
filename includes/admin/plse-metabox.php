@@ -134,6 +134,10 @@ class PLSE_Metabox {
         // load scripts common to PLSE_Settings and PLSE_Meta, get the label for where to position
         $script_label = $plse_init->load_admin_scripts();
 
+        //<script src="dist/html-duration-picker.min.js"></script>
+
+        wp_enqueue_script( PLSE_SCHEMA_EXTENDER_SLUG, $url . $this->plse_admin_js, array('jquery'), null, true );
+
         // use PLSE_Options to inject variables into JS specifically for PLSE_Meta media library button clicks 
         $plse_init->load_js_passthrough_script( 
             $script_label,
@@ -337,9 +341,8 @@ class PLSE_Metabox {
         foreach ( $fields as $field ) {
 
             // render the label as a list bullet
-            echo '<li><label for="' . $field['slug'] . '">';
-            _e( $field['label'], PLSE_SCHEMA_EXTENDER_SLUG );
-             echo '</label>';
+            echo '<li><label for="' . $field['slug'] . '" class="plse-option-description"><span>';
+            echo __( $field['label'], PLSE_SCHEMA_EXTENDER_SLUG ) . '</span></label>';
 
             // get the stored option value for metabox field directly from database
             if( $field[ 'wp_data' ] == 'option' ) {
@@ -354,6 +357,16 @@ class PLSE_Metabox {
                     $value = get_post_meta( $post->ID, $field['slug'], true ); // single = true, returns meta value
                 }
 
+            }
+
+            // Flag if a required field, and if the field is not filled out. (add message at top-right of <li>)
+            if ( $field['required'] ) {
+                $missing = ''; $req_msg = 'required';
+                if ( empty( $value ) ) {
+                    $missing = 'plse-required-missing-field';
+                    $req_msg .= ', not present';
+                }
+                echo '<span class="plse-required-field ' . $missing . '">(' . $req_msg . ')</span>';
             }
 
             // use dynamic method to fire the rendering function for the field
@@ -393,6 +406,10 @@ class PLSE_Metabox {
      */
     public function render_hidden_field ( $args, $value ) {
         echo '<input type="hidden" id="' . sanitize_key( $args['slug'] ) . '" name="' . sanitize_key( $args['slug'] ) .'" value="' . esc_attr( $value ) . '" />';
+    }
+
+    public function add_field_status () {
+        
     }
 
     /**

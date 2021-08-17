@@ -333,6 +333,9 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'is_image' => true // for repeater fields
             ),
 
+            // trailer video duration
+
+
             'trailer_video_in_language' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-trailer_video_in_language',
                 'label' => 'Trailer Video Language:',
@@ -529,6 +532,10 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
             'installURL' => $values[ $fields['game_install_url']['slug'] ][0],
             'datePublished' => $values[ $fields['game_date_published']['slug'] ][0],
             'contentRating' => $values[ $fields['game_ersb_content_rating']['slug'] ][0],
+            'audience' => array(
+                '@type' => 'PeopleAudience',
+                'suggestedMinAge' => $values[ $fields['suggested_minimum_age']['slug'] ][0],
+            ),
             'trailer' => $this->get_game_trailer( $fields, $values, $post ),
             'playMode' => $this->init->get_array_from_serialized( $values[ $fields['game_play_mode']['slug'] ] ), //[0],
             
@@ -553,12 +560,9 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'url' => $values[ $fields['game_publisher_url']['slug'] ][0],
             ),
 
-            //"audience" => array(
-            //    '@type' => 'PeopleAudience',
-            //    'suggestedMinAge' => $values[ $fields['suggested_minimum_age']['slug'] ][0],
-            //),
+            'gameLocation' => $this->init->get_array_from_serialized( $values[ $fields['game_location']['slug'] ]), // text list of locations
 
-            // 'gameLocation' => [], // text list of locations
+            // alternate listing
             //"gameLocation":
             //{"@type":"Place",
             //"name":"Citadel",
@@ -567,6 +571,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
 
             'genre' => $this->init->get_array_from_serialized( $values[ $fields['game_genre']['slug'] ] ), //[0],
             'gamePlatform' => $this->init->get_array_from_serialized( $values[ $fields['game_platform']['slug'] ] ),
+            // only single servers allowed
             'gameServer' => array(
                 '@type' => "GameServer",
                 'name' => $this->get_game_name( $fields['game_server_name'], $values, $post ),
@@ -795,9 +800,10 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
             'embedUrl' => 'https://www.example.com/embed/123',
             'thumbnailURL' => $this->init->get_array_from_serialized( $values[ $fields['trailer_thumbnail_url']['slug'] ] ),
 
-            'uploadDate' => $values[ $fields['trailer_video_upload_date'] ][0],
+            'uploadDate' => $values[ $fields['trailer_video_upload_date']['slug'] ][0],
             //'uploadDate' => '2016-03-31T08:00:00+08:00',
-            //  ISO 8601 format. For example, T00H30M5S represents a duration of “thirty minutes and five seconds”.
+
+            //  ISO 8601 format. For example, T00H30M5S represents a duration of 'thirty minutes and five seconds'
             'duration' => 'PT1M54S',
             'interactionStatistic' => array(
               '@type' => 'InteractionCounter',

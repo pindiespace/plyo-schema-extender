@@ -23,7 +23,7 @@ class PLSE_Init {
     static private $__instance = null;
 
     /**
-     * Admin JS
+     * Admin JS for this plugin in options and metaboxes.
      * 
      * @since    1.0.0
      * @access   private
@@ -32,7 +32,7 @@ class PLSE_Init {
     private $plse_admin_js = 'admin/js/plyo-schema-extender-admin.js';
 
     /**
-     * Admin CSS
+     * Admin CSS for this plugin in options and metaboxes.
      * 
      * @since    1.0.0
      * @access   private
@@ -805,6 +805,42 @@ class PLSE_Init {
     }
 
     /**
+     * Convert an HTML5 time duration to ISO860
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @return   string   $duration the ISO860 formated duration
+     */
+    function dateIntervalToISO860Duration(\DateInterval $d) {
+        $duration = 'P';
+        if (!empty($d->y)) {
+            $duration .= "{$d->y}Y";
+        }
+        if (!empty($d->m)) {
+            $duration .= "{$d->m}M";
+        }
+        if (!empty($d->d)) {
+            $duration .= "{$d->d}D";
+        }
+        if (!empty($d->h) || !empty($d->i) || !empty($d->s)) {
+            $duration .= 'T';
+            if (!empty($d->h)) {
+                $duration .= "{$d->h}H";
+            }
+            if (!empty($d->i)) {
+                $duration .= "{$d->i}M";
+            }
+            if (!empty($d->s)) {
+                $duration .= "{$d->s}S";
+            }
+        }
+        if ($duration === 'P') {
+            $duration = 'PT0S'; // Empty duration (zero seconds)
+        }
+        return $duration;
+    }
+
+    /**
      * -----------------------------------------------------------------------
      * FIELD VALIDATIONS
      * -----------------------------------------------------------------------
@@ -1258,14 +1294,15 @@ class PLSE_Init {
      */
 
     /**
-     * Add an error description next to the Schema field.
+     * Add an error description next to a Schema field. This should be used 
+     * for specific error messages relative to the field, not if the field is empty.
      * 
      * @since    1.0.0
      * @access   public
      * @param    string    $msg  error message
      * @return   string    wrap the error message in HTML for display
      */
-    public function add_status_to_field ( $msg = '', $status = PLSE_INPUT_ERROR_MESSAGE ) {
+    public function add_status_to_field ( $msg = '', $status = '' ) {
         return '<span class="plse-input-msg ' . $status .'">' . $msg . '</span>';
     }
 

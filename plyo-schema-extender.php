@@ -188,6 +188,7 @@ if ( ! defined( 'PLSE_INPUT_TYPES' ) ) {
         'TEXTAREA' => 'textarea',
         'DATE' => 'date', // DD:MM:YEAR
         'TIME' => 'time', // HH:MM:AM/PM
+        'DURATION' => 'duration', // custom duration field HH:MM:SS
         'POSTAL' => 'text',
         'PHONE' => 'tel',
         'EMAIL' => 'email',
@@ -216,20 +217,6 @@ if ( ! defined( 'PLSE_CPT_SLUG' ) ) {
 // slug for Category <select> control in plugin settings
 if ( ! defined( 'PLSE_CAT_SLUG' ) ) {
     define ( 'PLSE_CAT_SLUG', '-cat-slug' );
-}
-
-// slug for error status on fields
-if ( ! defined( 'PLSE_INPUT_ERROR_MESSAGE' ) ) {
-    define ( 'PLSE_INPUT_ERROR_MESSAGE', 'plse-input-err-msg');
-}
-
-// slug for ok status on fields
-if ( ! defined( 'PLSE_INPUT_OK_MESSAGE' ) ) {
-    define ( 'PLSE_INPUT_OK_MESSAGE', 'plse-input-ok-msg' );
-}
-
-if ( ! defined( 'PLSE_INPUT_UNKNOWN_MESSAGE' ) ) {
-    define ( 'PLSE_INPUT_UNKNOWN_MESSAGE', 'plse-input-unknown-msg' );
 }
 
 /**
