@@ -369,20 +369,21 @@ class PLSE_Init {
      */
 
     /**
-     * Get text between specific HTML tags.
+     * Get text between specific HTML tags. Used to get a default title
+     * when the 'name' field for a Schema isn't filled out.
      * 
      * @since    1.0.0
      * @access   public
      * @return   array    $titles an array with all the content between the specified tags.
      */
-    public function get_text_between_tags( $tagname, $post ) {
-        $content = wp_strip_all_tags( get_the_content( $post) );
-        $html = str_get_html( $content );
-        $titles = array();
-        foreach( $html->find( $tagname ) as $element) {
-            $titles[] = $element->plaintext; // remove sub-tags
+    public function get_tags_from_content ( $tagname, $post ) {
+
+        $content = get_the_content( $post );
+        $findTags = preg_match_all( '/<' . $tagname . ' ?.*>(.*)<\/' . $tagname . '>/i', $content, $tags );
+        if ( is_array( $tags ) && isset( $tags[0] ) ) {
+            return $tags[0]; // first array element contains all the tags
         }
-        return $titles;
+
     }
 
     /**
@@ -806,7 +807,7 @@ class PLSE_Init {
 
     /**
      * -----------------------------------------------------------------------
-     * FIELD VALIDATIONS
+     * TEXT FIELD VALIDATIONS
      * -----------------------------------------------------------------------
      */
 

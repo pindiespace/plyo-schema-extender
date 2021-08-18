@@ -73,10 +73,20 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
         // fields in the metabox, set for each post
         'fields' => array(
 
+            // special activation field - activate $post for output, if plugin options set so...
+            PLSE_SCHEMA_RENDER_KEY => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-render-schema',
+                'label' => 'Activate the Schema for this Post.  Otherwise, you can fill in data, but the Schema won\'t be attached to Yoast page output.',
+                'title' => 'If checked, Schema will be output to the final page.',
+                'type' => PLSE_INPUT_TYPES['CHECKBOX'],
+                'required' => '',
+                'wp_data' => 'post_meta',
+            ),
+
             // when checked by the user, the Schema will try to substitute URLs for text where possible
-            'favor_urls' => array(
+            'game_favor_urls' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-favor-urls',
-                'label' => 'Favor URLs over text:',
+                'label' => 'Favor URLs over text',
                 'title' => 'Values with URLs (e.g. Wikipedia link for a word) will be used in the Schema',
                 'type' => PLSE_INPUT_TYPES['CHECKBOX'],
                 'required' => '',
@@ -85,7 +95,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
 
             'game_name' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-name',
-                'label' => 'Game Name:',
+                'label' => 'Game Name',
                 'title' => 'Official name of the game',
                 'type' => PLSE_INPUT_TYPES['TEXT'],
                 'required' => 'required',
@@ -95,37 +105,48 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
 
             'game_url' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-url',
-                'label' => 'Game Website URL:',
+                'label' => 'Game Website URL',
                 'title' => 'Website, or page on website, that is home page for the game',
                 'type' => PLSE_INPUT_TYPES['URL'],
-                'required' => '',
+                'required' => 'required',
                 'wp_data' => 'post_meta',
                 'select_multiple' => false
             ),
 
+            'game_same_as' => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-sameas',
+                'label' => 'Other URLs directly related to the game (e.g. fansite)',
+                'title' => 'Addition URLs about the game',
+                'type' => PLSE_INPUT_TYPES['REPEATER'],
+                'subtype' => PLSE_INPUT_TYPES['URL'],
+                'required' => '',
+                'wp_data' => 'post_meta',
+                'is_image' => false
+            ),
+
             'game_image' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-image',
-                'label' => 'Game Image:',
+                'label' => 'Game Image',
                 'title' => 'Click button to upload image, or use one from Media Library',
                 'type' => PLSE_INPUT_TYPES['IMAGE'],
-                'required' => '',
+                'required' => 'required',
                 'wp_data' => 'post_meta',
                 'select_multiple' => false
             ),
 
             'game_description' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-description',
-                'label' => 'Game Description:',
+                'label' => 'Game Description',
                 'title' => 'One-paragraph description of game setting, genre, gameplay',
                 'type' => PLSE_INPUT_TYPES['TEXTAREA'],
-                'required' => '',
+                'required' => 'required',
                 'wp_data' => 'post_meta',
                 'select_multiple' => false
             ),
 
             'game_location' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-location',
-                'label' => 'Locations in the Game:',
+                'label' => 'Locations in the Game',
                 'title' => 'Places or scenes within the game',
                 'type' => PLSE_INPUT_TYPES['REPEATER'],
                 'subtype' => PLSE_INPUT_TYPES['TEXT'],
@@ -136,7 +157,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
 
             'game_in_language' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-in-language',
-                'label' => 'Supported Languages:',
+                'label' => 'Supported Languages',
                 'title' => 'List the languages supported',
                 'type' => PLSE_INPUT_TYPES['REPEATER'],
                 'subtype' => PLSE_INPUT_TYPES['TEXT'],
@@ -148,7 +169,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
 
             'game_date_published' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-date-published',
-                'label' => 'Date Published:',
+                'label' => 'Date Published',
                 'title' => 'Publication date for the game',
                 'type' => PLSE_INPUT_TYPES['DATE'],
                 'required' => '',
@@ -158,7 +179,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
 
             'game_install_url' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-install_url',
-                'label' => 'Download Location for the game:',
+                'label' => 'Download Location for the game',
                 'title' => 'Address where the game may be downloaded',
                 'type' => PLSE_INPUT_TYPES['URL'],
                 'required' => '',
@@ -168,7 +189,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
 
             'game_ersb_content_rating' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-ersb-content-rating',
-                'label' => 'ERSB Content Rating:',
+                'label' => 'ERSB Content Rating',
                 'title' => 'Pick a Rating Category',
                 'type' => PLSE_INPUT_TYPES['SELECT_SINGLE'],
                 'required' => '',
@@ -186,7 +207,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
 
             'game_play_mode' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-play-mode',
-                'label' => 'Game Play Mode (single, multi-player):',
+                'label' => 'Game Play Mode (single, multi-player)',
                 'title' => 'choose an ennumerated playmode',
                 'type' => PLSE_INPUT_TYPES['REPEATER'],
                 'subtype' => PLSE_INPUT_TYPES['TEXT'],
@@ -203,7 +224,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
 
             'screenshot' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-screenshot',
-                'label' => 'Game Screenshot:',
+                'label' => 'Game Screenshot',
                 'title' => 'An image showing the game in action',
                 'type' => PLSE_INPUT_TYPES['IMAGE'],
                 'required' => '',
@@ -213,7 +234,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
 
             'game_author_name' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-author-name',
-                'label' => 'Game Author (typically a company):',
+                'label' => 'Game Author (typically a company)',
                 'title' => 'The company that designed and programmed the game',
                 'type' => PLSE_INPUT_TYPES['TEXT'],
                 'required' => '',
@@ -222,7 +243,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
 
             'game_author_url' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-author-url',
-                'label' => 'Game Author URL:',
+                'label' => 'Game Author URL',
                 'title' => 'The URL for the company that created the game',
                 'type' => PLSE_INPUT_TYPES['URL'],
                 'required' => '',
@@ -231,7 +252,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
 
             'game_publisher_name' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-publisher-name',
-                'label' => 'Game Publisher Name (if different from Game Author):',
+                'label' => 'Game Publisher Name (if different from Game Author)',
                 'title' => 'The company that distributed or publishes the game',
                 'type' => PLSE_INPUT_TYPES['TEXT'],
                 'required' => '',
@@ -240,7 +261,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
 
             'game_publisher_url' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-publisher-url',
-                'label' => 'Game Publisher URL:',
+                'label' => 'Game Publisher URL',
                 'title' => 'The URL for the company that publishes the game',
                 'type' => PLSE_INPUT_TYPES['URL'],
                 'required' => '',
@@ -249,7 +270,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
 
             'game_genre' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-genre',
-                'label' => 'Game Genre (e.g tower Defense):',
+                'label' => 'Game Genre (e.g tower Defense)',
                 'title' => 'Category of game, type of game and gameplay',
                 'type' => PLSE_INPUT_TYPES['REPEATER'],
                 'subtype' => PLSE_INPUT_TYPES['TEXT'],
@@ -261,7 +282,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
 
             'game_platform' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-platform',
-                'label' => 'Supported Platforms:',
+                'label' => 'Supported Platforms',
                 'title' => 'Desktops, mobiles, and game consoles compatible with the game',
                 'type' => PLSE_INPUT_TYPES['SELECT_MULTIPLE'],
                 'required' => '',
@@ -283,7 +304,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
 
             'game_server_name' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-server-name',
-                'label' => 'Game Server Name:',
+                'label' => 'Game Server Name',
                 'title' => 'Server where the game may be played',
                 'type' => PLSE_INPUT_TYPES['TEXT'],
                 'required' => '',
@@ -293,7 +314,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
 
             'game_server_url' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-server',
-                'label' => 'Game Server URL:',
+                'label' => 'Game Server URL',
                 'title' => 'Server address where the game may be played, if online',
                 'type' => PLSE_INPUT_TYPES['URL'],
                 'required' => '',
@@ -303,7 +324,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
 
             'operating_system' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-operating_system',
-                'label' => 'Supported Operating Systems:',
+                'label' => 'Supported Operating Systems',
                 'title' => 'Operating Systems compatible with the game',
                 'type' => PLSE_INPUT_TYPES['SELECT_MULTIPLE'],
                 'required' => '',
@@ -314,7 +335,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
 
             'trailer_video_url' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-trailer_video_url',
-                'label' => 'Trailer Video URL:',
+                'label' => 'Trailer Video URL',
                 'title' => 'Link to video showing gameplay',
                 'type' => PLSE_INPUT_TYPES['VIDEO'],
                 'required' => '',
@@ -325,7 +346,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
 
             'trailer_video_name' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-trailer_video_name',
-                'label' => 'Trailer Video Name:',
+                'label' => 'Trailer Video Name',
                 'title' => 'Name of game promotional video',
                 'type' => PLSE_INPUT_TYPES['TEXT'],
                 'required' => '',
@@ -335,7 +356,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
 
             'trailer_video_description' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-trailer_video_description',
-                'label' => 'Trailer Video Description:',
+                'label' => 'Trailer Video Description',
                 'title' => 'One-paragraph description of what the game trailer video shows',
                 'type' => PLSE_INPUT_TYPES['TEXTAREA'],
                 'required' => '',
@@ -345,7 +366,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
 
             'trailer_video_duration' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-trailer_video_duration',
-                'label' => 'Trailer Video Duration (Hours:Minutes:Seconds):',
+                'label' => 'Trailer Video Duration (Hours:Minutes:Seconds)',
                 'title' => 'video duration',
                 'type' => PLSE_INPUT_TYPES['DURATION'],
                 'required' => '',
@@ -356,7 +377,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
 
             'trailer_thumbnail_url' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-trailer_video_thumbnail_url',
-                'label' => 'Thumbnail scenes from the video:',
+                'label' => 'Thumbnail scenes from the video',
                 'title' => 'Add one or more images captured from the video',
                 'type' => PLSE_INPUT_TYPES['REPEATER'],
                 'subtype' => PLSE_INPUT_TYPES['URL'],
@@ -367,7 +388,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
 
             'trailer_video_in_language' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-trailer_video_in_language',
-                'label' => 'Trailer Video Language:',
+                'label' => 'Trailer Video Language',
                 'title' => 'Link to video showing gameplay',
                 //'type' => PLSE_INPUT_TYPES['DATALIST'],
                 'type' => PLSE_INPUT_TYPES['SELECT_SINGLE'],
@@ -379,7 +400,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
 
             'trailer_video_upload_date' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-trailer_video_upload_date',
-                'label' => 'Trailer video upload date:',
+                'label' => 'Trailer video upload date',
                 'title' => 'Date that the video was uploaded to public server',
                 'type' => PLSE_INPUT_TYPES['DATE'],
                 'required' => '',
@@ -470,30 +491,20 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
     }
 
     /**
-     * Get any global plugin option data associated with a post.
+     * Check if local post control is required. If it is, the Schema won't be 
+     * added unless the 'xxx_activate' meta field is set to ON.
      * 
-     * 
+     * @since    1.0.0
+     * @access   public
+     * @return   boolean    if local post control over adding Schema enabled, return true, else false
      */
-    public function get_option ( $slug ) {
-
-    }
-
-    /**
-     * Get the Schema data associated with a post.
-     * 
-     * 
-     * 
-     */
-    public function get_post_meta ( $slug, $post ) {
-
-        if ( $field['select_multiple'] ) {
-                $value = get_post_meta( $post->ID, $field[ $slug ] ); // multi-select control, returns array
-        } else {
-                $value = get_post_meta( $post->ID, $field[ $slug ], true ); // single = true, returns meta value
+    public function is_rendered ( $val ) {
+        $option = get_option( PLSE_LOCAL_POST_CONTROL_SLUG );
+        if ( $option == $this->init->get_checkbox_on() ) {
+            if ( $val == $this->init->get_checkbox_on() ) return true; 
+            else return false;
         }
-
-        return $value;
-
+        return true;
     }
 
     /**
@@ -507,14 +518,6 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
 
         $post = $this->init->get_post();
 
-        $this->valid = true;
-
-        // since the arrays are static, access statically here
-        $fields = self::$schema_fields['fields'];
-
-        // check if the entire website is about one Game, use Yoast Organization data
-
-
         /**
          * Assign values into the Schema array. We do this explicitly, rather than 
          * trying to loop through $fields since
@@ -526,6 +529,17 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
          * any other metaboxes.
          */
         $values = get_post_meta( $post->ID, '', true );
+
+        if ( empty( $values ) ) return array(); // yoast expects an array
+
+        // since the arrays are static, access statically here
+        $fields = self::$schema_fields['fields'];
+
+        // if the plugin options specify that posts control Schema rendering, check to see if we should actually render.
+        if ( ! $this->is_rendered( $values[ $fields[PLSE_SCHEMA_RENDER_KEY]['slug'] ][0] ) ) return array();
+
+        // validation flag
+        $this->valid = true;
 
         // data must be at least an empty array
         $data = array(
@@ -580,6 +594,10 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
 
             'genre' => $this->init->get_array_from_serialized( $values[ $fields['game_genre']['slug'] ] ), //[0],
             'gamePlatform' => $this->init->get_array_from_serialized( $values[ $fields['game_platform']['slug'] ] ),
+
+            // hard-coded for all games
+            'applicationCategory' => 'GameApplication',
+
             // only single servers allowed
             'gameServer' => array(
                 '@type' => "GameServer",
@@ -605,8 +623,9 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
 
         if ( empty( $val ) ) {
 
-            // look for a H1 in the content, use it
-            $val = $this->init_get_text_between_tags( 'h1', $post );
+            // look for the first <h1> tag in the content, use it
+            $val = $this->init->get_tags_from_content( 'h1', $post );
+            if ( is_array( $val ) ) $val = wp_strip_all_tags( $val[0] ); // first h1 in content
 
             if ( empty( $val ) ) {
 
@@ -764,6 +783,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
 
         if ( empty( $val ) ) {
 
+            // Access plugin options for the Game Schema, look for global assignment
             $is_game_site = get_option(PLSE_OPTIONS_SLUG . PLSE_SCHEMA_GAME . '-is-game-site-field');
             if ( $is_game_site == $this->init->ON ) {
 

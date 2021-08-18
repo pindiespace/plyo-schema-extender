@@ -187,15 +187,27 @@ class PLSE_Options_Data {
                 ),
 
                 'use_yoast_metadata' => array(
-                    'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_CONFIG . '-import-yoast-metadata',
-                    'description'  => 'If this is selected, the plugin will use Yoast SEO Meta Descriptions, if present in the Schema the plugin supplies. Overriden by excerpts added to pages and posts.',
+                    //'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_CONFIG . '-import-yoast-metadata',
+                    'slug' => PLSE_USE_YOAST_METADATA_SLUG,
+                    'description'  => 'If this is selected, the plugin will use Yoast SEO Meta descriptions and Yoast Local SEO values, where they make sense for the Schema. Overriden by excerpts added to pages and posts.',
                     'type'   => PLSE_INPUT_TYPES['CHECKBOX'],
                     'label' => 'Check to use Yoast meta data descriptions in the new Schema, if an excerpt isn\'t available.',
                     'title' => 'Yoast Local SEO values',
                 ),
 
+                //'local_post_control' => array(
+                'local_post_control' => array(
+                    //'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_CONFIG . '-local-post-control',
+                    'slug'  => PLSE_LOCAL_POST_CONTROL_SLUG,
+                    'description'  => 'If this is selected, posts don\'t automatically render schema to Yoast, even if they match the Custom Post Type or Category. Each post must be activated individually.',
+                    'type'   => PLSE_INPUT_TYPES['CHECKBOX'],
+                    'label' => 'Check to enable local post control of Schema rendering to Yoast.',
+                    'title' => 'Control Schema in individual posts',
+                ),
+
                 'check_urls' => array(
-                    'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_CONFIG . '-check-urls',
+                    //'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_CONFIG . '-check-urls',
+                    'slug' => PLSE_CHECK_URLS_SLUG,
                     'description'  => 'If this is selected, URLs typed into custom Schema fields in posts will be checked online. It may result in slow loading.',
                     'type'   => PLSE_INPUT_TYPES['CHECKBOX'],
                     'label' => 'Check to have plugin actively check if URLs can be reached on the Internet.',

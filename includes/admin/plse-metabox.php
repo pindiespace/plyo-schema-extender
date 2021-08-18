@@ -338,11 +338,22 @@ class PLSE_Metabox {
         wp_nonce_field( $context, $nonce );
 
         // loop through each Schema field
-        foreach ( $fields as $field ) {
+        foreach ( $fields as $key => $field ) {
+
+            /*
+             * Don't draw the local rendering checkbox, if plugin options 
+             * globally disabled local control of Schema rendering
+             */
+            if ( $key == PLSE_SCHEMA_RENDER_KEY ) {
+                $option = get_option( PLSE_LOCAL_POST_CONTROL_SLUG );
+                if ( $option != $this->init->get_checkbox_on() ) {
+                    continue; // break out of the foreach loop
+                }
+            }
 
             // render the label as a list bullet
             echo '<li><label for="' . $field['slug'] . '" class="plse-option-description"><span>';
-            echo __( $field['label'], PLSE_SCHEMA_EXTENDER_SLUG ) . '</span></label>';
+            echo $field['label'] . ':</span></label>';
 
             // get the stored option value for metabox field directly from database
             if( $field[ 'wp_data' ] == 'option' ) {
@@ -614,9 +625,9 @@ class PLSE_Metabox {
             $err = $this->init->add_status_to_field( __( 'this field is required....' ) );
         }
 
-        echo '<div class="plse-slider">';
+        echo '<div class="plse-ctl-highlight">';
         echo '<input title="' . $args['title']. '" name="' . $slug . '" id="' . $slug . '" class="plse-duration-picker plse-slider-input" id="range-control" type="range" min="0" max="' . $max . '" step="1" value="' . $value . '">';
-        echo '<span class="plse-slider-output"></span>';
+        echo '<span class="plse-slider-output"></span>'; // class online used in JS, not in CSS
         echo '</div>';
         echo '<p>Slide the slider, or use keyboard arrow keys to adjust.</p>';
 
@@ -637,10 +648,12 @@ class PLSE_Metabox {
         $title = esc_html( $args['title'] );
         if ( is_array( $value ) ) $value = $value[0];
         $value = esc_attr( $value );
+        echo '<div class="plse-ctl-highlight">';
         echo '<input title="' . $title . '" style="display:inline-block;" type="checkbox" id="' . $slug . '" name="' . $slug . '"';
         if ( $value == $this->init->get_checkbox_on() ) echo ' CHECKED';
         echo ' />&nbsp;';	
-        echo '<p style="display:inline-block; width=90%;">' . $title . '</p>';
+        echo '<span style="display:inline-block; width=90%;">' . $title . '</span>';
+        echo '</div>';
     }
 
     /**
@@ -812,7 +825,7 @@ class PLSE_Metabox {
 
         // begin rendering the table with repeater options
         ?>
-        <div id="plse-repeater-<?php echo $slug; ?>" class="plse-repeater">
+        <div id="plse-repeater-<?php echo $slug; ?>" class="plse-repeater plse-ctl-highlight">
             <div id="plse-repeater-max-warning" class="plse-repeater-max-warning" style="display:none;">You have reached the maximum number of values</div>
             <table class="plse-repeater-table" width="<?php echo $table_width; ?>" data-max="<?php echo $max; ?>">
                 <tbody>
@@ -884,6 +897,8 @@ class PLSE_Metabox {
         $value = esc_url( $value );
         $title = $args['title'];
 
+        echo '<div class="plse-ctl-highlight">'; // highlights overall control
+
         echo '<div class="plse-meta-image-col">';
 
         if ( $value ) {
@@ -901,7 +916,7 @@ class PLSE_Metabox {
         echo '<input type="text" name="' . sanitize_key( $slug ) . '" id="' . $slug . '" value="' . $value . '">';
         echo '<input title="' . $title . '" type="button" class="button plse-media-button" data-media="'. $slug . '" value="Upload Image" />';
 
-        echo '</div></div>';
+        echo '</div></div></div>';
 
     }
 
@@ -918,10 +933,10 @@ class PLSE_Metabox {
          * create the thumbnail URL
          * {@link https://ytimg.googleusercontent.com/vi/<insert-youtube-video-id-here>/default.jpg}
          */ 
-        echo '<div class="plse-video-metabox">';
+        echo '<div class="plse-video-metabox plse-ctl-highlight plse-repeater-highlight">';
         // add a special class for JS to the URL field for dynamic video embed
         $args['class'] = 'plse-embedded-video-url';
-        $args['size'] = '60';
+        $args['size'] = '69'; // same width as video + thumbnail takes up onscreen
         $args['type'] = 'URL';
         if ( is_array( $value ) ) $value = $value[0];
         $value = esc_url( $value );

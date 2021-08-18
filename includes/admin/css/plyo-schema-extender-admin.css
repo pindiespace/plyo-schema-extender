@@ -198,11 +198,15 @@
 }
 
 /* formatting for <div> enclosing HTML5 type=range element (used for time duration in seconds) */
-.plse-slider {
+.plse-ctl-highlight {
     border-radius: 6px;
-    width: 490px;
+    width: 530px;
     padding: 8px 4px 8px 4px;
     background-color: rgb(250, 250, 250);
+}
+
+.plse-repeater-highlight {
+    width: 570px!important;
 }
 
 /* range element */

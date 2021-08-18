@@ -51,9 +51,19 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
         // fields in the metabox, set for each post
         'fields' => array(
 
+            // special activation field - activate $post for output, if plugin options set so...
+            PLSE_SCHEMA_RENDER_KEY => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-render-schema',
+                'label' => 'Activate the Schema for this Post',
+                'title' => 'If checked, Schema will be output to the final page.',
+                'type' => PLSE_INPUT_TYPES['CHECKBOX'],
+                'required' => '',
+                'wp_data' => 'post_meta',
+            ),
+
             'event_name' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-name',
-                'label' => 'Event Name:',
+                'label' => 'Event Name',
                 'title' => 'Official name of the event',
                 'type'  => PLSE_INPUT_TYPES['TEXT'],
                 'required' => 'required',
@@ -62,7 +72,7 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
 
             'event_url' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-url',
-                'label' => 'Event URL:',
+                'label' => 'Event URL',
                 'title' => 'Website, or page on website, that is home page for this event',
                 'type'  => PLSE_INPUT_TYPES['URL'],
                 'required' => '',
@@ -71,7 +81,7 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
 
             'event_image' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-image',
-                'label' => 'Event Image:',
+                'label' => 'Event Image',
                 'title' => 'Click button to upload image, or use one from Media Library',
                 'type'  => PLSE_INPUT_TYPES['IMAGE'],
                 'required' => '',
@@ -80,7 +90,7 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
 
             'event_description' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-description',
-                'label' => 'Event Description:',
+                'label' => 'Event Description',
                 'title' => 'One-paragraph description of the event',
                 'type'  => PLSE_INPUT_TYPES['TEXTAREA'],
                 'required' => '',
@@ -91,7 +101,7 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
             // NOTE: sanitize_key() doesn't let us use -'startDate'
             'event_start_date' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-start-date',
-                'label' => 'Start Date:',
+                'label' => 'Start Date',
                 'title' => 'Day when the event starts',
                 'type'  => PLSE_INPUT_TYPES['DATE'],
                 'required' => 'required',
@@ -101,7 +111,7 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
             // FORMAT: 'HH:MM:SS'
             'event_start_time' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-start-time',
-                'label' => 'Start Time(Hour:Minute:AM or PM):',
+                'label' => 'Start Time(Hour:Minute:AM or PM)',
                 'title' => 'Time when the event starts',
                 'type'  => PLSE_INPUT_TYPES['TIME'],
                 'required' => 'required',
@@ -110,7 +120,7 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
 
             'event_end_date' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-end-date',
-                'label' => 'End Date:',
+                'label' => 'End Date',
                 'title' => 'Day when the event ends',
                 'type'  => PLSE_INPUT_TYPES['DATE'],
                 'required' => 'required',
@@ -120,7 +130,7 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
             // FORMAT: 'HH:MM:SS'
             'event_end_time' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-end-time',
-                'label' => 'End Time(Hour:Minute:AM/PM):',
+                'label' => 'End Time(Hour:Minute:AM/PM)',
                 'title' => 'Time when the event ends',
                 'type'  => PLSE_INPUT_TYPES['TIME'],
                 'required' => 'required',
@@ -129,7 +139,7 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
 
             'sameAs' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-sameas',
-                'label' => 'Same as These Links (enter URLs):',
+                'label' => 'Same as These Links (enter URLs)',
                 'title' => 'Specific alternate URLs',
                 'type'  => PLSE_INPUT_TYPES['REPEATER'],
                 'subtype' => PLSE_INPUT_TYPES['URL'],
@@ -139,7 +149,7 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
 
             'event_status' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-event_attendance_mode',
-                'label' => 'Attendance Mode:',
+                'label' => 'Attendance Mode',
                 'title' => 'Specify one or more attendance modes',
                 'type' => PLSE_INPUT_TYPES['SELECT_SINGLE'],
                 'required' => '',
@@ -155,7 +165,7 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
 
             'event_attendance_mode' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-event_attendance_mode',
-                'label' => 'Attendance Mode:',
+                'label' => 'Attendance Mode',
                 'title' => 'Specify one or more attendance modes',
                 'type' => PLSE_INPUT_TYPES['REPEATER'],
                 'subtype' => PLSE_INPUT_TYPES['TEXT'],
@@ -171,7 +181,7 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
 
             'event_location_name' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-location_name',
-                'label' => 'Event Location Name:',
+                'label' => 'Event Location Name',
                 'title' => 'Official name of the location',
                 'type'  => PLSE_INPUT_TYPES['TEXT'],
                 'required' => 'required',
@@ -180,7 +190,7 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
 
             'event_street_address' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-location_street_address',
-                'label' => 'Event Location Address:',
+                'label' => 'Event Location Address',
                 'title' => 'Address',
                 'type'  => PLSE_INPUT_TYPES['TEXT'],
                 'required' => 'required',
@@ -188,7 +198,7 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
             ),
             'event_address_locality' => array( //city
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-address_locality',
-                'label' => 'Event Location City:',
+                'label' => 'Event Location City',
                 'title' => 'City for the the event',
                 'type'  => PLSE_INPUT_TYPES['TEXT'],
                 'required' => 'required',
@@ -196,7 +206,7 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
             ),
             'event_address_region' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-address_region',
-                'label' => 'Event State or Region:',
+                'label' => 'Event State or Region',
                 'title' => 'Add a state or region of country',
                 'type'  => PLSE_INPUT_TYPES['TEXT'],
                 'required' => 'required',
@@ -205,7 +215,7 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
 
             'event_address_country' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-address-country',
-                'label' => 'Event Country:',
+                'label' => 'Event Country',
                 'title' => 'Country in which the event is held',
                 'type'  => PLSE_INPUT_TYPES['TEXT'],
                 'required' => 'required',
@@ -214,7 +224,7 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
 
             'event_postal_code' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-postal-code',
-                'label' => 'Event Address Postal Code:',
+                'label' => 'Event Address Postal Code',
                 'title' => 'Postal Code for the event location',
                 'type'  => PLSE_INPUT_TYPES['TEXT'],
                 'required' => 'required',
@@ -223,7 +233,7 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
 
             'event_virtual_location' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-virtual_location',
-                'label' => 'Online Location (URL) of where remote users can participate in event:',
+                'label' => 'Online Location (URL) of where remote users can participate in event',
                 'title' => 'URL giving online access to event',
                 'type'  => PLSE_INPUT_TYPES['URL'],
                 'required' => '',
@@ -322,6 +332,23 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
     }
 
     /**
+     * Check if local post control is required. If it is, the Schema won't be 
+     * added unless the 'xxx_activate' meta field is set to ON.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @return   boolean    if local post control over adding Schema enabled, return true, else false
+     */
+    public function is_rendered ( $val ) {
+        $option = get_option( PLSE_LOCAL_POST_CONTROL_SLUG );
+        if ( $option == $this->init->get_checkbox_on() ) {
+            if ( $val == $this->init->get_checkbox_on() ) return true; 
+            else return false;
+        }
+        return true;
+    }
+
+    /**
      * Returns the Game Schema data.
      *
      * @since     1.0.0
@@ -331,9 +358,6 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
     public function generate () {
 
         $post = $this->init->get_post();
-
-        // since the arrays are static, access statically here
-        $fields = self::$schema_fields['fields'];
 
         /**
          * Assign values into the Schema array. We do this explicitly, rather than 
@@ -346,6 +370,17 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
          * any other metaboxes.
          */
         $values = get_post_meta( $post->ID, '', true );
+
+        if ( empty( $values ) ) return array();
+
+        // since the arrays are static, access statically here
+        $fields = self::$schema_fields['fields'];
+
+        if ( ! $this->is_rendered( $values[ $fields[PLSE_SCHEMA_RENDER_KEY]['slug'] ][0] ) ) return array();
+
+        // validation flag
+        $this->valid = true;
+
 
         // data must be at least an empty array
         $data = array(
@@ -418,6 +453,31 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
      * Handles logic for specific fields
      * ---------------------------------------------------------------------
      */
+
+    public function get_event_name () {
+
+        $val = $values[ $field['slug'] ][0];
+
+        if ( empty( $val ) ) {
+
+            // look for the first <h1> tag in the content, use it
+            $val = $this->init->get_tags_from_content( 'h1', $post );
+            if ( is_array( $val ) ) $val = wp_strip_all_tags( $val[0] ); // first h1 in content
+
+            if ( empty( $val ) ) {
+
+                // get the post title
+                $val = get_the_title( $post );
+
+            }
+
+        }
+
+        if ( empty( $val ) ) $this->valid = false;
+
+        return $val;
+
+    }
 
     public function get_event_datetime () {
 

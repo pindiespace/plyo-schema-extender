@@ -501,6 +501,37 @@ class PLSE_Datalists {
         'freebsd' => 'Free BSD (Nintendo Switch)'
     );
 
+    /**
+     * Based on Google's list for softwareApplication
+     * {@link https://developers.google.com/search/docs/advanced/structured-data/software-app}
+     */
+    private $application_category = array(
+        'GameApplication' => 'GameApplication',
+        'MobileApplication' => 'MobileApplication',
+        'WebApplication' => 'WebApplication',
+        'SocialNetworkingApplication' => 'SocialNetworkingApplication',
+        'TravelApplication' => 'TavelApplication',
+        'ShoppingApplication' => 'ShoppingApplication',
+        'SportsApplication' => 'SportsApplication',
+        'LifestyleApplication' => 'LifestyleApplication',
+        'BusinessApplication' => 'BusinessApplication',
+        'DesignApplication' => 'DesignApplication',
+        'DeveloperApplication' => 'DeveloperApplication',
+        'DriverApplication' => 'DriverApplication',
+        'EducationalApplication' => 'EducationalApplication',
+        'HealthApplication' => 'HealthApplication',
+        'FinanceApplication' => 'FinanceApplication',
+        'SecurityApplication' => 'SecurityApplication',
+        'BrowserApplication' => 'BrowserApplication',
+        'CommunicationApplication' => 'CommunicationApplication',
+        'DesktopEnhancementApplication' => 'DesktopEnhancementApplication',
+        'EntertainmentApplication' => 'EntertainmentApplication',
+        'MultimediaApplication' => 'MultimediaApplication',
+        'HomeApplication' => 'HomeApplication',
+        'UtilitiesApplication' => 'UtilitiesApplication',
+        'ReferenceApplication' => 'ReferenceApplication',
+    );
+
     private $service_genres = array(
         'knowledge' => 'Knowledge',
         'design' => 'Design',
@@ -755,6 +786,22 @@ class PLSE_Datalists {
 
     public function get_os_size () {
         return count( $this->os );
+    }
+
+    /**
+     * Provide a list of SoftwareApplication types for Google
+     */
+    public function get_application_category_datalist ( $id = '' ) {
+        if ( ! $id ) $id = 'plse-software-application-data';
+        return $this->get_datalist( $this->application_category, $id );
+    }
+
+    public function get_application_category_select () {
+        return $this->get_select( $this->application_category );
+    }
+
+    public function get_application_category_size () {
+        return count( $this->application_category );
     }
 
     /**

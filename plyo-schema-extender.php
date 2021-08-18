@@ -175,6 +175,40 @@ if ( ! defined( 'PLSE_SCHEMA_HIDDEN' ) ) {
 
 /**
  * --------------------------------------------------------------------------
+ * PLUGIN OPTION SLUGS, SHARED
+ * These options slugs are used by metaboxes and plse-schema-xxx.php classes, 
+ * so define them here instead of in plse-options-data.php
+ * This way, we avoid having to load PLSE_Options or PLSE_Options_Data while
+ * rendering Schema.
+ * --------------------------------------------------------------------------
+ */
+
+//'use_yoast_metadata'
+if ( ! defined( 'PLSE_USE_YOAST_METADATA_SLUG' ) ) {
+    define('PLSE_USE_YOAST_METADATA_SLUG', PLSE_OPTIONS_SLUG . PLSE_SCHEMA_CONFIG . '-import-yoast-metadata' );
+}
+
+// determines whether Schema generation can be turned on/off at the individual post level
+if ( ! defined( 'PLSE_LOCAL_POST_CONTROL_SLUG') ) {
+    define( 'PLSE_LOCAL_POST_CONTROL_SLUG', PLSE_OPTIONS_SLUG . PLSE_SCHEMA_CONFIG . '-local-post-control' );
+}
+
+if ( ! defined( 'PLSE_CHECK_URLS_SLUG' ) ) {
+    define( 'PLSE_CHECK_URLS_SLUG', PLSE_OPTIONS_SLUG . PLSE_SCHEMA_CONFIG . '-check-urls' );
+}
+
+/**
+ * --------------------------------------------------------------------------
+ * METABOX FIELD SLUGS
+ * field keys in plse-schema-xxx.php that need to have the same for PLSE_Metabox processing
+ * --------------------------------------------------------------------------
+ */
+if ( ! defined( 'PLSE_SCHEMA_RENDER_KEY' ) ) {
+    define( 'PLSE_SCHEMA_RENDER_KEY', 'render_schema' );
+}
+
+/**
+ * --------------------------------------------------------------------------
  * INTERNALLY USED IN FORM CONTROLS
  * --------------------------------------------------------------------------
  */
@@ -227,6 +261,16 @@ if ( ! defined( 'PLSE_CAT_SLUG' ) ) {
  * - on a user-directed page (schema added)
  * --------------------------------------------------------------------------
  */
+
+// *************************************************************
+// TODO:
+// TODO: copy Yoast Local SEO should bounce the user to the "address" tab
+// TODO: remove 'game_' from schema fields, so they are more similar
+// TODO: disable Schema if required fields aren't filled out
+// TODO: set toggle in options requiring that a $post explicitly have Schema enabled on it
+// TODO:
+// TODO:
+// *************************************************************
 
 require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 
