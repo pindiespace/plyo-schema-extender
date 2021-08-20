@@ -198,11 +198,16 @@
 }
 
 /* formatting for <div> enclosing HTML5 type=range element (used for time duration in seconds) */
-.plse-ctl-highlight {
+.plse-meta-ctl-highlight {
     border-radius: 6px;
     width: 530px;
     padding: 8px 4px 8px 4px;
     background-color: rgb(250, 250, 250);
+}
+
+.plse-option-ctl-highlight {
+    border-radius: 6px;
+    background-color: rgb(230, 230, 230);
 }
 
 .plse-repeater-highlight {

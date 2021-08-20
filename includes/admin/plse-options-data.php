@@ -23,7 +23,8 @@ class PLSE_Options_Data {
     static private $__instance = null;
 
     /**
-     * Toggle checkbox for Schema on/off in plugin options
+     * Toggle checkbox for Schema on/off in plugin options. These appear above 
+     * the fields associated with the Schema in a options page tab
      */
     private $options_toggle = array(
 
@@ -40,7 +41,7 @@ class PLSE_Options_Data {
                     'slug' => 'plse-' . PLSE_SCHEMA_SERVICE . '-used',
                     'description' => 'Check this to enable the ' . PLSE_SCHEMA_SERVICE . ' Schema',
                     'title' => 'Use this Schema',
-                    'label' => 'If checked, Schema applied to the Custom Post Types and Categories selected below',
+                    'label' => 'If checked, Schema are applied to the Custom Post Types and Categories selected below. Data from additional fields is available to every post or page using the Schema, but can be over-ridden by adding information in the post custom fields.',
                     'type' => PLSE_INPUT_TYPES['CHECKBOX']
                 )
 
@@ -61,7 +62,7 @@ class PLSE_Options_Data {
                     'slug' => 'plse-' . PLSE_SCHEMA_GAME . '-used',
                     'description' => 'Check this to enable the ' . PLSE_SCHEMA_GAME . ' Schema',
                     'title' => 'Use this Schema',
-                    'label' => 'If checked, Schema applied to the Custom Post Types and Categories selected below',
+                    'label' => 'If checked, Schema are applied to the Custom Post Types and Categories selected below. Data from additional fields is available to every post or page using the Schema, but can be over-ridden by adding information in the post custom fields.',
                     'type' => PLSE_INPUT_TYPES['CHECKBOX']
                 )
 
@@ -81,7 +82,7 @@ class PLSE_Options_Data {
                     'slug' => 'plse-' . PLSE_SCHEMA_EVENT . '-used',
                     'description' => 'Check this to enable the ' . PLSE_SCHEMA_EVENT . ' Schema',
                     'title' => 'Use this Schema',
-                    'label' => 'If checked, Schema applied to the Custom Post Types and Categories selected below',
+                    'label' => 'If checked, Schema are applied to the Custom Post Types and Categories selected below. Data from additional fields is available to every post or page using the Schema, but can be over-ridden by adding information in the post custom fields.',
                     'type' => PLSE_INPUT_TYPES['CHECKBOX']
                 )
             )
@@ -103,7 +104,7 @@ class PLSE_Options_Data {
                         'slug' => 'plse-' . PLSE_SCHEMA_PRODUCT_REVIEW . '-used',
                         'description' => 'Check this to enable the ' . PLSE_SCHEMA_PRODUCT_REVIEW . ' Schema',
                         'title' => 'Use this Schema',
-                        'label' => 'If checked, Schema applied to the Custom Post Types and Categories selected below',
+                        'label' => 'If checked, Schema are applied to the Custom Post Types and Categories selected below. Data from additional fields is available to every post or page using the Schema, but can be over-ridden by adding information in the post custom fields.',
                         'type' => PLSE_INPUT_TYPES['CHECKBOX']
                     )
 
@@ -127,7 +128,7 @@ class PLSE_Options_Data {
      * $field[]
      * |- slug            = the id used to access the field, store in metabox data
      * |- yoast_slug      = equivalent value in Yoast Local SEO (NOT IN METABOX)
-     * |- description     = field description (for UI to the left of the field)
+     * |- description     = field description (for UI to the left of the field in first <td>...</td>)
      * |- label           = the text in the <label>...</label> field
      * |- title           = appears when user mouses over the field
      * |- type            = type of control (PLSE_INPUT_TYPES[VALUE])
@@ -222,7 +223,7 @@ class PLSE_Options_Data {
         'GENERAL' => array(
             'section_slug'    => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_GENERAL,
             'section_title'   => 'General Settings for Schema',
-            'section_message' => 'General settings, which provide some addtional fields not in the default Yoast installation',
+            'section_message' => 'General settings, which provide some addtional fields not in the default Yoast installation, but present in Yoast Local SEO. Select the Config tab to load Yoast Local SEO values, if present, into these fields.',
             'section_box'     =>  PLSE_OPTIONS_SLUG . PLSE_SCHEMA_GENERAL . '-box',// <div> for section
             'tab'             => 'content-tab2',
             'tab_title'       => 'Contact',
@@ -265,7 +266,7 @@ class PLSE_Options_Data {
         'ADDRESS' => array(
             'section_slug'    => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_ADDRESS,
             'section_title'   => 'Local Business Address',
-            'section_message' => 'Address providing fields missing from default Yoast installation',
+            'section_message' => 'Address providing fields missing from default Yoast installation, but present in Yoast Local SEO. Select the Config tab to load values from Yoast Local SEO, if present, into these fields.',
             'section_box'     => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_ADDRESS . '-box',// <div> for section
             'tab'             => 'content-tab3',
             'tab_title'       => 'Address',
@@ -334,7 +335,7 @@ class PLSE_Options_Data {
 
             'section_slug'    => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE,
             'section_title'   => 'Service Settings for Schema',
-            'section_message' => 'Parameters for Service Schema. These are global, and can be over-ridden on individual pages. Adjust individual pages and posts with custom fields.',
+            'section_message' => 'Parameters for Service Schema. Use Custom Post Types and Categories to choose which posts and pages get the Schema applied.',
             'section_box'     => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-box', // <div> for section, used in display_options_page
             'tab'             => 'content-tab4',
             'tab_title'       => 'Service',
@@ -356,21 +357,40 @@ class PLSE_Options_Data {
                     'description'  => 'Categories using Service Schema',
                     'type'   => PLSE_INPUT_TYPES['CAT'],
                     'label'  => 'Select Multiple ok',
-                    'title'  => 'Clicking one of the listed categories will add the Schema to all posts using the category'
+                    'title'  => 'Clicking one of the listed categories will add the Schema to all posts using the category',
                 ),
+
+
+/////////////////////////////////////
+                // service subtype
+                'service_subtype' => array(
+                    'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-subtype-field',
+                    'description'  => 'Default Service Business SubType',
+                    'type'   => PLSE_INPUT_TYPES['SELECT_SINGLE'],
+                    'label' => 'Descriptive type',
+                    'title' => 'Enter a specific service type',
+                    'option_list' => 'countries',
+                    //'option_list' => array(
+                    //    'PHIL' => 'phil',
+                    //    'BOB' => 'bob'
+                    //)
+                ),
+//////////////////////////////////////
+
 
                 // service type
                 'service_type' => array(
                     'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-type-field',
-                    'description'  => 'Service Type (e.g. Game Public Relations)"',
-                    'type'   => PLSE_INPUT_TYPES['TEXT'],
+                    'description'  => 'Default Service Business Type',
+                    'type'   => PLSE_INPUT_TYPES['DATALIST'],
+                    'option_list' => 'service_genres', // kernel of function name in PLSE_Datalist
                     'label' => 'Descriptive type',
-                    'title' => 'Enter a specific service type'
+                    'title' => 'Enter a specific service type',
                 ),
 
                 'logo' => array(
                     'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-logo',
-                    'description'  => 'Service brand logo or icon (global to site)',
+                    'description'  => 'Default Service brand logo or icon',
                     'type'   => PLSE_INPUT_TYPES['IMAGE'],
                     'width'  => '128',
                     'height' => '128',
@@ -380,7 +400,7 @@ class PLSE_Options_Data {
 
                 'image' => array(
                     'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-image',
-                    'description'  => 'Image of Service (distinct from brand logo, global to site)',
+                    'description'  => 'Default image of Service (distinct from brand logo)',
                     'type'   => PLSE_INPUT_TYPES['IMAGE'],
                     'width'  => '240',
                     'height' => '120',
@@ -396,7 +416,7 @@ class PLSE_Options_Data {
 
             'section_slug'    => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_GAME,
             'section_title'   => 'Game Settings for Schema',
-            'section_message' => 'Parameters for Game Schema. These apply to all instances of Game Schema loaded. These are global, and can be over-ridden. Adjust individual pages and posts with custom fields.',
+            'section_message' => 'Parameters for Game Schema. These apply to all instances of Game Schema loaded. These are defaults, and can be over-ridden in individual pages and posts with custom fields.',
             'section_box'     => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_GAME . '-box', // <div> for section, used in display_options_page()
             'tab'             => 'content-tab5',
             'tab_title'       => 'Game',
@@ -422,18 +442,9 @@ class PLSE_Options_Data {
 
                 ),
 
-                // if the entire site is about the game, check this
-                'site_is_game_site' => array(
-                    'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_GAME . '-is-game-site-field',
-                    'description'  => 'If the entire site is about one game, check this',
-                    'type'   => PLSE_INPUT_TYPES['CHECKBOX'],
-                    'label' => 'Check to use Yoast Organization info to describe the',
-                    'title' => 'Check to make this site about one game'
-                ),
-
                 'image' => array(
                     'slug'   => 'plse-' . PLSE_SCHEMA_GAME . '-image',
-                    'description'  => 'Image of Game (global to site)',
+                    'description'  => 'Default image of Game',
                     'type'   => PLSE_INPUT_TYPES['IMAGE'],
                     'width'  => '240',
                     'height' => '120',
@@ -449,7 +460,7 @@ class PLSE_Options_Data {
 
             'section_slug'    => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_EVENT,
             'section_title'   => 'Event Settings for Schema',
-            'section_message' => 'Parameters for Event Schema. These apply to all instances of Event Schema loaded. These are global, and can be over-ridden. Adjust individual pages and posts with custom fields.',
+            'section_message' => 'Parameters for Event Schema. These apply to all instances of Event Schema loaded. These are defaults, and can be over-ridden in indivdiual pages and posts with custom fields.',
             'section_box'     => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_EVENT . '-box', // <div> for section, used in display_options_page()
             'tab'             => 'content-tab6',
             'tab_title'       => 'Event',

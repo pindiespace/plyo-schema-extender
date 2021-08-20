@@ -618,6 +618,7 @@ class PLSE_Init {
                     $pieces[] = $classname::getInstance( $context );
 
                 }
+
             }
 
             return $pieces;
@@ -1237,6 +1238,44 @@ class PLSE_Init {
 
         return $typenow;
 
+    }
+
+    /**
+     * Extract the option and value from a returned list of Custom Post Types.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @return   array    $option_list a standard option array (key => value)
+     */
+    public function get_option_list_from_cpts ( $cpts ) {
+        $option_list = array();
+
+        foreach ( $cpts as $cpt ) {
+
+            $option_list[ $cpt->label ] = $cpt->rewrite['slug'];
+
+        }
+        return $option_list;
+    }
+
+    /**
+     * Get a standard option_list from returned categories.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @return   array   $cats the list of categories, formatted as key => value
+     */
+    public function get_option_list_from_cats ( $cats ) {
+
+        $option_list = array();
+
+        if ( is_array( $cats ) ) {
+            foreach ( $cats as $term ) {
+                // a WP_Term object, not an array...
+                $option_list[ $term->name ] = $term->slug;
+            }
+        }
+        return $option_list;
     }
 
     /**

@@ -627,8 +627,19 @@ class PLSE_Datalists {
      * @return   array
      */
     public function get_arr ( $array_slug ) {
-        if ( isset( $this->{$array_slug} ) ) {
+        if ( isset( $this->{ $array_slug } ) ) {
             return $this->{$array_slug};
+        }
+        return null;
+    }
+
+    public function get_rev_arr ( $array_slug ) {
+        if ( isset( $this->{ $array_slug } ) ) {
+            $arr = array();
+            foreach ( $this->{ $array_slug } as $key => $val ) {
+                $arr[$val] = $key;
+            }
+            return $arr;
         }
         return null;
     }
@@ -699,6 +710,7 @@ class PLSE_Datalists {
      * 
      * @since    1.0.0
      * @access   public
+     * @return   string    HTML for a <datalist>
      */
     public function get_languages_datalist ( $id = '' ) {
         if ( ! $id ) $id = 'plse-languages-data';
@@ -715,13 +727,12 @@ class PLSE_Datalists {
      * 
      * @since    1.0.0
      * @access   public
+     * @return   string    HTML for a <datalist>
      */
     public function get_countries_datalist ( $id = '' ) {
         if ( ! $id ) $id = 'plse-countries-data';
         return $this->get_datalist( $this->countries, $id );
     }
-
-
 
     public function get_countries_select () {
         return $this->get_select( $this->countries );
@@ -736,6 +747,7 @@ class PLSE_Datalists {
      * 
      * @since    1.0.0
      * @access   public
+     * @return   string    HTML for a <datalist>
      */
     public function get_game_genres_datalist ( $id = '' ) {
         if ( ! $id ) $id = 'plse-game_genres-data';
@@ -755,6 +767,7 @@ class PLSE_Datalists {
      * 
      * @since    1.0.0
      * @access   public
+     * @return   string    HTML for a <datalist>
      */
     public function get_platforms_datalist ( $id = '' ) {
         if ( ! $id ) $id = 'plse-platforms-data';
@@ -774,6 +787,7 @@ class PLSE_Datalists {
      * 
      * @since    1.0.0
      * @access   public
+     * @return   string    HTML for a <datalist>
      */
     public function get_os_datalist ( $id = '' ) {
         if ( ! $id ) $id = 'plse-os-data';
@@ -790,6 +804,10 @@ class PLSE_Datalists {
 
     /**
      * Provide a list of SoftwareApplication types for Google
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @return   string    HTML for a <datalist>
      */
     public function get_application_category_datalist ( $id = '' ) {
         if ( ! $id ) $id = 'plse-software-application-data';
@@ -805,13 +823,14 @@ class PLSE_Datalists {
     }
 
     /**
-     * Provide a list of common videogame operating systems.
+     * Provide a list of common business service models.
      * 
      * @since    1.0.0
      * @access   public
+     * @return   string    HTML for a <datalist>
      */
     public function get_service_genres_datalist ( $id = '' ) {
-        if ( ! $id ) $id = 'plse-service-genres-data';
+        if ( ! $id ) $id = 'plse-service_genres-data';
         return $this->get_datalist( $this->service_genres, $id );
     }
 

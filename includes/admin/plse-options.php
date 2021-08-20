@@ -319,7 +319,7 @@ class PLSE_Options {
                 }
 
                 // show the data group fields (which can be hidden with checkbox)
-                echo '<!--inside a mask-->';
+                echo '<!--inside a user-clickable accordion style mask-->';
                 echo '<div class="plse-panel-mask" style="display:' . $panel_display . '">';
                 echo '<div>' ."\n";
                 do_settings_sections( $this->options_data->get_section_box_slug( $key ) );
@@ -423,7 +423,10 @@ class PLSE_Options {
 
         foreach( $schema as $key => $section ) {
 
-            // get the toggle for Schema tabs (not used in the 'general' tab)
+            /* 
+             * get the checkbox toggle for Schema tabs (not config, general, address)
+             * variable $state is added to the $field array for use in rendering
+             */
             $state = $this->admin_settings_toggle( $toggles[ $key ] );
 
             // initialize the section (e.g. tab panel)
@@ -577,6 +580,7 @@ class PLSE_Options {
      * @return   string   $option    the stored option value, used to validate text field subtypes
      */
     public function render_simple_field ( $args ) {
+
         $slug = sanitize_key( $args['slug'] );
         $state = $args['state'];
         $title = esc_html( $args['title'] );
@@ -587,7 +591,7 @@ class PLSE_Options {
         $option = get_option( $slug );
         echo '<label class="plse-option-description" for="' . $slug . '">' . $label . '</label>';
         echo '<input title="'. $title .'" class="plse-option-input" type="' . $type . '" list="' . $list_id . '" id="' . $slug . '" name="' . $slug . '" size="40" value="' . $option . '" />';	
-        echo '<span>' . __( 'These are global settings. You can override them in individual posts.' ) . '</span>';
+
         return $option; // for error checks
     }
 
@@ -609,10 +613,12 @@ class PLSE_Options {
      * @param    array    $args    field arguments
      */
     public function render_datalist_field ( $args ) {
+
         $args['type'] = 'text';
         $slug = sanitize_key( $args['slug'] );
         $option_list = $args['option_list'];
 
+        // select and load datalists ($option_list) here
         if ( isset( $option_list ) ) {
             if ( is_array( $option_list ) ) {
                 // apply custom array of options specified in the field
@@ -623,8 +629,10 @@ class PLSE_Options {
                 // apply a standard datalist
                 $method = 'get_' . $option_list . '_datalist';
                 $args['list_id'] = 'plse-' . $option_list . '-data';
+
+                // dynamically generate render method name from PLSE_INPUT_TYPES[]
                 if ( method_exists( $this->datalists, $method ) ) {
-                    echo $this->datalists->$method(); 
+                    echo $this->datalists->$method();
                 }
             }
         }
@@ -693,6 +701,7 @@ class PLSE_Options {
      * @param    array    $args name of field, state, additional properties
      */
     public function render_textarea_field ( $args ) {
+
         $slug = sanitize_key( $args['slug'] );
         $state = $args['state'];
         $title = esc_html( $args['title'] );
@@ -703,6 +712,7 @@ class PLSE_Options {
         $option = get_option( $slug );
         echo '<label class="plse-option-description" for="' . $slug . '">' . $label . '</label>';
         echo '<textarea title="' . $title . '" id="' . $slug . '" name="' . $slug .'" rows="' . $rows . '" cols="' . $cols . '"></textarea>';
+
     }
 
     /**
@@ -712,6 +722,7 @@ class PLSE_Options {
      * @param    array    $args name of field, state, additional properties
      */
     public function render_date_field ( $args ) {
+
         $slug = sanitize_key( $args['slug'] );
         $state = $args['state'];
         $title = esc_html( $args['title'] );
@@ -720,6 +731,7 @@ class PLSE_Options {
         $option = get_option( $slug );
         echo '<label style="display:block;" for="' . $slug . '">' . $label . '</label>';
         echo '<input style="display:block;" type="date" id="' . $slug . '" name="' . $slug . '" value="' . $option . '" />';	
+
     }
 
     /**
@@ -730,16 +742,20 @@ class PLSE_Options {
      * @param    array    $args name of field, state, additional properties
      */
     public function render_checkbox_field ( $args ) {
+
         $slug = sanitize_key( $args['slug'] );
         $state = $args['state'];
         $title = esc_html( $args['title'] );
         $label = esc_html( $args['label'] );
 
         $option = get_option( $slug );
-        echo '<label style="display:block;" for="' . $slug . '">' . $label . '</label>';
+        echo '<div class="plse-option-ctl-highlight">';
+        echo '<label style="display:block;margin-bottom:6px;" for="' . $slug . '">' . $label . '</label>';
         echo '<input style="display:block;" type="checkbox" id="' . $slug . '" name="' . $slug . '"';
         if ( $option == $this->init->get_checkbox_on() ) echo ' CHECKED';
         echo ' />';	
+        echo '</div>';
+
     }
 
     /**
@@ -750,16 +766,16 @@ class PLSE_Options {
      * @param    array    $args name of field, state, additional properties
      */
     public function render_select_single_field ( $args ) {
-        // TODO: NOT TESTED
+
         // select fields need an option list
         $option_list = $args['option_list'];
         if ( ! $option_list ) return;
-        if ( is_array( $option_list ) ) {
 
-        } else {
-
+        // for single fields, we want the datalist array (keys and values reversed), not a datalist
+        if ( ! is_array( $option_list ) ) {
+           $option_list = $this->datalists->get_rev_arr( $option_list ); 
         }
-
+ 
         $slug = sanitize_key( $args['slug'] );
         $state = $args['state'];
         $title = esc_html( $args['title'] );
@@ -792,15 +808,14 @@ class PLSE_Options {
      * @param    array    $args name of field, state, additional properties
      */
     public function render_select_multiple_field ( $args ) {
-        // TODO: NOT TESTED
+ 
         $option_list = $args['option_list'];
         if ( ! $option_list ) return;
-        if ( is_array( $option_list ) ) {
 
-        } else {
-
+        if ( ! is_array( $option_list ) ) {
+            // TODO: use a PLSE_Datalist
         }
-
+        
         $slug = sanitize_key( $args['slug'] );
         $state = $args['state'];
         $title = esc_html( $args['title'] );
@@ -808,20 +823,26 @@ class PLSE_Options {
 
         $options = get_option( $slug );
 
+
+        // get the actual options out of their enclosing array
+        if ( is_array( $options ) ) $options = $options[ $slug ];
+        echo "OPTIONS:";
+        print_r($options);
+ 
         // note $slug[], which specifies multiple values stored in one option.
         $dropdown = '<div class="plse-option-select"><select multiple name="' . $slug .'[' . $slug . '][]" class="plse-option-select-dropdown" >' . "\n";
 
         foreach ( $option_list as $key => $option ) {
-            $dropdown .= '<option title="' . $title . '" value="' . $key . '" ';
+            $dropdown .= '<option title="' . $title . '" value="' . $option . '" ';
             // highlight stored options in dropdown
             if ( is_array( $options ) ) {
                 foreach ( $options as $opt ) {
                     if ( $option == $opt ) {
-                        $dropdown .= 'selected';
+                        $dropdown .= 'selected="selected"';
                     }
                 }
             }
-            $dropdown .= '>' . $option . '</option>' . "\n";
+            $dropdown .= '>' . $key . '</option>' . "\n";
         }
         $dropdown .= '</select>' . "\n";
 
@@ -837,7 +858,11 @@ class PLSE_Options {
      * Handle multiple-select scrolling list for Custom Post Type. Stores multiple entries for 
      * Custom Post Types used to assign Schema for specific CPTs.
      * Example: <select name='plugin_options[clusters][]' multiple='multiple'>
+     * 
+     * We use a custom render due to the complexity of the returned CPT array.
+     * 
      * {@link https://stackoverflow.com/questions/17987233/how-can-i-set-and-get-the-values-of-a-multiple-select-with-the-wordpress-setting}
+     * 
      * @since    1.0.0
      * @access   public
      * @param    array    $args name of field, state, additional properties
@@ -850,6 +875,14 @@ class PLSE_Options {
             echo __( 'No Custom Post Types are defined yet.' );
             return;
         }
+
+        $args['option_list'] = $this->init->get_option_list_from_cpts( $cpts );
+        //print_r($args['option_list']);
+
+        ///////////////////////////////////////////////////////////////////////////
+        $this->render_select_multiple_field( $args );
+        return;
+        /////////////////////////////////////////////////////////////////////////
 
         $slug = sanitize_key( $args['slug'] );
         $state = $args['state'];
@@ -892,18 +925,30 @@ class PLSE_Options {
     }
 
     /**
-     * Handle multi-select scrolling list for categories
+     * Handle multi-select scrolling list for categories.
+     * 
+     * We use a custom render due to the complexity of the $cat array
+     * 
      * @since    1.0.0
      * @access   public
      * @param    array    $args name of field, state, additional properties
      */
     public function render_cat_field ( $args ) {
+
         // no dropdown if categories don't exist
         $cats = $this->init->get_all_cats();
         if ( ! $cats ) {
             echo __( 'No categories are defined yet.' );
             return;
         }
+
+        $args['option_list'] = $this->init->get_option_list_from_cats( $cats );
+        print_r($args['option_list']);
+
+        ///////////////////////////////////////////////////////////////////////////
+        $this->render_select_multiple_field( $args );
+        return;
+        ///////////////////////////////////////////////////////////////////////////
 
         $slug = sanitize_key( $args['slug'] );
         $state = $args['state'];
@@ -951,6 +996,8 @@ class PLSE_Options {
      * @param    array    $args name of field, state, additional properties
      */
     public function render_image_field ( $args ) {
+
+        
         $slug = sanitize_key( $args['slug'] );
         $state = $args['state'];
         $title = esc_html( $args['title'] );

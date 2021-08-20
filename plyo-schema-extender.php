@@ -264,11 +264,16 @@ if ( ! defined( 'PLSE_CAT_SLUG' ) ) {
 
 // *************************************************************
 // TODO:
-// TODO: copy Yoast Local SEO should bounce the user to the "address" tab
-// TODO: remove 'game_' from schema fields, so they are more similar
-// TODO: disable Schema if required fields aren't filled out
-// TODO: set toggle in options requiring that a $post explicitly have Schema enabled on it
+// TODO: convert $args to $field
+
+// TODO: on reload, save the current open tab automatically
+//
+// TODO: copy Yoast Local SEO should bounce the user to the "address" tab, status message
+// TODO: warning messages for field value
+// TODO: warning for invalid minimal schema (required fields can't be filled)
 // TODO:
+// TODO: add Service schema
+// TODO: add Product Review to schema
 // TODO:
 // *************************************************************
 

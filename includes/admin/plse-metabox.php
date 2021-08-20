@@ -625,7 +625,7 @@ class PLSE_Metabox {
             $err = $this->init->add_status_to_field( __( 'this field is required....' ) );
         }
 
-        echo '<div class="plse-ctl-highlight">';
+        echo '<div class="plse-meta-ctl-highlight">';
         echo '<input title="' . $args['title']. '" name="' . $slug . '" id="' . $slug . '" class="plse-duration-picker plse-slider-input" id="range-control" type="range" min="0" max="' . $max . '" step="1" value="' . $value . '">';
         echo '<span class="plse-slider-output"></span>'; // class online used in JS, not in CSS
         echo '</div>';
@@ -648,7 +648,7 @@ class PLSE_Metabox {
         $title = esc_html( $args['title'] );
         if ( is_array( $value ) ) $value = $value[0];
         $value = esc_attr( $value );
-        echo '<div class="plse-ctl-highlight">';
+        echo '<div class="plse-meta-ctl-highlight">';
         echo '<input title="' . $title . '" style="display:inline-block;" type="checkbox" id="' . $slug . '" name="' . $slug . '"';
         if ( $value == $this->init->get_checkbox_on() ) echo ' CHECKED';
         echo ' />&nbsp;';	
@@ -673,6 +673,8 @@ class PLSE_Metabox {
         if ( $this->init->is_required( $args ) ) {
             $err = $this->init->add_status_to_field( __( 'this field is required....' ) );
         }
+
+        // TODO: DEBUG DATALIST, THEN MAKE IT WORK IN OPTIONS
  
         $dropdown = '<div class="plse-options-datalist"><input type="text" title="' . $args['title'] . '" id="' . $slug . '" name="' . $slug . '" autocomplete="off" class="plse-datalist" size="' . $size . '" value="' . $value . '" list="';
 
@@ -825,7 +827,7 @@ class PLSE_Metabox {
 
         // begin rendering the table with repeater options
         ?>
-        <div id="plse-repeater-<?php echo $slug; ?>" class="plse-repeater plse-ctl-highlight">
+        <div id="plse-repeater-<?php echo $slug; ?>" class="plse-repeater plse-meta-ctl-highlight">
             <div id="plse-repeater-max-warning" class="plse-repeater-max-warning" style="display:none;">You have reached the maximum number of values</div>
             <table class="plse-repeater-table" width="<?php echo $table_width; ?>" data-max="<?php echo $max; ?>">
                 <tbody>
@@ -897,7 +899,7 @@ class PLSE_Metabox {
         $value = esc_url( $value );
         $title = $args['title'];
 
-        echo '<div class="plse-ctl-highlight">'; // highlights overall control
+        echo '<div class="plse-meta-ctl-highlight">'; // highlights overall control
 
         echo '<div class="plse-meta-image-col">';
 
@@ -933,7 +935,7 @@ class PLSE_Metabox {
          * create the thumbnail URL
          * {@link https://ytimg.googleusercontent.com/vi/<insert-youtube-video-id-here>/default.jpg}
          */ 
-        echo '<div class="plse-video-metabox plse-ctl-highlight plse-repeater-highlight">';
+        echo '<div class="plse-video-metabox plse-meta-ctl-highlight plse-repeater-highlight">';
         // add a special class for JS to the URL field for dynamic video embed
         $args['class'] = 'plse-embedded-video-url';
         $args['size'] = '69'; // same width as video + thumbnail takes up onscreen
