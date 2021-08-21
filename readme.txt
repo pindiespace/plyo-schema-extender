@@ -53,6 +53,18 @@ That's it! Now you can add more Schema data to your pages, posts, Custo Post Typ
 
 == Frequently Asked Questions ==
 
+Q: How do I restrict Schema?
+A: In plugin options, you can select posts for each schema. You can restrict by Custom Post Type (CPT), or you can create categories for posts and pages which trigger the Schema.
+
+Q: How can I integrate with Yoast Local SEO?
+A: If you have Yoast Local SEO installed, just go to the home screen of the plugin in WP_Admin, and click the "load Local" SEO button. The plugin will copy Yoast Local SEO values into your configuration, overwriting anything currently there. Changes in the plugin don't affect Yoast at all.
+
 #### User documentation
 TBD
 
+#### Ecosystem
+
+ * Note: If you are using the AMP plugin, make sure you are set to "Standard" and you enable Advanced Settings -> Content Types -> Your Custom Post Type. Otherwise, 
+ * you may see an Ajax error in the Web Console.
+ * new CPTs must be enabled in the AMP plugin!
+ * new CPTs should have 'custom fields' enabled

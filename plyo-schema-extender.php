@@ -28,13 +28,9 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
- * Note: If you are using the AMP plugin, make sure you are set to "Standard" and 
- * you enable Advanced Settings -> Content Types -> Your Custom Post Type. Otherwise, 
- * you may see an error in the Web Console.
+ *  
  * -----------------------------------------------------------------------
- * 
-**/
+ */
 
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) exit;
@@ -57,6 +53,17 @@ if ( ! defined( 'PLSE_SCHEMA_EXTENDER_NAME' ) ) {
  */
 define( 'PLSE_SCHEMA_EXTENDER_VERSION', '1.0.0' );
 
+// define the plugin slug for the admin options menu
+if ( ! defined( 'PLSE_SCHEMA_EXTENDER_SLUG' ) ) {
+    define( 'PLSE_SCHEMA_EXTENDER_SLUG', 'plyo-schema-extender' );
+}
+
+/*
+ * -----------------------------------------------------------------------
+ * String constants. Put here so they can be translated.
+ * -----------------------------------------------------------------------
+ */
+
 /*
  * Basic Plugin description (for options page)
  */
@@ -64,10 +71,6 @@ if ( ! defined( 'PLSE_SCHEMA_OPTIONS_DESCRIPTION' ) ) {
     define( 'PLSE_SCHEMA_OPTIONS_DESCRIPTION', __( 'This plugin works with Yoast SEO and adds additional schema to the default schema provided by Yoast. Schemas can be added through a custom post type whose name matches the schema.org schema, or by creating a category name matching the schema name. Plugin is NOT compatible with other Schema plugins' ) );
 }
 
-// define the plugin slug for the admin options menu
-if ( ! defined( 'PLSE_SCHEMA_EXTENDER_SLUG' ) ) {
-    define( 'PLSE_SCHEMA_EXTENDER_SLUG', 'plyo-schema-extender' );
-}
 
 /*
  * -----------------------------------------------------------------------
@@ -265,7 +268,11 @@ if ( ! defined( 'PLSE_CAT_SLUG' ) ) {
 // *************************************************************
 // TODO:
 // TODO: convert $args to $field
+// AUDIT: code names
+// AUDIT: css classes
+// AUDIT: active jQuery
 
+// 
 // TODO: on reload, save the current open tab automatically
 //
 // TODO: copy Yoast Local SEO should bounce the user to the "address" tab, status message

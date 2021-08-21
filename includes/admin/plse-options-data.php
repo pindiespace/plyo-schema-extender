@@ -360,8 +360,8 @@ class PLSE_Options_Data {
                     'title'  => 'Clicking one of the listed categories will add the Schema to all posts using the category',
                 ),
 
-
 /////////////////////////////////////
+/*
                 // service subtype
                 'service_subtype' => array(
                     'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-subtype-field',
@@ -375,8 +375,8 @@ class PLSE_Options_Data {
                     //    'BOB' => 'bob'
                     //)
                 ),
+*/
 //////////////////////////////////////
-
 
                 // service type
                 'service_type' => array(

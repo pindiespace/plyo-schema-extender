@@ -9,21 +9,19 @@
      * @link https://stackoverflow.com/questions/3221561/eliminate-flash-of-unstyled-content
      */
 
-
-
         // if tabs are present, we are on the plugin options page
 
         var tabs = $('.plse-tab-nav').find('a');
 
-
         if (tabs) {
 
             /*
-            * ---------------------------------------------------
-            * Adapted from Tabs Switcher by Paolo Duzioni
-            * Copyright (c) 2021 by Paolo Duzioni (https://codepen.io/Paolo-Duzioni/pen/MaXPXJ)
-            * ---------------------------------------------------
-            */
+             * ---------------------------------------------------
+             * handle tabs
+             * Adapted from Tabs Switcher by Paolo Duzioni
+             * Copyright (c) 2021 by Paolo Duzioni (https://codepen.io/Paolo-Duzioni/pen/MaXPXJ)
+             * ---------------------------------------------------
+             */
             var tsel = 'plse-settings-tabsel';
             
             var tabContents = $('#content-tabs').children('.content-tab');
@@ -333,13 +331,6 @@
         // fire this once,for all thumbnails on load
         $("input[name*='_thumbnail_url'").trigger('blur');
 
-        /*
-         * ---------------------------------------------------
-         * Options row
-         * ---------------------------------------------------
-         */
-        
-
 
         /*
          * ---------------------------------------------------
@@ -444,39 +435,18 @@
         });
 
         /**
-         *  ---------------------------------------------------
-         * detect unsaved changes on the option forms
+         * ---------------------------------------------------
+         * Unfortunately, there is no way to detect saved changes when 
+         * navigating from one plugin to another that doesn't trigger 
+         * the annoying 'beforeunload' dialog everywhere.
+         * 
+         * You can compare form data before and after with:
+         * let initialData = $(theform).serialize();
          * ----------------------------------------------------
          */
         var theform = jQuery('#plse-options-form')[0]; // first form only
 
-            var needToConfirm = false;
-
-            // prevent the onbeforeunload event from firing if we are submitting the form
-            $(theform).submit(function(e) {
-                window.onbeforeunload = null;
-            });
-
-            // grab the initial form data before starting
-            let initialData = $(theform).serialize();	
-
-            // if we just "click away" from the plugin, put up a warning message
-            window.onbeforeunload = function(e) {
-
-                ////////console.log('onbeforeunload event fired')
-
-                var e = e || window.event, simon = "go"; //, needToConfirm = false;
-
-                // newer browsers won't alter the message, done for back-compatibility
-                if (initialData !== $(theform).serialize()) {
-                    const unsaved_changes_warning = "Changes you made may not be saved.";
-                    e.returnValue = unsaved_changes_warning;
-                    return unsaved_changes_warning;
-                }
-
-            } // onbeforeunload callback
-
     }); // endof window.load
 
-
 })( jQuery );
+

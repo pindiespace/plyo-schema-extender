@@ -203,16 +203,18 @@ class PLSE_Options {
             );
 
             // DUMMY WPSEO LOCAL TEST
-            $this->wpseo_local = array(
-                'location_phone' => '339-298-29839'
-            );
+            //$this->wpseo_local = array(
+            //    //'location_phone' => '339-298-29839'
+            //);
 
-            // if Yoast Local SEO is present, inject the values into JS
-            $plse_init->load_js_passthrough_script(
+            // if Yoast Local SEO is present, inject the values into JS so users can copy them to PLSE if desired
+            if ( is_array( $this->wpseo_local ) ) {
+                $plse_init->load_js_passthrough_script(
                 $script_label,
                 $this->wpseo_local_options_js_name,
                 $this->wpseo_local
-            );
+                );
+            }
 
         } );
 
@@ -823,12 +825,9 @@ class PLSE_Options {
 
         $options = get_option( $slug );
 
-
         // get the actual options out of their enclosing array
         if ( is_array( $options ) ) $options = $options[ $slug ];
-        echo "OPTIONS:";
-        print_r($options);
- 
+
         // note $slug[], which specifies multiple values stored in one option.
         $dropdown = '<div class="plse-option-select"><select multiple name="' . $slug .'[' . $slug . '][]" class="plse-option-select-dropdown" >' . "\n";
 
@@ -875,53 +874,8 @@ class PLSE_Options {
             echo __( 'No Custom Post Types are defined yet.' );
             return;
         }
-
         $args['option_list'] = $this->init->get_option_list_from_cpts( $cpts );
-        //print_r($args['option_list']);
-
-        ///////////////////////////////////////////////////////////////////////////
         $this->render_select_multiple_field( $args );
-        return;
-        /////////////////////////////////////////////////////////////////////////
-
-        $slug = sanitize_key( $args['slug'] );
-        $state = $args['state'];
-        $title = esc_html( $args['title'] );
-        $label = esc_html( $args['label'] );
-
-        /*
-         * NOTE: if a CPT was delected, we may still be storing the name of an extinct 
-         * post type. However, the <select multiple... box is constructed without it.
-         * the next time options are saved, the extinct CPT will be deleted from $options
-         */
-        $options = get_option( $slug );
-
-        $dropdown = '<div class="plse-option-select"><select multiple name="' . $slug .'[' . $slug . '][]" class="plse-option-select-dropdown" >' . "\n";
-
-        foreach ( $cpts as $cpt ) {
-            $dropdown .= '<option value="' . $cpt->rewrite['slug'] . '" ';
-            // highlight stored options in dropdown
-            if ( is_array( $options ) ) {
-                foreach ( $options as $opt ) {
-                    if ( is_array( $opt ) ) {
-                        foreach ( $opt as $subopt ) {
-                            if ( $subopt == $cpt->rewrite['slug'] ) {
-                                $dropdown .= 'selected';
-                            }
-                        }
-                    }
-                }
-            }
-            $dropdown .= '>' . $cpt->label . '</option>' . "\n";
-        }
-        $dropdown .= '</select>' . "\n";
-
-        // add label text
-        $dropdown .= '<label class="plse-option-select-description" for="' . $slug . '">' . $label . '<br>' . __( '(CTL-Click to deselect)') . '</label>';
-        $dropdown .= '</div>';
-
-        echo $dropdown;
-
     }
 
     /**
@@ -941,51 +895,8 @@ class PLSE_Options {
             echo __( 'No categories are defined yet.' );
             return;
         }
-
         $args['option_list'] = $this->init->get_option_list_from_cats( $cats );
-        print_r($args['option_list']);
-
-        ///////////////////////////////////////////////////////////////////////////
         $this->render_select_multiple_field( $args );
-        return;
-        ///////////////////////////////////////////////////////////////////////////
-
-        $slug = sanitize_key( $args['slug'] );
-        $state = $args['state'];
-        $title = esc_html( $args['title'] );
-        $label = esc_html( $args['label'] );
-
-        /*
-         * NOTE: if a CPT was delected, we may still be storing the name of an extinct 
-         * post type. However, the <select multiple... box is constructed without it.
-         * the next time options are saved, the extinct CPT will be deleted from $options
-         */
-        $options = get_option( $slug );
-
-        $dropdown = '<div class="plse-option-select"><select multiple name="' . $slug .'[' . $slug . '][]" class="plse-option-select-dropdown">' . "\n";
-
-        foreach ( $cats as $cat ) {
-            $dropdown .= '<option value="' . $cat->slug . '" ';
-            // highlight stored options in dropdown
-            if ( is_array( $options ) ) {
-                foreach ( $options as $opt ) {
-                    if ( is_array( $opt ) ) {
-                        foreach ( $opt as $subopt ) {
-                            if ( $subopt == $cat->slug ) {
-                                $dropdown .= 'selected';
-                            }
-                        }
-                    }
-                }
-            }
-            $dropdown .= '>' . $cat->name . '</option>' . "\n";
-        }
-        $dropdown .= '</select>' . "\n";
-
-        $dropdown .= '<label class="plse-option-select-description" for="' . $slug . '">' . $label . '<br>' . __( '(CTL-Click to for select and deselect)') . '</label>';
-        $dropdown .= '</div>';
-
-        echo $dropdown;
     }
 
 
@@ -997,7 +908,6 @@ class PLSE_Options {
      */
     public function render_image_field ( $args ) {
 
-        
         $slug = sanitize_key( $args['slug'] );
         $state = $args['state'];
         $title = esc_html( $args['title'] );
@@ -1047,6 +957,22 @@ class PLSE_Options {
         echo '</div></div>';
         echo '</div>';
 
+    }
+
+    public function render_audio_field () {
+        echo __( 'audio field not supported in this version' );
+    }
+
+    public function render_video_field () {
+        echo __( 'video field not supported in this version' );
+    }
+
+    public function render_int_field () {
+        echo __( 'int field not supported in this version' );
+    }
+
+    public function render_float_field () {
+        echo __( 'float field not supported in this version' );
     }
 
     /*
