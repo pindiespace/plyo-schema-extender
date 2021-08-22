@@ -200,7 +200,7 @@
                 //////console.log('TABLE IS:' + table)
                 if(table) {
                     // look for first repeater <input> field holding thumbnail URLs
-                    let urls = table.find('input[name*="-trailer_video_thumbnail_url[]"]');
+                    let urls = table.find('input[name*="[]"]');
                     window.urls = urls;
                     //////console.log('URLS are:' + urls);
                     if (urls[0]) {
@@ -212,9 +212,11 @@
                 }
             }
 
+            // get the video ID
             var id = getVideoId(url);
             let url_field = this;
 
+            // create the thumbnail image, based on video service
             if(id.type == 'youtube') {
 
                 // load the video
@@ -223,9 +225,9 @@
                 // load thumbnail
                 let thumb_link =  'https://img.youtube.com/vi/' + id.id + '/' + 'hqdefault' + '.jpg';
 
-                $('.plse-upload-img-video-box').attr('src', thumb_link);
+                $('.plse-upload-repeater-img-box').attr('src', thumb_link);
 
-                // add to trailer_thumbnail_url field
+                // add url to trailer <input> field
                 addThumbnailURL(url_field, thumb_link);
 
             } else if(id.type == 'vimeo') {
@@ -234,9 +236,9 @@
                 $('.plse-embed-video').html('<iframe src="https://player.vimeo.com/video/' + id.id + '?portrait=0" width="600" height="320" frameborder="0"></iframe> ');
 
                 $.getJSON('https://vimeo.com/api/oembed.json?url=https://vimeo.com/' + id.id, {format: "json"}, function(data) {
-                    $('.plse-upload-img-video-box').attr('src', data.thumbnail_url);
+                    $('.plse-upload-repeater-img-box').attr('src', data.thumbnail_url);
 
-                    // add to trailer_thumbnail_url field
+                    // add url to trailer <input> field
                     addThumbnailURL(url_field, data.thumbnail_url);
                 });
 
@@ -244,7 +246,7 @@
 
         });
 
-        // trigger on startup
+        // trigger on startup, so video thumbnails are loaded from video service
         $('.plse-embedded-video-url').trigger('blur');
 
         /*
@@ -253,9 +255,10 @@
          * ---------------------------------------------------
          */
 
-        // add a text input repeater row
+        // add a input repeater row (text, url, url 'is_image')
         $('.plse-repeater-add-row-btn').on('click', function(e) {
 
+            // find the repeater table
             let btnP = $(this).parent(); // enclosing <p></p>
             let fieldSet = btnP.parent(); // enclosing <div>, with <table> inside
             let table = fieldSet.find('table');
@@ -270,7 +273,34 @@
                 // find the last table row in the control <table> holding repeated fields
                 let prev = fieldSet.find('tbody>tr:last');
 
+                // clone the empty, invisible (display:none) row
                 let emptyRow = $(fieldSet).find('.plse-repeater-empty-row').clone(true);
+                length = table.find('tbody>tr').length;
+
+                let mediaInput, mediaBtn;
+
+                // get the second column, which might have 1 or 2 buttons in it
+                let td2 = $(emptyRow).children()[1];
+                let numBtns = td2.children.length;
+
+                // switch adding ids based on number of buttons
+                if ( numBtns == 1) {
+                    // the 'remove' button is second
+                    mediaInput = $(emptyRow).children()[0].children[0];
+                    mediaInput.id = mediaInput.id + length;
+                } else if (numBtns == 2) {
+                    // the 'media_upload' button is first
+                    mediaBtn = $(emptyRow).children()[0].children[0];
+                    mediaBtn.setAttribute('data-media', mediaBtn.getAttribute('data-media') + length);
+
+                    // the 'remove' button is second
+                    mediaInput = $(emptyRow).children()[1].children[1];
+                    mediaInput.id = mediaInput.id + length;
+                } else {
+                    console.error('wrong number of buttons in repeater');
+                }
+
+                // change the display of the new row to visible, 'table-row'
                 emptyRow.removeClass( 'plse-repeater-empty-row' ).css('display','table-row');
                 emptyRow.insertBefore( prev );
 
@@ -297,8 +327,9 @@
          * Each time the user enters an image and exits the field, it checks for validity
          * ---------------------------------------------------
          */
-        $("input[name*='_thumbnail_url'").on('blur', function(e) {
-            ///////console.log("blurred out of video thumbnail")
+        $(".plse-repeater-input.plse-repeater-url-is-image").on('blur', function (e) {
+        //$("input[name*='_thumbnail_url'").on('blur', function(e) {
+            ///////console.log("blurred out of image thumbnail")
             let url = this.value;
             let col = $(this).parents('td');
 
@@ -329,7 +360,8 @@
         });
 
         // fire this once,for all thumbnails on load
-        $("input[name*='_thumbnail_url'").trigger('blur');
+        //$("input[name*='_thumbnail_url'").trigger('blur');
+        $(".plse-repeater-input.plse-repeater-url-is-image").trigger('blur');
 
 
         /*
@@ -377,7 +409,7 @@
         
         var mediaUploader;
 
-        // find all but buttons on the page, but process from the one that was clicked
+        // find all buttons on the page, but process from the one that was clicked
         $('.plse-media-button').on('click', function(e) {
 
             console.log("CLICKED BY CLASS");
@@ -418,6 +450,9 @@
 
                 // IMPORTANT - close after every upload
                 mediaUploader.close();
+
+                // if we just added an image URL to a repeater field, create the thumbnail
+                $(".plse-repeater-input.plse-repeater-url-is-image").trigger('blur');
 
             });
 

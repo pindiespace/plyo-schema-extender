@@ -246,16 +246,7 @@ class PLSE_Init {
                     $js .= "\n'" . $key . "':'" . $field . "',";
                 }
 
-                // note that property name is in single quotes
-                //switch ( $field['type'] ) {
-
-                // TODO: nothing added bu field property names at present
-                //    default:
-                //       $js .= "\n'" . $field['slug'] . "': {},";
-                //        break;
-                // }
-
-        }
+            }
 
         // trim the trailing comma ','
         $js = substr($js, 0, -1);
@@ -450,7 +441,91 @@ class PLSE_Init {
      * @return   array    metadata for the featured image
      */
     public function get_featured_image_meta ( WP_Post $post, $size = 'full' ) {
-        return $this->get_image_meta ( get_post_thumbnail_id( $post ), $size );
+        return $this->get_image_meta( get_post_thumbnail_id( $post ), $size );
+    }
+
+
+    /**
+     * Get the first image in a post, return all meta data.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    (string|int) $size    image size in WP installation
+     * @return   (array)      $img    image-related information extracted from the <figure>
+     */
+    public function get_first_post_image_meta ( WP_Post $post, $size = 'full' ) {
+
+        $image_meta = '';
+
+        if ( is_a( $post, 'WP_Post' ) ) {
+            // grab the first image on the post
+            $files = get_children('post_parent='.get_the_ID().'&post_type=attachment&post_mime_type=image&order=desc');
+
+            // loop through the array, grabbing the first image (last one in array)
+            if( $files ) {
+                $keys = array_reverse( array_keys( $files ) );
+                $j = 0;
+                $attachment_id = $keys[ $j ];
+                $image_meta = $this->get_image_meta( $attachment_id );
+
+                return $image_meta;
+
+            }
+        }
+
+        return $image_meta;
+    }
+
+
+    /**
+     * Get image meta-data.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    number    $image_id    the id of the image
+     * @param    string    $size    which size of image to get
+     * @return   array     image meta-data
+     */
+    public function get_image_meta ( $image_id, $size = 'full' ) {
+
+        $img = array();
+        $i = wp_get_attachment_image_src( $image_id, $size );
+
+        // create the image array
+        $img['src']     = $i[0];
+        $img['width']   = $i[1];
+        $img['height']  = $i[2];
+        $img['size']    = $size;
+
+        // get additional information
+        $img_post = get_post( $image_id );
+
+        $img['title'] = $img_post->post_title;
+        $img['caption'] = $img_post->post_excerpt; //image caption from media library
+        $img['alt'] = get_post_meta( $image_id, '_wp_attachment_image_alt', true ); // image alt= text
+        $img['description'] = $img_post->post_content; // image description
+
+        return $img;
+    }
+
+    /**
+     * Create an ImageObject, using data returned from meta-data for an image 
+     * using PLSE_Init::get_image_meta();
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    array    $meta_arr    meta-data extracted from image post
+     */
+    public function get_image_object_from_meta ( $meta_arr ) {
+        return array(
+            '@type'  => 'ImageObject',
+            '@id'    => $meta_arr['src'], // use the image path
+            'inLanguage' => 'en-US',
+            'url' => $meta_arr['src'],
+            'width' => $meta_arr['width'],
+            'height' => $meta_arr['height'],
+            'caption' => $meta_arr['caption']
+        );
     }
 
     /**
@@ -485,37 +560,6 @@ class PLSE_Init {
 
         return $img;
 
-    }
-
-    /**
-     * Get the first image in a post, return all meta data.
-     * 
-     * @since    1.0.0
-     * @access   public
-     * @param    (string|int) $size    image size in WP installation
-     * @return   (array)      $img    image-related information extracted from the <figure>
-     */
-    public function get_first_post_image_meta ( WP_Post $post, $size = 'full' ) {
-
-        $image_meta = '';
-
-        if ( is_a( $post, 'WP_Post' ) ) {
-            // grab the first image on the post
-            $files = get_children('post_parent='.get_the_ID().'&post_type=attachment&post_mime_type=image&order=desc');
-
-            // loop through the array, grabbing the first image (last one in array)
-            if( $files ) {
-                $keys = array_reverse( array_keys( $files ) );
-                $j = 0;
-                $attachment_id = $keys[ $j ];
-                $image_meta = $this->get_image_meta( $attachment_id );
-
-                return $image_meta;
-
-            }
-        }
-
-        return $image_meta;
     }
 
     /**
@@ -581,11 +625,11 @@ class PLSE_Init {
     }
 
     public function get_imageObject () {
-
+        // TODO:
     }
 
     public function get_videoObject () {
-
+        // TODO:
     }
 
     /**
@@ -625,6 +669,42 @@ class PLSE_Init {
 
         }, 11, 2 );
 
+    }
+
+
+    /**
+     * Remove Yoast breadcrumbs.
+     * add_filter( 'wpseo_schema_graph_pieces', function( $pieces, $context )...
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    array                 $pieces  graph pieces to output.
+     * @param    \WPSEO_Schema_Context $context Yoast object with context variables.
+     * @return    instanceof \Yoast\WP\SEO\Generators\Schema\Breadcrumb;
+     */
+    public function remove_breadcrumbs_from_schema ( $pieces, $context ) {
+        // remove a breadcrumb
+        unset( $pieces['breadcrumb'] );
+        return \array_filter( $pieces, function( $piece ) {
+            return ! $piece instanceof \Yoast\WP\SEO\Generators\Schema\Breadcrumb;
+        } );
+    }
+
+    /**
+     * Remove Yoast Person.
+     * add_filter( 'wpseo_schema_graph_pieces', function( $pieces, $context )...
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    array                 $pieces  graph pieces to output.
+     * @param    \WPSEO_Schema_Context $context Yoast object with context variables.
+     * @return   instanceof \Yoast\WP\SEO\Generators\Schema\Breadcrumb;
+     */
+    function remove_person_from_schema ( $pieces, $context ) {
+        unset( $pieces['person'] );
+        return \array_filter( $pieces, function( $piece ) {
+            return ! $piece instanceof \Yoast\WP\SEO\Generators\Schema\Person;
+        } );
     }
 
     /**
@@ -1363,13 +1443,7 @@ class PLSE_Init {
                     <p>
                         <?php
                         echo $err;
-                        //////_e( 'This plugin depends on the <strong>Yoast SEO, version ' . PLSE_SCHEMA_YOAST_MIN_VERSION . ' (or above)</strong> plugin to function properly.', PLSE_SCHEMA_EXTENDER_SLUG );
-                        //echo '<br>';
                         echo '<br><strong>' . $plugin_data['Name'] . __( 'has been deactivated' ) . '</strong>';
-                        //printf(
-                        //    __( '<strong>%s</strong> has been deactivated', PLSE_SCHEMA_EXTENDER_SLUG ),
-                        //    $plugin_data['Name']
-                        //);
                         ?>
                     </p>
                 </div>

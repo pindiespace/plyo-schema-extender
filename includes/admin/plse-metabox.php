@@ -324,7 +324,7 @@ class PLSE_Metabox {
         // look for errors during the load (not from previous save)
         $e = $this->metabox_read_transient();
         if ( ! empty( $e ) ) {
-            echo '<div class="plse-input-err-msg"><p>Error During Load</p><span>' . $e . '</span></div>';
+            echo '<div class="plse-input-err-msg"><p>' . __( 'Error During Load' ) . '</p><span>' . $e . '</span></div>';
         }
 
         // descriptive metabox message
@@ -783,31 +783,54 @@ class PLSE_Metabox {
      */
     public function render_repeater_field ( $args, $value ) {
         $slug = sanitize_key( $args['slug'] );
+
         // adjust size of fields
-        if ( isset( $args['size'] ) ) $size = $args['size']; else $size = '50';
-        // adjust text field subtype (url, date, time...)
+        if ( isset( $args['size'] ) ) $size = $args['size']; else $size = '40';
+
+        // adjust text field type (url, date, time...), which is 'subtype' for repeaters
         if ( isset( $args['subtype'] ) ) $type = $args['subtype']; else $type ='text';
+
+        // check if an option_list should be attached to repeater fields
         $option_list = $args['option_list'];
-        $datalist_id = '';
-        $datalist = '';
-        $max = $this->repeater_max; // maximum number of repeater fields allowed
+        $datalist_id = ''; // id for datalist, if option_list defined
+        $datalist = '';  // storage for datalists, if option_list defined
+        $img_thumb_class = ''; // added class if repeater fields specify images
+
+        // maximum number of repeater fields allowed (adjusted if we have a datalist)
+        $max = $this->repeater_max; 
+
+        // URL field specifies an image
         $is_image = $args['is_image'];
-        if( $is_image == true ) $table_width = '80%';
-        else $table_width = '70%';
+
+        // adjust table width to allow tiny thumbnail
+        if( $is_image == true ) {
+            $table_width = '100%';
+            $img_thumb_class = ' plse-repeater-url-is-image';
+        }
+        else {
+            $table_width = '70%';
+        }
+
+        // specify a special class if the repeater field is a URL for an image
+        if ( $is_image == true )
 
         /*
-         * $value is supposed to be an array, unlike other fields
-         * NOTE: a maximum number of repeates is calculated from the $option_list size, if present
+         * NOTE: $value is supposed to be an array, unlike other fields stored in DB.
+         * NOTE: a maximum number of added fields is calculated from the $option_list size, if present
          * TODO: UNIQUE-IFY the RESULTS (no duplicates)
          */
 
         // create a datalist, if data is present
         if ( isset( $option_list ) ) {
+
             if ( is_array( $option_list ) ) { // $option_list is an array
+
                 $datalist_id = $slug . '-data';
                 $datalist = $this->datalists->get_datalist( $option_list, $datalist_id );
                 $max = count( $option_list ); // size of array
+
             } else { // option list specifies a standard list in PLSE_Datalists
+
                 // load the datalist (note they must follow naming conventions)
                 $method = 'get_' . $option_list . '_datalist';
                 if ( method_exists( $this->datalists, $method ) ) { 
@@ -815,17 +838,23 @@ class PLSE_Metabox {
                     $datalist_id = $option_list;
                     $datalist_id = 'plse-' . $datalist_id . '-data'; // $option list is the id value 
                 }
+
+                // get the size of the loaded datalist, set repeater max to that value
                 $method = 'get_' . $option_list . '_size';
                 if ( method_exists( $this->datalists, $method ) ) {
                     $max = $this->datalists->$method();
                 }
-    
+
             }
+
             echo $datalist;
             $list_attr = 'list="' . $datalist_id . '"';
+
         }
 
-        // begin rendering the table with repeater options
+        /*
+         * begin rendering the table with repeater options
+         */
         ?>
         <div id="plse-repeater-<?php echo $slug; ?>" class="plse-repeater plse-meta-ctl-highlight">
             <div id="plse-repeater-max-warning" class="plse-repeater-max-warning" style="display:none;">You have reached the maximum number of values</div>
@@ -833,39 +862,82 @@ class PLSE_Metabox {
                 <tbody>
                     <!--default row, or rows from datatbase-->
                     <?php 
-                    if( $value ):
+                    /*
+                     * this creates a unique ID for each input field. Additional fields are added 
+                     * using jQuery, and incremented from this count.
+                     */
+                    $count = 0;
+                    if( is_array( $value ) ):
+
+                        // create fields already in the database
                         foreach( $value as $field ) { 
                             if ( ! empty( $field ) ) {
-                                $wroteflag = true;
+                                $wroteflag = true; // field saved to DB was not empty
                             ?>
                             <tr>
-                            <td><input name="<?php echo $slug; ?>[]" type="<?php echo $type; ?>" <?php echo $list_attr; ?> class="plse-repeater-input" value="<?php if($field != '') echo esc_attr( $field ); ?>" size="<?php echo $size; ?>" placeholder="type in value" /></td>
-                            <td><a class="button plse-repeater-remove-row-btn" href="#1">Remove</a></td>
+                                <td><input id="<?php echo $slug . $count; ?>" name="<?php echo $slug; ?>[]" type="<?php echo $type; ?>" <?php echo $list_attr; ?> class="plse-repeater-input<?php echo $img_thumb_class; ?>" value="<?php if($field != '') echo esc_attr( $field ); ?>" size="<?php echo $size; ?>" placeholder="type in value" /></td>
+                            <td>
+                                <!-- media library button (children[0]) -->
+                                <?php
+                                    if( $is_image ) { // repeater URL is an image
+                                        echo '<input title="' . $title . '" type="button" class="button plse-media-button" data-media="'. $slug . $count . '" value="Upload Image" />';
+                                    }
+                                ?>
+                                <!-- remove button (children[1]) -->
+                                <a class="button plse-repeater-remove-row-btn" href="#1">Remove</a>
+                            </td>
                             </tr>
                         <?php 
                             }
+                        $count++; // increment count for unique input field ID
                         }
+                        // default, when we saved an empty field to the DB
                         if ( ! $wroteflag ):
                             ?>
                             <tr>
-                            <td><input name="<?php echo $slug; ?>[]" type="<?php echo $type; ?>" <?php echo $list_attr; ?> class="plse-repeater-input" value="<?php if($field != '') echo esc_attr( $field ); ?>" size="<?php echo $size; ?>" placeholder="type in value" /></td>
-                            <td><a class="button plse-repeater-remove-row-btn" href="#1">Remove</a></td>
+                                <td><input id="<?php echo $slug . $count; ?>" name="<?php echo $slug; ?>[]" type="<?php echo $type; ?>" <?php echo $list_attr; ?> class="plse-repeater-input<?php echo $img_thumb_class; ?>" value="<?php if($field != '') echo esc_attr( $field ); ?>" size="<?php echo $size; ?>" placeholder="type in value" /></td>
+                            <td>
+                                <?php
+                                    if( $is_image ) { // repeater URL is an image
+                                        echo '<input title="' . $title . '" type="button" class="button plse-media-button" data-media="'. $slug . $count . '" value="Upload Image" />';
+                                    }
+                                ?>
+                                <a class="button plse-repeater-remove-row-btn" href="#1">Remove</a>
+                            </td>
                             </tr>
                             <?php 
+                            //field below is brand-new, never had a value
                         endif;
                     else: ?>
                     <tr class="plse-repeater-default-row" style="display: table-row">
-                        <td><input name="<?php echo $slug; ?>[]" type="<?php echo $type; ?>" <?php echo $list_attr; ?> class="plse-repeater-input" size="<?php echo $size; ?>" placeholder="<?php echo __( 'enter text here' ); ?>"/>
+                        <td>
+                            <input id="<?php echo $slug . $count; ?>" name="<?php echo $slug; ?>[]" type="<?php echo $type; ?>" <?php echo $list_attr; ?> class="plse-repeater-input<?php echo $img_thumb_class; ?>" size="<?php echo $size; ?>" placeholder="<?php echo __( 'enter' ) . strtolower( $type ); ?>"/>
                         </td>
-                        <td><a class="button plse-repeater-remove-row-btn button-disabled" href="#">Remove</a></td>
+                        <td>
+                            <?php
+                                if( $is_image ) { // repeater URL is an image
+                                    echo '<input title="' . $title . '" type="button" class="button plse-media-button" data-media="'. $slug . $count . '" value="Upload Image" />';
+                                }
+                            ?>
+                            <a class="button plse-repeater-remove-row-btn button-disabled" href="#">Remove</a>
+                        </td>
                     </tr>
                     <?php endif;
                     ?>
-                    <!--invisible blank row, copied to create new visible row-->
+                    <!--invisible blank row, copied to create new visible row ID is filled in by jQuery when it is copied-->
                     <tr class="plse-repeater-empty-row" style="display: none">
-                        <td><input name="<?php echo $slug; ?>[]" type="<?php echo $type; ?>" <?php echo $list_attr; ?> class="plse-repeater-input" size="<?php echo $size; ?>" placeholder="<?php echo __( 'enter text here' ); ?>"/>
+                        <td>
+                            <input id="<?php echo $slug; ?>" name="<?php echo $slug; ?>[]" type="<?php echo $type; ?>" <?php echo $list_attr; ?> class="plse-repeater-input<?php echo $img_thumb_class; ?>" size="<?php echo $size; ?>" placeholder="<?php echo __( 'enter ' ) . strtolower( $type ); ?>"/>
                         </td>
-                        <td><a class="button plse-repeater-remove-row-btn" href="#">Remove</a></td>
+                        <td>
+                            <?php 
+                                // Note: we just write $slug for 'data_media' in media upload button. jQuery used to dynamically convert the 'data-media' attribute from $slug to $slug + row number
+                                if( $is_image ) {
+                                    echo '<input title="' . $title . '" type="button" class="button plse-media-button" data-media="'. $slug .'" value="Upload Image" />';
+                                }
+                            ?>
+                            <a class="button plse-repeater-remove-row-btn" href="#">Remove</a>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -955,9 +1027,9 @@ class PLSE_Metabox {
             // get a thumbnail image from the video URL
             $thumbnail_url = esc_url( $this->init->get_video_thumb( $value ) );
             // clunky inline style removes offending hyperlink border see with onblur event
-            echo '<a href="' . $value . '" style="display:inline-block;height:0px;"><img title="' . $title . '" class="plse-upload-img-video-box" id="' . $slug . '-img-id" src="' . $thumbnail_url . '" width="128" height="128"></a>';
+            echo '<a href="' . $value . '" style="display:inline-block;height:0px;"><img title="' . $title . '" class="plse-upload-repeater-img-box" id="' . $slug . '-img-id" src="' . $thumbnail_url . '" width="128" height="128"></a>';
         } else {
-            echo '<img title="' . $title . '" class="plse-upload-img-video-box" id="'. $slug . '-img-id" src="' . $plse_init->get_default_placeholder_icon_url() . '" width="128" height="128">';
+            echo '<img title="' . $title . '" class="plse-upload-repeater-img-box" id="'. $slug . '-img-id" src="' . $plse_init->get_default_placeholder_icon_url() . '" width="128" height="128">';
         }
         echo '</td>';
         echo '<td class="plse-auto-resizable-iframe" style="text-align:center;">';

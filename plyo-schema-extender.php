@@ -74,7 +74,7 @@ if ( ! defined( 'PLSE_SCHEMA_OPTIONS_DESCRIPTION' ) ) {
 
 /*
  * -----------------------------------------------------------------------
- * Define file paths.
+ * DEFINE FILE PATHS.
  * -----------------------------------------------------------------------
  */
 
@@ -93,7 +93,7 @@ if ( ! defined( 'PLSE_SCHEMA_EXTENDER_PATH' ) ) {
 
 /*
  * -----------------------------------------------------------------------
- * Yoast SEO constants.
+ * Yoast SEO CONSTANTS
  * -----------------------------------------------------------------------
  */
 
@@ -156,7 +156,7 @@ if ( ! defined( 'PLSE_SCHEMA_PRODUCT_REVIEW' ) ) {
 
 /**
  * --------------------------------------------------------------------------
- * LOCAL SEO DATA
+ * YOAST LOCAL SEO DATA
  * --------------------------------------------------------------------------
  */
 
@@ -268,10 +268,12 @@ if ( ! defined( 'PLSE_CAT_SLUG' ) ) {
 // *************************************************************
 // TODO:
 // TODO: convert $args to $field
+// AUDIT: string constants
 // AUDIT: code names
 // AUDIT: css classes
 // AUDIT: active jQuery
 
+// TODO: secondary dashicons in metabox 
 // 
 // TODO: on reload, save the current open tab automatically
 //

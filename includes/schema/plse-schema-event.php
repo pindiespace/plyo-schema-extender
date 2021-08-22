@@ -5,7 +5,7 @@ use Yoast\WP\SEO\Config\Schema_IDs;
 use Yoast\WP\SEO\Context\Meta_Tags_Context;
 
 /**
- * Returns Game Schema data
+ * Returns Event Schema data
  *
  * @since      1.0.0
  * @category   WordPress_Plugin
@@ -79,13 +79,16 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
                 'wp_data' => 'post_meta',
             ),
 
-            'event_image' => array(
+            'event_images' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-image',
-                'label' => 'Event Image',
-                'title' => 'Click button to upload image, or use one from Media Library',
-                'type'  => PLSE_INPUT_TYPES['IMAGE'],
-                'required' => '',
+                'label' => 'Event Images',
+                'title' => 'Click button to typin in image URLS Event, or add from Media Library',
+                'type' => PLSE_INPUT_TYPES['REPEATER'],
+                'subtype' => PLSE_INPUT_TYPES['URL'], // 'don't use IMAGE'
+                'required' => 'required',
                 'wp_data' => 'post_meta',
+                'select_multiple' => false,
+                'is_image' => true  // must be explicitly provided for Media Library button
             ),
 
             'event_description' => array(
@@ -245,7 +248,7 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
     );
 
     /**
-     * WPSEO_Schema_Game constructor.
+     * WPSEO_Schema_Event constructor.
      *
      * @param Meta_Tags_Context $context A value object with context variables.
      * @param string $cat A category flag to include this Schema.
@@ -304,8 +307,8 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
 
     /**
      * Determines whether or not a piece should be added to the graph.
-     * - Custom Post Type 'Game' is present
-     * - Game category was added to the post
+     * - Custom Post Type 'Event' is present
+     * - Event category was added to the post
      * 
      * @since    1.0.0
      * @access   public
@@ -349,11 +352,11 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
     }
 
     /**
-     * Returns the Game Schema data.
+     * Returns the Event Schema data.
      *
      * @since     1.0.0
      * @access    public
-     * @return    array     $data The Game schema.
+     * @return    array     $data The Event schema.
      */
     public function generate () {
 
@@ -387,17 +390,20 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
             '@type'            => 'Event',
             '@id'              => $this->context->canonical . '#event',
             'mainEntityOfPage' => array( '@id' => $this->context->canonical . Schema_IDs::WEBPAGE_HASH ),
-            'name' => $values[ $fields['event_name']['slug'] ][0],
-            'description' => $values[ $fields['event_description']['slug'] ][0],
-            'url' => $values[ $fields['event_url']['slug'] ][0],
-            'image' => $values[ $fields['event_image']['slug'] ][0],
+            'name' => $this->get_event_name( $fields['event_name'], $values, $post ),
+            'description' => $this->get_event_description( $fields['event_description'], $values, $post ),
+            'url' => $this->get_event_url( $fields['event_url'], $values, $post ),
+            'image' => $this->get_event_image( $fields['event_image'], $values, $post ),
 
             'startDate' => $values[ $fields['event_start_date']['slug'] ][0],
             'endDate' => $values[ $fields['event_end_date']['slug'] ][0],
             'startTime' => $values[ $fields['event_start_time']['slug'] ][0],
             'endTime' => $values[ $fields['event_end_time']['slug'] ][0],
 
+            // status of event
             'eventStatus' => $values[ $fields['event_status']['slug'] ][0],
+
+            // attendance mode
             'eventAttendanceMode' => $values[ $fields['event_attendance_mode']['slug'] ][0],
 
             'location'  => array(
@@ -453,8 +459,7 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
      * Handles logic for specific fields
      * ---------------------------------------------------------------------
      */
-
-    public function get_event_name () {
+    public function get_event_name ( $field, $values, $post ) {
 
         $val = $values[ $field['slug'] ][0];
 
@@ -476,21 +481,139 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
         if ( empty( $val ) ) $this->valid = false;
 
         return $val;
+    }
+
+    /**
+     * Get a description.
+     * 1. Try to use the meta field example.
+     * 2. If that fails, look for $post excerpt
+     * 3. If that fails, extract text content
+     */
+    public function get_event_description ( $field, $values, $post ) {
+
+        $val = $values[ $field['slug'] ][0];
+
+        if ( empty( $val ) ) {
+
+            // get the excerpt, if present
+
+            if ( has_excerpt( $post ) ) {
+
+                $val = get_the_excerpt( $post ); // wordpress method
+
+                // generate an excerpt from the content
+                if ( empty( $val ) ) {
+                    $val =  $this->init->get_excerpt_from_content( $post ); // our method
+                }
+
+            }
+
+        }
+
+        if ( empty( $val ) ) $this->valid = false;
+
+        return $val;
 
     }
 
+    /**
+     * Get the primary URL for the event (e.g. home page of website).
+     * 
+     * @since    1.0.0
+     * @access   private
+     * @return   string    $val    if present the URL for the event
+     */
+    private function get_event_url( $field, $values, $post ) {
+
+        $val = $values[ $field['slug'] ][0];
+
+        if ( empty( $val ) ) {
+            $val = $this->context->canonical . Schema_IDs::WEBPAGE_HASH;
+        }
+
+        if ( empty( $val ) ) $this->valid = false;
+
+        return $val;
+
+    }
+
+    /**
+     * Get image of the event, a logo, brand.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @return   string    URL of event image
+     */
+    public function get_event_image ( $field, $values, $post ) {
+
+        $val = $values[ $field['slug'] ][0];
+
+        if ( empty( $val ) ) {
+
+            // get the featured image
+            $val = $this->init->get_featured_image_url( $post );
+
+            if ( empty( $val ) ) {
+
+                // get the first image in the post
+                $val = $this->init->get_first_post_image_url( $post );
+
+                // get the default image from plugin options
+                if (empty( $val ) ) {
+                    $val = get_option( 'plse-' . PLSE_SCHEMA_EVENT . '-image' ); // from plugin options
+
+                }
+
+            }
+
+        }
+
+        if ( empty( $val ) ) $this->valid = false;
+
+        return $val;
+
+    }
+
+    /**
+     * Use to get starting and ending dates.
+     */
     public function get_event_datetime () {
 
     }
 
-    public function get_event_image () {
-
-    }
-
+    /**
+     * Use to get location of the event.
+     */
     public function get_event_location () {
 
+        return array(
+
+            array(
+                '@type' => 'VirtualLocation',
+                'url' => 'https://operaonline.stream5.com/'
+            ),
+
+            array(
+                '@type' => 'Place',
+                'name' => 'Snickerpark Stadium',
+                'address' => array(
+                    '@type' => 'PostalAddress',
+                    'streetAddress' => '100 West Snickerpark Dr',
+                    'addressLocality' => 'Snickertown',
+                    'postalCode' => '19019',
+                    'addressRegion' => 'PA',
+                    'addressCountry' => 'US'
+                )
+
+            )
+
+        );
+    
     }
 
+    /**
+     * Use to get event offers.
+     */
     public function get_event_offers () {
 
     }
