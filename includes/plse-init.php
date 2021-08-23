@@ -1045,30 +1045,32 @@ class PLSE_Init {
     /**
      * get_redirect_url()
      * 
-     * Gets the address that the provided URL redirects to,
-     * or FALSE if there's no redirect,
-     * or 'Error: No Response',
-     * or 'Error: 404 Not Found'
+     * Gets the address that the provided URL redirects to, or just returns the original 
+     * URL if there is no redirection. Returns errors for common HTTP/HTTPS errors
+     * 
+     * Modified from:
      * {@link https://stackoverflow.com/questions/3799134/how-to-get-final-url-after-following-http-redirections-in-pure-php/7555543}
      *
      * @since    1.0.0
      * @access   public
-     * @param    string    $url (http: or https: address)
+     * @param    string    $url   (http: or https:)
      * @return   string    if ok, return URL (redirected), else false
      */
-    function get_redirect_url($url) {
+    function get_redirect_url ( $url ) {
 
         $redirect_url = null;
 
+        // break up the url into its components
         $url_parts = @parse_url( $url );
-
-        if (!$url_parts) return false;
+        if ( ! $url_parts ) return false;
         if ( ! isset( $url_parts['host'] ) ) return false; //can't process relative URLs
         if ( ! isset( $url_parts['path'] ) ) $url_parts['path'] = '/';
 
+        // url structure valid, so try to connect
         $sock = @fsockopen( $url_parts['host'], ( isset($url_parts['port'] ) ? (int)$url_parts['port'] : 80 ), $errno, $errstr, 30 );
         if ( ! $sock ) return 'Error: No Response';
 
+        // build the request
         $request = "HEAD " . $url_parts['path'] . ( isset($url_parts['query'] ) ? '?' . $url_parts['query'] : '' ) . " HTTP/1.1\r\n";
         $request .= 'Host: ' . $url_parts['host'] . "\r\n";
         $request .= "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36\r\n";
@@ -1076,13 +1078,36 @@ class PLSE_Init {
         fwrite( $sock, $request );
         $response = '';
 
+        // wait for a response
         while ( ! feof( $sock ) ) $response .= fread($sock, 8192);
         fclose($sock);
 
+        // not a redirect, but if we get a 200 response with no redirects, the URL is valid, so return it
+        if ( stripos( $response, '200 OK') !== false ) {
+            return $url;
+        }
+
+        // if the URL doesn't exist, return an error
         if ( stripos( $response, '404 Not Found' ) !== false ) {
             return 'Error: 404 Not Found';
         }
 
+        // if the server is valid, but request isn't return an error
+        if ( stripos( $response, '400 Bad Request' ) !== false ) {
+            return 'Error: 400 malformed URL';
+        }
+
+        // if the server is valid, but request is invalid (e.g. not logged in), return an error
+        if ( stripos( $response, '403 Forbidden' ) !== false ) {
+            return 'Error: 403 forbidden';
+        }
+
+        // if the server is valid, but it doesn't return a value 
+        //if ( stripos( $response, '304 Not Modified' ) !== false ) {
+        //    return 'Error: clear your cache';
+        //}
+
+        // if the URL was moved, return the redirect
         if ( preg_match( '/^Location: (.+?)$/m', $response, $matches ) ) {
             if ( substr( $matches[1], 0, 1 ) == "/" )
                 return $url_parts['scheme'] . "://" . $url_parts['host'] . trim( $matches[1] );
@@ -1098,7 +1123,9 @@ class PLSE_Init {
     /**
      * get_all_redirects()
      * 
-     * Follows and collects all redirects, in order, for the given URL.
+     * Follows and collects the original URL, plus all redirects, in order, for the given URL.
+     * 
+     * Modified from:
      * {@link https://stackoverflow.com/questions/3799134/how-to-get-final-url-after-following-http-redirections-in-pure-php/7555543}
      * 
      * @since    1.0.0
@@ -1109,10 +1136,11 @@ class PLSE_Init {
     function get_all_redirects( $url ) {
         $redirects = array();
         while ( $newurl = $this->get_redirect_url( $url ) ) {
-            if ( in_array($newurl, $redirects ) ) { break; }
+            if ( in_array( $newurl, $redirects ) ) { break; }
             $redirects[] = $newurl;
             $url = $newurl;
         }
+
         return $redirects;
     }
 
@@ -1121,8 +1149,10 @@ class PLSE_Init {
      * 
      * Gets the address that the URL ultimately leads to.
      * Returns $url itself if it isn't a redirect,
-     * or 'Error: No Responce'
+     * or 'Error: No Response'
      * or 'Error: 404 Not Found',
+     * 
+     * Modified from:
      * {@link https://stackoverflow.com/questions/3799134/how-to-get-final-url-after-following-http-redirections-in-pure-php/7555543}
      *
      * @since    1.0.0
@@ -1130,11 +1160,10 @@ class PLSE_Init {
      * @param    string $url
      * @return   string|false if OK, return the final URL, else return false
      */
-    function get_final_url( $url ) {
+    function get_final_url ( $url ) {
         $redirects = $this->get_all_redirects( $url );
         if (count($redirects) > 0) {
             return array_pop( $redirects );
-
         } else {
             return false;
         }
@@ -1459,10 +1488,11 @@ class PLSE_Init {
      * @since    1.0.0
      * @access   public
      * @param    string    $msg  error message
+     * @param    string    $status_class controls appearance of message
      * @return   string    wrap the error message in HTML for display
      */
-    public function add_status_to_field ( $msg = '', $status = '' ) {
-        return '<span class="plse-input-msg ' . $status .'">' . $msg . '</span><br>';
+    public function add_status_to_field ( $msg = '', $status_class = 'plse-input-msg-caution' ) {
+        return '<span class="plse-input-msg ' . $status_class .'">' . $msg . '</span><br>';
     }
 
     /**

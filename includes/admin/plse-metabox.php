@@ -513,8 +513,7 @@ class PLSE_Metabox {
     }
 
     /**
-     * Render a URL field (http or https).
-     * {@link https://stackoverflow.com/questions/2280394/how-can-i-check-if-a-url-exists-via-php}
+     * Render a URL field (http or https), optionally checking for validity.
      * 
      * @since    1.0.0
      * @access   public
@@ -523,21 +522,44 @@ class PLSE_Metabox {
      */
     public function render_url_field ( $args, $value ) {
 
-        // TODO: THIS CHECK IS NOT WORKING...
-        // TODO: FOR REDIRECT
-        // TODO: redo URL check
+        $err = ''; 
 
-        $err = '';
-        if ( ! empty( $value ) ) {
-            // Only check if active checking was set in plugin options
+        if ( ! empty( $value ) ) { // no checks or message if field empty
+
+            // if active URL checking was set in plugin options, do the check
             $option = get_option('plse-settings-config-check-urls'); // value is 'on' or nothing
+
             if ( $option ) {
-                if ( ! $this->init->get_final_url( $value ) ) {
-                    $err = $this->init->add_status_to_field( __( 'the address may not go to a valid web page (check it!)' ) );
+
+                // check if the URL (or a redirect) is reachable
+                $valid = $this->init->get_final_url( $value );
+
+                if ( ! $valid ) { // a false was returned, nothing came back (Internet down?)
+
+                    $err = $this->init->add_status_to_field( __( 'status unknown (check connection)' ) ); // caution
+
+                } else {
+
+                    if ( stripos( $valid, 'Error:') !== false ) {
+                        $err = $this->init->add_status_to_field( __( $valid ), 'plse-input-msg-err' );
+                    } else if ( $valid != $value ) {
+                        if ( stripos( $value, 'http:') !== false && stripos( $value, 'https') !== false ) {
+                            $err = $this->init->add_status_to_field( __( 'valid, url was changed to https' ), 'plse-input-msg-ok' );
+                            $value = $valid; // convert http to https
+                        } else {
+                            $err = $this->init->add_status_to_field( __( 'valid, redirected, change to: ' ) . $valid, 'plse-input-msg-ok' );
+                        }
+                    } else {
+                        $err = $this->init->add_status_to_field( __( 'validated'), 'plse-input-msg-ok' );
+                    }
+
                 }
+
             }
+
         }
 
+        // render the URL field, with warnings or errors added
         $this->render_simple_field( $args, $value, $err );
 
     }
