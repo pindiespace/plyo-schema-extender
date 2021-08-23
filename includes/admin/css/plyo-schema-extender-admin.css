@@ -29,7 +29,7 @@
 /* detail message when an input field is invalid, but not necessarily empty */
  .plse-input-msg {
     display:inline-block;
-    padding: 0 0 2px 3px;
+    padding: 0 3px 2px 3px;
     border-radius: 4px;
     font-variant-caps: small-caps;
     background-color:rgba(124, 99, 32, 0.8);
@@ -158,7 +158,14 @@
 /* descriptive message for the entire metabox, at top */
 .plse-meta-message {
     margin: 5px;
-    background-color: rgba(255, 240, 103, 0.2)
+    background-color: rgb(255, 222, 162, 0.4);
+}
+
+/* descriptive message for a group */
+.plse-group-message {
+    height:20px;
+    line-height:0;
+    background-color: rgba(255, 248, 186, 0.6)!important;
 }
 
 /* the <li> box enclosing each individual field or field group */
@@ -208,10 +215,6 @@
 .plse-option-ctl-highlight {
     border-radius: 6px;
     background-color: rgb(230, 230, 230);
-}
-
-.plse-repeater-highlight {
-    width: 570px!important;
 }
 
 /* range element */

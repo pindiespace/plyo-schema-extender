@@ -351,7 +351,12 @@ class PLSE_Metabox {
                 }
             }
 
-            // render the label as a list bullet
+            // if the field is the start of a field group, put in a divider
+            if ( isset( $field['start_of_block'] ) ) {
+                echo '<li class="plse-group-message">Field Group: ' . $field['start_of_block'] . '</li>';
+            }
+
+            // begin rendering the field
             echo '<li><label for="' . $field['slug'] . '" class="plse-option-description"><span>';
             echo $field['label'] . ':</span></label>';
 
@@ -370,7 +375,11 @@ class PLSE_Metabox {
 
             }
 
-            // Flag if a required field, and if the field is not filled out. (add message at top-right of <li>)
+            /*
+             * Flag if a required field, and if the field is not filled out. 
+             * (add message at top-right of <li>). Individual field rendering 
+             * check for validity only
+             */
             if ( $field['required'] ) {
                 $missing = ''; $req_msg = 'required';
                 if ( empty( $value ) ) {
@@ -416,11 +425,8 @@ class PLSE_Metabox {
      * @param    string    $value    serialized or unserialized field value
      */
     public function render_hidden_field ( $args, $value ) {
+        $value = sanitize_text_field( $value );
         echo '<input type="hidden" id="' . sanitize_key( $args['slug'] ) . '" name="' . sanitize_key( $args['slug'] ) .'" value="' . esc_attr( $value ) . '" />';
-    }
-
-    public function add_field_status () {
-        
     }
 
     /**
@@ -438,9 +444,6 @@ class PLSE_Metabox {
         // if it's an array, flatten it
         if ( is_array( $value ) ) $value = $value[0];
         $value = esc_attr( $value );
-        if ( empty( $value ) && $args['required'] == 'required') {
-            $err = $this->init->add_status_to_field( __( 'this field is required....') );
-        }
         $type = $args['type'];
         if ( $args['class'] ) $class = $args['class']; else $class = '';
         if ( $args['size'] ) $size = $args['size']; else $size = '40';
@@ -564,7 +567,9 @@ class PLSE_Metabox {
     }
 
     /**
-     * Render a Date field, value always DD:MM:YEAR.
+     * Render a Date field, 
+     * - UI shows: dd:mm:yyyy in the UI
+     * - $value is: yyyy-mm-dd value, e.g. 2021-08-27
      * 
      * @since    1.0.0
      * @access   public
@@ -576,9 +581,13 @@ class PLSE_Metabox {
         $slug = sanitize_key( $args['slug'] );
         if ( is_array( $value ) ) $value = $value[0];
         $value = esc_attr( $value );
-        if ( $this->init->is_required( $args ) ) {
-            $err = $this->init->add_status_to_field( __( 'this field is required....' ) );
+
+        // validate the date
+        if ( ! $this->init->is_date( $value ) ) {
+            $err = $this->init->add_status_to_field( __( 'invalid date') );
         }
+
+        // render the date field
         echo '<input title="' . $args['title'] . '" id="' . $slug . '" type="date" name="' . $slug . '" value="' . $value . '">';
         if ( ! empty( $err ) ) echo $err;
     }
@@ -596,9 +605,13 @@ class PLSE_Metabox {
         $slug = sanitize_key( $args['slug'] );
         if ( is_array( $value ) ) $value = $value[0];
         $value = esc_attr( $value );
-        if ( $this->init->is_required( $args ) ) {
-            $err = $this->init->add_status_to_field( __( 'this field is required....' ) );
+
+        // check if time field is valid
+        if ( ! $this->init->is_time( $value ) ) {
+            $err = $this->init->add_status_to_field( __( 'invalid time') );
         }
+
+        // render the field
         echo '<input title="' . $args['title'] . '" id="' . $slug . '" type="time" name="' . $slug . '" value="' . $value . '">';
         if ( ! empty( $err ) ) echo $err;
     }
@@ -616,13 +629,23 @@ class PLSE_Metabox {
     public function render_duration_field ( $args, $value ) {
         $err = '';
         $slug = sanitize_key( $args['slug'] );
+
         // max is defined in seconds. 21600 = 6 hours default
         if ( isset( $args['max'] ) ) $max = $args['max']; else $max = '21600';
+
+        // value is in seconds
         if ( is_array( $value ) ) $value = $value[0];
         $value = esc_attr( $value );
+
+        // if value is missing or some falsy thing, make it zero
         if ( ! $value ) $value = '0';
-        if ( $this->init->is_required( $args ) ) {
-            $err = $this->init->add_status_to_field( __( 'this field is required....' ) );
+
+        if ( ! $this->init->is_int( $value ) ) {
+            $err = $this->init->add_status_to_field( __( 'not a number' ) );
+        } else {
+            if ( $value < 0 ) {
+                $err = $this->init_add_status_to_field( __( 'need positive value') );
+            }
         }
 
         echo '<div class="plse-meta-ctl-highlight">';
@@ -648,6 +671,7 @@ class PLSE_Metabox {
         $title = esc_html( $args['title'] );
         if ( is_array( $value ) ) $value = $value[0];
         $value = esc_attr( $value );
+
         echo '<div class="plse-meta-ctl-highlight">';
         echo '<input title="' . $title . '" style="display:inline-block;" type="checkbox" id="' . $slug . '" name="' . $slug . '"';
         if ( $value == $this->init->get_checkbox_on() ) echo ' CHECKED';
@@ -670,13 +694,10 @@ class PLSE_Metabox {
         if ( is_array( $value ) ) $value = $value[0];
         $value = esc_attr( $value );
 
-        if ( $this->init->is_required( $args ) ) {
-            $err = $this->init->add_status_to_field( __( 'this field is required....' ) );
-        }
+        // since the datalist is part of the plugin, not validated
 
-        // TODO: DEBUG DATALIST, THEN MAKE IT WORK IN OPTIONS
- 
-        $dropdown = '<div class="plse-options-datalist"><input type="text" title="' . $args['title'] . '" id="' . $slug . '" name="' . $slug . '" autocomplete="off" class="plse-datalist" size="' . $size . '" value="' . $value . '" list="';
+        $dropdown = '<div class="plse-options-datalist">';
+        $dropdown .= '<input type="text" title="' . $args['title'] . '" id="' . $slug . '" name="' . $slug . '" autocomplete="on" class="plse-datalist" size="' . $size . '" value="' . $value . '" list="';
 
         if ( is_array( $option_list ) ) { // option list in field definition
 
@@ -712,7 +733,9 @@ class PLSE_Metabox {
         if ( is_array( $value ) ) $value = $value[0];
         $slug = sanitize_key( $args['slug'] );
         $value = esc_attr( $value );
-        $dropdown = '<div class="plse-option-select"><select title="' . $args['title'] . ' id="' . $slug . '" name="' . $slug . '" class="cpt-dropdown">' . "\n";
+
+        $dropdown  = '<div class="plse-option-select">';
+        $dropdown .= '<select title="' . $args['title'] . ' id="' . $slug . '" name="' . $slug . '" class="cpt-dropdown">' . "\n";
         $dropdown .= $this->datalists->get_select( $option_list, $value );
         $dropdown .= '</select>' . "\n";
         $dropdown .= '<p class="plse-option-select-description">' . __( 'Select one option from the list' ) . '</p></div>';
@@ -738,7 +761,8 @@ class PLSE_Metabox {
         if ( is_array( $value ) ) $value = $value[0];
 
         // create the scrolling list
-        $dropdown = '<div class="plse-option-select"><select multiple="multiple" title="' . $args['title'] . ' id="' . $slug . '" name="' . $slug . '[]" class="cpt-dropdown" >' . "\n";   
+        $dropdown = '<div class="plse-option-select">';
+        $dropdown .= '<select multiple="multiple" title="' . $args['title'] . ' id="' . $slug . '" name="' . $slug . '[]" class="cpt-dropdown" >' . "\n";   
         $dropdown .= $this->datalists->get_select( $option_list, $value );
         $dropdown .= '</select>' . "\n";
         $dropdown .= '<p class="plse-option-select-description">' . __( '(CTL-Click to for select and deselect)') . '</p></div>';
@@ -782,10 +806,18 @@ class PLSE_Metabox {
      * @param    array    $value an array with multiple values
      */
     public function render_repeater_field ( $args, $value ) {
+
         $slug = sanitize_key( $args['slug'] );
 
+        // URL field specifies an image
+        $is_image = $args['is_image'];
+
         // adjust size of fields
-        if ( isset( $args['size'] ) ) $size = $args['size']; else $size = '40';
+        if ( isset( $args['size'] ) ) {
+            $size = $args['size']; 
+        } else {
+            $size = '40';
+        }
 
         // adjust text field type (url, date, time...), which is 'subtype' for repeaters
         if ( isset( $args['subtype'] ) ) $type = $args['subtype']; else $type ='text';
@@ -799,9 +831,6 @@ class PLSE_Metabox {
         // maximum number of repeater fields allowed (adjusted if we have a datalist)
         $max = $this->repeater_max; 
 
-        // URL field specifies an image
-        $is_image = $args['is_image'];
-
         // adjust table width to allow tiny thumbnail
         if( $is_image == true ) {
             $table_width = '100%';
@@ -810,9 +839,6 @@ class PLSE_Metabox {
         else {
             $table_width = '70%';
         }
-
-        // specify a special class if the repeater field is a URL for an image
-        if ( $is_image == true )
 
         /*
          * NOTE: $value is supposed to be an array, unlike other fields stored in DB.
@@ -868,14 +894,15 @@ class PLSE_Metabox {
                      */
                     $count = 0;
                     if( is_array( $value ) ):
-
+                        
                         // create fields already in the database
                         foreach( $value as $field ) { 
+                            $value = esc_attr( $value );
                             if ( ! empty( $field ) ) {
                                 $wroteflag = true; // field saved to DB was not empty
                             ?>
                             <tr>
-                                <td><input id="<?php echo $slug . $count; ?>" name="<?php echo $slug; ?>[]" type="<?php echo $type; ?>" <?php echo $list_attr; ?> class="plse-repeater-input<?php echo $img_thumb_class; ?>" value="<?php if($field != '') echo esc_attr( $field ); ?>" size="<?php echo $size; ?>" placeholder="type in value" /></td>
+                                <td><input id="<?php echo $slug . $count; ?>" name="<?php echo $slug; ?>[]" type="<?php echo $type; ?>" <?php echo $list_attr; ?> class="plse-repeater-input<?php echo $img_thumb_class; ?>" value="<?php if($field != '') echo $field; ?>" size="<?php echo $size; ?>" placeholder="type in value" /></td>
                             <td>
                                 <!-- media library button (children[0]) -->
                                 <?php
@@ -895,7 +922,7 @@ class PLSE_Metabox {
                         if ( ! $wroteflag ):
                             ?>
                             <tr>
-                                <td><input id="<?php echo $slug . $count; ?>" name="<?php echo $slug; ?>[]" type="<?php echo $type; ?>" <?php echo $list_attr; ?> class="plse-repeater-input<?php echo $img_thumb_class; ?>" value="<?php if($field != '') echo esc_attr( $field ); ?>" size="<?php echo $size; ?>" placeholder="type in value" /></td>
+                                <td><input id="<?php echo $slug . $count; ?>" name="<?php echo $slug; ?>[]" type="<?php echo $type; ?>" <?php echo $list_attr; ?> class="plse-repeater-input<?php echo $img_thumb_class; ?>" value="<?php if($field != '') echo $field; ?>" size="<?php echo $size; ?>" placeholder="type in value" /></td>
                             <td>
                                 <?php
                                     if( $is_image ) { // repeater URL is an image
@@ -965,20 +992,23 @@ class PLSE_Metabox {
      */
     public function render_image_field ( $args, $value ) {
 
-        $plse_init = PLSE_Init::getInstance();
         $slug = sanitize_key( $args['slug'] );
         if ( is_array( $value ) ) $value = $value[0];
         $value = esc_url( $value );
+
+        if ( ! $this->init->is_url( $value ) ) {
+            $err = $this->init->add_status_to_field( __( 'not valid url' ) );
+        }
+
         $title = $args['title'];
 
         echo '<div class="plse-meta-ctl-highlight">'; // highlights overall control
-
         echo '<div class="plse-meta-image-col">';
 
         if ( $value ) {
             echo '<img title="' . $title . '" class="plse-upload-img-box" id="' . $slug . '-img-id" src="' . $value . '" width="128" height="128">';
         } else {
-            echo '<img title="' . $title . '" class="plse-upload-img-box" id="'. $slug . '-img-id" src="' . $plse_init->get_default_placeholder_icon_url() . '" width="128" height="128">';
+            echo '<img title="' . $title . '" class="plse-upload-img-box" id="'. $slug . '-img-id" src="' . $this->init->get_default_placeholder_icon_url() . '" width="128" height="128">';
         }
 
         echo '</div><div class="plse-meta-upload-col">';
@@ -990,6 +1020,8 @@ class PLSE_Metabox {
         echo '<input type="text" name="' . sanitize_key( $slug ) . '" id="' . $slug . '" value="' . $value . '">';
         echo '<input title="' . $title . '" type="button" class="button plse-media-button" data-media="'. $slug . '" value="Upload Image" />';
 
+        if ( ! empty( $err ) ) echo $err;
+
         echo '</div></div></div>';
 
     }
@@ -998,8 +1030,7 @@ class PLSE_Metabox {
      * Video URL also captures a thumbnail
      */
     public function render_video_field ( $args, $value ) {
-        
-        $plse_init = PLSE_Init::getInstance();
+
         $slug = sanitize_key( $args['slug'] );
         $title = $args['title'];
 
@@ -1007,43 +1038,34 @@ class PLSE_Metabox {
          * create the thumbnail URL
          * {@link https://ytimg.googleusercontent.com/vi/<insert-youtube-video-id-here>/default.jpg}
          */ 
-        echo '<div class="plse-video-metabox plse-meta-ctl-highlight plse-repeater-highlight">';
+        echo '<div class="plse-video-metabox plse-meta-ctl-highlight">';
         // add a special class for JS to the URL field for dynamic video embed
         $args['class'] = 'plse-embedded-video-url';
-        $args['size'] = '69'; // same width as video + thumbnail takes up onscreen
+        $args['size'] = '72'; // same width as video + thumbnail takes up onscreen
         $args['type'] = 'URL';
         if ( is_array( $value ) ) $value = $value[0];
         $value = esc_url( $value );
         //$this->render_url_field( $args, $value );
 
-        echo '<table style="width:100%">';
-        echo '<tr>';
+        echo '<table style="width:100%"><tr>';
         // create the input field for the url
         echo '<td colspan="2" style="padding-bottom:4px;">' . $this->render_url_field( $args, $value ) . '</td>';
-        echo '</td>';
-        echo '<tr>';
-        echo '<td style="width:50%; text-align:center;position:relative">';
+        echo '</td></tr><tr><td style="width:50%; text-align:center;position:relative">';
         if ( $value ) {
             // get a thumbnail image from the video URL
             $thumbnail_url = esc_url( $this->init->get_video_thumb( $value ) );
             // clunky inline style removes offending hyperlink border see with onblur event
             echo '<a href="' . $value . '" style="display:inline-block;height:0px;"><img title="' . $title . '" class="plse-upload-repeater-img-box" id="' . $slug . '-img-id" src="' . $thumbnail_url . '" width="128" height="128"></a>';
         } else {
-            echo '<img title="' . $title . '" class="plse-upload-repeater-img-box" id="'. $slug . '-img-id" src="' . $plse_init->get_default_placeholder_icon_url() . '" width="128" height="128">';
+            echo '<img title="' . $title . '" class="plse-upload-repeater-img-box" id="'. $slug . '-img-id" src="' . $this->init->get_default_placeholder_icon_url() . '" width="128" height="128">';
         }
-        echo '</td>';
-        echo '<td class="plse-auto-resizable-iframe" style="text-align:center;">';
-        echo '<div class="plse-embed-video"></div>';
-        echo '</td>';
-        echo '<tr>';
-        echo '<td style="width:50%;text-align:center">';
+        echo '</td><td class="plse-auto-resizable-iframe" style="text-align:center;">';
+        echo '<div class="plse-embed-video"></div></td><tr><td style="width:50%;text-align:center">';
         echo __( 'Thumbnail' ) . '</span>';
-        echo '</td>';
-        echo '<td style="width:100%;text-align:center;">';
+        echo '</td><td style="width:100%;text-align:center;">';
         echo __( 'Video Player' );
-        echo '</td>';
-        echo '</tr>';
-        echo '</table>';
+        echo '</td></tr></table>';
+        echo '<p>' . __( 'Supports YouTube and Vimeo. Enter the video url, the hit the "tab" key to check if the video embed and thumbnail are valid. Schema will use both the video url, and the default thumbnail defined by the video service.' ) . '</p>';
 
         echo '</div>';
 

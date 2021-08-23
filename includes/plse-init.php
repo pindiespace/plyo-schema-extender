@@ -936,9 +936,9 @@ class PLSE_Init {
 
     public function is_url ( $in ) {
         // Validate URI
-        if ( filter_var($url, FILTER_VALIDATE_URL ) === FALSE
+        if ( filter_var( $in, FILTER_VALIDATE_URL ) === FALSE
             // check only for http/https schemes.
-            || !in_array( strtolower( parse_url( $url, PHP_URL_SCHEME ) ), ['http','https'], true )
+            || !in_array( strtolower( parse_url( $in, PHP_URL_SCHEME ) ), ['http','https'], true )
         ) {
             return false;
         }
@@ -949,21 +949,60 @@ class PLSE_Init {
         return is_email( $in );
     }
 
-    public function is_date ( $in ) {
-        // TODO CHECK FORMATINCOMING
-        //checkdate ( $month, $day, $year )
-        return checkdate( $in['month'], $in['day'], $in['year'] );
-    }
-
-    public function is_time ( $in ) {
-        return strtotime( $in );
-    }
-
     /**
      * -----------------------------------------------------------------------
      * DATE AND TIME VALIDATIONS
      * -----------------------------------------------------------------------
      */
+
+    /**
+     * Check datestring with format:
+     * yyyy-mm-dd (what is returned from HTML5 type=date fields)
+     * by converting to timestamp (strtotime()), then using wp_checkdate()
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    string    $in    the date, in yyyy-mm-dd format
+     * @return   boolean    if valid, return true, else false
+     */
+    public function is_date ( $in ) {
+
+        if( strtotime( $in ) ) {
+
+            // assumes yyyy-mm-dd string format!
+            $dd = explode( '-', $in );
+
+            // check if the string can be converted to a Gregorian date
+            return wp_checkdate( $dd[1], $dd[2], $dd[0], $in );
+
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if we have a valid time string
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    string     $in    the time, in string format
+     * @return   boolean    if valid time, return true, else false
+     */
+    public function is_time ( $in ) {
+        return strtotime( $in );
+    }
+
+    /**
+     * Check if we have a valid number.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    string    $in    the duration, in seconds
+     * @return   boolean   if valid duration, return true, else false
+     */
+    public function is_int ( $in ) {
+        return is_int( (int) $in );
+    }
 
     /**
      * Convert time duration, in seconds to ISO8601
@@ -1423,7 +1462,7 @@ class PLSE_Init {
      * @return   string    wrap the error message in HTML for display
      */
     public function add_status_to_field ( $msg = '', $status = '' ) {
-        return '<span class="plse-input-msg ' . $status .'">' . $msg . '</span>';
+        return '<span class="plse-input-msg ' . $status .'">' . $msg . '</span><br>';
     }
 
     /**

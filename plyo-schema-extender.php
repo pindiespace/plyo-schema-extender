@@ -267,6 +267,10 @@ if ( ! defined( 'PLSE_CAT_SLUG' ) ) {
 
 // *************************************************************
 // TODO:
+// TODO: VALIDATION FOR ALL METABOX FIELDS
+// TODO: SANITIZE FOR ALL METABOX FIELDS
+// TODO: PRIVATE ERRORS TO PLUGIN SETTINGS FROM RENDER, METABOX
+//
 // TODO: convert $args to $field
 // AUDIT: string constants
 // AUDIT: code names

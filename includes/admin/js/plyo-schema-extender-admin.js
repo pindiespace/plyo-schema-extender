@@ -252,10 +252,12 @@
         /*
          * ---------------------------------------------------
          * Repeater fields
+         * NOTE: classes, ids, elements have to exactly match PHP generated HTML
+         * in order for the repeaters to work!
          * ---------------------------------------------------
          */
 
-        // add a input repeater row (text, url, url 'is_image')
+        // add a input repeater row (text, url, url + 'is_image')
         $('.plse-repeater-add-row-btn').on('click', function(e) {
 
             // find the repeater table
@@ -267,6 +269,7 @@
             length = table.find('tbody>tr').length;
             let max = table.attr('data-max'); 
 
+            // check if we exceeded the maximum allowed number of repeater fields
             if (length > max) {
                 $('.plse-repeater-max-warning').css('display','block');
             } else {
@@ -279,16 +282,19 @@
 
                 let mediaInput, mediaBtn;
 
-                // get the second column, which might have 1 or 2 buttons in it
+                // get the second column (<td>), which might have 1 or 2 buttons in it
                 let td2 = $(emptyRow).children()[1];
                 let numBtns = td2.children.length;
 
-                // switch adding ids based on number of buttons
+                // switch adding ids to column 1 (<td>) input field based on number of buttons
                 if ( numBtns == 1) {
+
                     // the 'remove' button is second
                     mediaInput = $(emptyRow).children()[0].children[0];
                     mediaInput.id = mediaInput.id + length;
+
                 } else if (numBtns == 2) {
+
                     // the 'media_upload' button is first
                     mediaBtn = $(emptyRow).children()[0].children[0];
                     mediaBtn.setAttribute('data-media', mediaBtn.getAttribute('data-media') + length);
@@ -296,15 +302,19 @@
                     // the 'remove' button is second
                     mediaInput = $(emptyRow).children()[1].children[1];
                     mediaInput.id = mediaInput.id + length;
+
                 } else {
+
                     console.error('wrong number of buttons in repeater');
+
                 }
 
                 // change the display of the new row to visible, 'table-row'
                 emptyRow.removeClass( 'plse-repeater-empty-row' ).css('display','table-row');
                 emptyRow.insertBefore( prev );
 
-                console.log('adding');
+                //console.log('adding');
+
             }
 
         });

@@ -45,8 +45,9 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
     public static $schema_fields = array(
         'slug'  => 'plse-meta-event',
         'title' => 'Plyo Schema Extender - Event',
-        'message' => 'Use this box to add fields to create an Event',
+        'message' => 'Use this box to add fields to create an Event. Events may be online, offline, or mixed. Only a single date and time may be specified.',
         'nonce' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT .'-metabox-nonce',
+        'dashicon' => 'dashicons-megaphone',
 
         // fields in the metabox, set for each post
         'fields' => array(
@@ -68,6 +69,7 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
                 'type'  => PLSE_INPUT_TYPES['TEXT'],
                 'required' => 'required',
                 'wp_data' => 'post_meta',
+                'start_of_block' => 'Primary Event Information'
             ),
 
             'event_url' => array(
@@ -79,16 +81,14 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
                 'wp_data' => 'post_meta',
             ),
 
-            'event_images' => array(
-                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-image',
-                'label' => 'Event Images',
-                'title' => 'Click button to typin in image URLS Event, or add from Media Library',
-                'type' => PLSE_INPUT_TYPES['REPEATER'],
-                'subtype' => PLSE_INPUT_TYPES['URL'], // 'don't use IMAGE'
+            'sameAs' => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-sameas',
+                'label' => 'Alternate Event URLs (enter URLs)',
+                'title' => 'Specific alternate URLs',
+                'type'  => PLSE_INPUT_TYPES['REPEATER'],
+                'subtype' => PLSE_INPUT_TYPES['URL'],
                 'required' => 'required',
                 'wp_data' => 'post_meta',
-                'select_multiple' => false,
-                'is_image' => true  // must be explicitly provided for Media Library button
             ),
 
             'event_description' => array(
@@ -96,8 +96,36 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
                 'label' => 'Event Description',
                 'title' => 'One-paragraph description of the event',
                 'type'  => PLSE_INPUT_TYPES['TEXTAREA'],
+                'required' => 'required',
+                'wp_data' => 'post_meta',
+            ),
+
+            'event_images' => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-image',
+                'label' => 'Images related to the Event',
+                'title' => 'Click button to typin in image URLS Event, or add from Media Library',
+                'type' => PLSE_INPUT_TYPES['REPEATER'],
+                'subtype' => PLSE_INPUT_TYPES['URL'], // 'don't use IMAGE'
                 'required' => '',
                 'wp_data' => 'post_meta',
+                'select_multiple' => false,
+                'is_image' => true  // must be explicitly provided for Media Library button
+            ),
+
+            'event_status' => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-event_attendance_mode',
+                'label' => 'Event Status',
+                'title' => 'Specify one or more attendance modes',
+                'type' => PLSE_INPUT_TYPES['SELECT_SINGLE'],
+                'required' => 'required',
+                'wp_data' => 'post_meta',
+                'option_list' => array(
+                    'Event Scheduled' => 'EventScheduled',
+                    'Event Canceled' => 'EventCancelled',
+                    'Event Moved Online' => 'EventMovedOnline',
+                    'Event Postphoned' => 'EventPostponed',
+                    'Event Rescheduled' => 'EventRescheduled',
+                ),
             ),
 
             // FORMAT: 'yyyy-mm-dd'
@@ -109,6 +137,7 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
                 'type'  => PLSE_INPUT_TYPES['DATE'],
                 'required' => 'required',
                 'wp_data' => 'post_meta',
+                'start_of_block' => 'Event Dates and Times'
             ),
 
             // FORMAT: 'HH:MM:SS'
@@ -140,35 +169,10 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
                 'wp_data' => 'post_meta',
             ),
 
-            'sameAs' => array(
-                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-sameas',
-                'label' => 'Same as These Links (enter URLs)',
-                'title' => 'Specific alternate URLs',
-                'type'  => PLSE_INPUT_TYPES['REPEATER'],
-                'subtype' => PLSE_INPUT_TYPES['URL'],
-                'required' => 'required',
-                'wp_data' => 'post_meta',
-            ),
-
-            'event_status' => array(
-                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-event_attendance_mode',
-                'label' => 'Attendance Mode',
-                'title' => 'Specify one or more attendance modes',
-                'type' => PLSE_INPUT_TYPES['SELECT_SINGLE'],
-                'required' => '',
-                'wp_data' => 'post_meta',
-                'option_list' => array(
-                    'Event Scheduled' => 'EventScheduled',
-                    'Event Canceled' => 'EventCancelled',
-                    'Event Moved Online' => 'EventMovedOnline',
-                    'Event Postphoned' => 'EventPostponed',
-                    'Event Rescheduled' => 'EventRescheduled',
-                ),
-            ),
 
             'event_attendance_mode' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_EVENT . '-event_attendance_mode',
-                'label' => 'Attendance Mode',
+                'label' => 'Online and Offline Attendance',
                 'title' => 'Specify one or more attendance modes',
                 'type' => PLSE_INPUT_TYPES['REPEATER'],
                 'subtype' => PLSE_INPUT_TYPES['TEXT'],
@@ -189,6 +193,7 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
                 'type'  => PLSE_INPUT_TYPES['TEXT'],
                 'required' => 'required',
                 'wp_data' => 'post_meta',
+                'start_of_block' => 'Physical Location (if present)'
             ),
 
             'event_street_address' => array(
@@ -241,6 +246,7 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
                 'type'  => PLSE_INPUT_TYPES['URL'],
                 'required' => '',
                 'wp_data' => 'post_meta',
+                'start_of_block' => 'Online Location (if present)'
             ),
 
         )

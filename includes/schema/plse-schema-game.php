@@ -58,7 +58,8 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
      * |- wp_data         = whether values in post meta, or an option
      * |- select_multiple = if true, multiple options selected from a list
      * |- option_list     = either an array of values, or a string specifying a datalist in PLSE_Datalists
-     * |- is_image        = for url fields, if the value is an image, show a thumbnail
+     * |- is_image        = for url fields, if the value is an image, show a thumbnail,
+     * |- start_of_block  = lets metabox frame the start of a block of related fields
      * 
      * @since    1.0.0
      * @access   private
@@ -67,8 +68,9 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
     public static $schema_fields = array(
         'slug'  => 'plse-meta-game',
         'title' => 'Plyo Schema Extender - Game',
-        'message' => 'Use this box to add fields to create a Game Schema',
+        'message' => 'Use this box to add fields to create a Game Schema. It should be used when the primary focus of content is a videogame.',
         'nonce' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME .'-metabox-nonce',
+        'dashicon' => 'dashicons-games',
 
         // fields in the metabox, set for each post
         'fields' => array(
@@ -100,7 +102,8 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'type' => PLSE_INPUT_TYPES['TEXT'],
                 'required' => 'required',
                 'wp_data' => 'post_meta',
-                'select_multiple' => false
+                'select_multiple' => false,
+                'start_of_block' => 'General Game Information'
             ),
 
             'game_url' => array(
@@ -302,26 +305,6 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'select_multiple' => true
             ),
 
-            'game_server_name' => array(
-                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-server-name',
-                'label' => 'Game Server Name',
-                'title' => 'Server where the game may be played',
-                'type' => PLSE_INPUT_TYPES['TEXT'],
-                'required' => '',
-                'wp_data' => 'post_meta',
-                'select_multiple' => false // leaving this off causes validation to fail
-            ),
-
-            'game_server_url' => array(
-                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-server',
-                'label' => 'Game Server URL',
-                'title' => 'Server address where the game may be played, if online',
-                'type' => PLSE_INPUT_TYPES['URL'],
-                'required' => '',
-                'wp_data' => 'post_meta',
-                'select_multiple' => false // leaving this off causes validation to fail
-            ),
-
             'operating_system' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-operating_system',
                 'label' => 'Supported Operating Systems',
@@ -333,17 +316,6 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'select_multiple' => true
             ),
 
-            'trailer_video_url' => array(
-                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-trailer_video_url',
-                'label' => 'Trailer Video URL',
-                'title' => 'Link to video showing gameplay',
-                'type' => PLSE_INPUT_TYPES['VIDEO'],
-                'required' => '',
-                'wp_data' => 'post_meta',
-                'select_multiple' => false
-            ),
-
-
             'trailer_video_name' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-trailer_video_name',
                 'label' => 'Trailer Video Name',
@@ -351,7 +323,8 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'type' => PLSE_INPUT_TYPES['TEXT'],
                 'required' => '',
                 'wp_data' => 'post_meta',
-                'select_multiple' => false
+                'select_multiple' => false,
+                'start_of_block' => 'Trailer Video'
             ),
 
             'trailer_video_description' => array(
@@ -364,6 +337,16 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'select_multiple' => false
             ),
 
+            'trailer_video_url' => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-trailer_video_url',
+                'label' => 'Trailer Video URL',
+                'title' => 'Link to video showing gameplay',
+                'type' => PLSE_INPUT_TYPES['VIDEO'],
+                'required' => '',
+                'wp_data' => 'post_meta',
+                'select_multiple' => false
+            ),
+
             'trailer_video_duration' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-trailer_video_duration',
                 'label' => 'Trailer Video Duration (Hours:Minutes:Seconds)',
@@ -371,13 +354,13 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'type' => PLSE_INPUT_TYPES['DURATION'],
                 'required' => '',
                 'wp_data' => 'post_meta',
-                'max' => '21600', // 6 hours, in seconds
+                'max' => '10800', // 3 hours, in seconds
                 'select_multiple' => false
             ),
 
             'trailer_thumbnail_url' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-trailer_video_thumbnail_url',
-                'label' => 'Thumbnail scenes from the video',
+                'label' => 'Additional thumbnail scenes from the video',
                 'title' => 'Add one or more images captured from the video',
                 'type' => PLSE_INPUT_TYPES['REPEATER'],
                 'subtype' => PLSE_INPUT_TYPES['URL'],
@@ -406,6 +389,28 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'required' => '',
                 'wp_data' => 'post_meta',
                 'select_multiple' => false
+            ),
+
+
+            'game_server_name' => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-server-name',
+                'label' => 'Game Server Name',
+                'title' => 'Server where the game may be played',
+                'type' => PLSE_INPUT_TYPES['TEXT'],
+                'required' => '',
+                'wp_data' => 'post_meta',
+                'select_multiple' => false, // leaving this off causes validation to fail
+                'start_of_block' => 'Game Server'
+            ),
+
+            'game_server_url' => array(
+                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_GAME . '-server',
+                'label' => 'Game Server URL',
+                'title' => 'Server address where the game may be played, if online',
+                'type' => PLSE_INPUT_TYPES['URL'],
+                'required' => '',
+                'wp_data' => 'post_meta',
+                'select_multiple' => false // leaving this off causes validation to fail
             ),
 
         )
