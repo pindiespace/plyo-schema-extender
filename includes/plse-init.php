@@ -1161,12 +1161,61 @@ class PLSE_Init {
      * @return   string|false if OK, return the final URL, else return false
      */
     function get_final_url ( $url ) {
+
+        // if a URL is typed in without http|https add it so we can test (altered URL not returned by this test).
+        if ( stripos($url, 'http') === false ) $url = 'http://' . $url;
+
+        // check if URL is valid, following redirects as necesary
         $redirects = $this->get_all_redirects( $url );
         if (count($redirects) > 0) {
             return array_pop( $redirects );
         } else {
             return false;
         }
+
+    }
+
+    /**
+     * Complete URL status check and reporting.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    string    $url    the http/https address to check
+     * @param    
+     */
+    function get_url_status ( $url ) {
+
+        $err = '';
+
+        // check if the URL (or a redirect) is reachable
+        $valid = $this->get_final_url( $url );
+
+        if ( ! $valid ) { // a false was returned, nothing came back (Internet down?)
+
+            $err = $this->add_status_to_field( __( 'status unknown (check connection) for:' ) . $url ); // caution
+
+        } else {
+
+            if ( stripos( $valid, 'Error:') !== false ) {
+                $err = $this->add_status_to_field( __( $valid ), 'plse-input-msg-err' );
+            } else if ( $valid != $url ) {
+                if ( stripos( $url, 'http:') !== false && stripos( $url, 'https') !== false ) {
+                    $err = $this->add_status_to_field( __( 'valid, url was changed to https' ), 'plse-input-msg-ok' );
+                    $url = $valid; // convert http to https
+                } else {
+                    $err = $this->add_status_to_field( __( 'valid, redirected, change to: ' ) . $valid, 'plse-input-msg-ok' );
+                }
+            } else {
+                $err = $this->add_status_to_field( __( 'validated'), 'plse-input-msg-ok' );
+            }
+
+        }
+
+        // return the status, and altered (if changed) URL value
+        return array(
+            'err' => $err,
+            'value' => $url
+        );
 
     }
 

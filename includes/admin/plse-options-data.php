@@ -184,7 +184,10 @@ class PLSE_Options_Data {
                     'description'  => 'Click to load Yoast Local SEO values into these fields. Changing the values here won\'t affect the values you entered into Yoast.',
                     'type'   => PLSE_INPUT_TYPES['BUTTON'],
                     'label' => 'Copy SEO values',
-                    'title' => 'Copy Yoast Local SEO Data'
+                    'title' => 'Copy Yoast Local SEO Data',
+                    'slug_dependent' => YOAST_LOCAL_SEO_SLUG, // Yoast Local SEO slug
+                    'msg_enabled' => 'Click to copy',
+                    'msg_disabled' => 'Yoast Local SEO plugin not present'
                 ),
 
                 'use_yoast_metadata' => array(
@@ -194,6 +197,9 @@ class PLSE_Options_Data {
                     'type'   => PLSE_INPUT_TYPES['CHECKBOX'],
                     'label' => 'Check to use Yoast meta data descriptions in the new Schema, if an excerpt isn\'t available.',
                     'title' => 'Yoast Local SEO values',
+                    'slug_dependent' => WPSEO_VERSION, // Yoast is present, a constant
+                    'msg_enabled' => 'Check to use',
+                    'msg_disabled' => 'Yoast Local SEO plugin not present'
                 ),
 
                 //'local_post_control' => array(

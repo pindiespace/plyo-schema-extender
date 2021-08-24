@@ -180,7 +180,12 @@ class PLSE_Options {
          * copied into the blank fields in this plugin, and can be reset 
          * from Yoast Local SEO, using a button in the plugin options UI page.
          */
-        $this->wpseo_local = get_option( 'wpseo_local' );
+        $this->wpseo_local = get_option( YOAST_LOCAL_SEO_SLUG );
+
+        // DUMMY WPSEO LOCAL TEST
+        //$this->wpseo_local = array(
+        //    'location_phone' => '333-298-22222'
+        //);
 
         // load fields
         $this->admin_init_fields();
@@ -192,24 +197,18 @@ class PLSE_Options {
         add_action( 'admin_enqueue_scripts', function ( $hook ) {
 
             // load scripts common to PLSE_Settings and PLSE_Meta, get the label for where to position
-            $plse_init = PLSE_Init::getInstance();
-            $script_label = $plse_init->load_admin_scripts();
+            $script_label = $this->init->load_admin_scripts();
 
             // use PLSE_Options to inject variables into JS specifically for PLSE_Meta media library button clicks 
-            $plse_init->load_js_passthrough_script( 
+            $this->init->load_js_passthrough_script( 
                 $script_label,
                 $this->options_js_name,
                 $this->options_data->get_options_fields()
             );
 
-            // DUMMY WPSEO LOCAL TEST
-            //$this->wpseo_local = array(
-            //    //'location_phone' => '339-298-29839'
-            //);
-
             // if Yoast Local SEO is present, inject the values into JS so users can copy them to PLSE if desired
             if ( is_array( $this->wpseo_local ) ) {
-                $plse_init->load_js_passthrough_script(
+                $this->init->load_js_passthrough_script(
                 $script_label,
                 $this->wpseo_local_options_js_name,
                 $this->wpseo_local
@@ -564,13 +563,27 @@ class PLSE_Options {
      * @param    string   $value   serialized or unserialized field value
      */
     public function render_button_field ( $args ) {
+
+        // option value (from a different field) that affects this control 
+
+        // use variable variable '$$' to make field value into a class variable
+        if ( ! is_array( $this->{$args['slug_dependent']} ) ) {
+            $disabled='disabled';
+            $msg = $args['msg_disabled'];
+        } else {
+            $disabled = '';
+            $msg = $args['msg_enabled'];
+        }
+
         $slug = sanitize_key( $args['slug'] );
         $state = $args['state'];
         $label = esc_html( $args['label'] );
         $title = esc_html( $args['title'] );
 
         echo '<label style="display:block;" for="' . $slug . '">' . esc_html_e( $label ) . '</label>';
-        echo '<input type="button" style="padding:2px 6px 2px 6px;" title="' . $title . '" id="' . $slug . '" name="' . $slug . '" value="' . $title . '">';
+        echo '<input type="button" style="padding:2px 6px 2px 6px;" title="' . $title . '" id="' . $slug . '" name="' . $slug . '" value="' . $title . '" ' . $disabled . '>';
+        echo '<span class="plse-options-msg">' . $msg . '</span>';
+
     }
 
     /**
@@ -939,7 +952,7 @@ class PLSE_Options {
         if ( $option ) {
             echo '<img title="' . $title . '" class="plse-upload-img-box" id="' . $slug . '-img-id" src="' . $option . '" width="' . $width . '" height="' . $height . '">';
         } else {
-            echo '<img title="' . $title .'" class="plse-upload-img-box" id="'. $slug . '-img-id" src="' . $plse_init->get_default_placeholder_icon_url() . '" width="128" height="128">';
+            echo '<img title="' . $title .'" class="plse-upload-img-box" id="'. $slug . '-img-id" src="' . $this->init->get_default_placeholder_icon_url() . '" width="128" height="128">';
         }
         echo '</div>';
         echo '<div class="plse-meta-upload-col">';

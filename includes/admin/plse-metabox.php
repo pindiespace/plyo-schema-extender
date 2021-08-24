@@ -32,7 +32,7 @@ class PLSE_Metabox {
     private $options_js_name = 'plse_plugin_options';
 
     /**
-     * name of JS variable holding relevant PHP variables passed from this class.
+     * name of object holding relevant PHP variables passed from this class into JavaScript.
      * 
      * @since    1.0.0
      * @access   private
@@ -41,31 +41,39 @@ class PLSE_Metabox {
     private $meta_js_name = 'plse_plugin_custom_fields';
 
     /**
-     * label for injected script for enqueueing via PLSE_init.
+     * Schema transient name, for errors accross $post updates
      * 
      * @since    1.0.0
      * @access   private
-     * @var      string    $options_js_name
+     * @var      string    $schema_transient_name    name for transient
      */
-    private $meta_js_label = 'plse_metabox_options_js';
-
-    /**
-     * Slug for setting a transient message.
-     * 
-     * @since    1.0.0
-     * @access   private
-     * @var      string    $schema_transient
-     */
-    private $schema_transient = 'plse-schema-metabox-transient';
+    private $schema_transient_name = 'plse_meta_transient';
 
     /**
      * Maximum for meta repeater fields.
      * 
      * @since    1.0.0
      * @access   private
-     * @var      string    $repeater_max    max number of repeater fields
+     * @var      string    $REPEATER_MAX    max number of repeater fields
      */
-    private $repeater_max = 1000;
+    private $REPEATER_MAX = 1000;
+
+    /**
+     * See if we need to check each URL for validity (set in plugin options)
+     * 
+     * @since    1.0.0
+     * @access   private
+     * @var      string|null    $check_urls    if not null, check URLS
+     */
+    private $check_urls = null;
+
+    /**
+     * See if we have local control over Schema rendering (set in plugin options)
+     * If this is set, each $post can turn off actual rendering, but allow Schema 
+     * data to be edited. If null, then Schmas are rendered for all posts matching 
+     * the specified CPTs or categories in the plugin settings.
+     */
+    private $check_local_control = null;
 
     /**
      * Initialize the class and set its properties.
@@ -129,17 +137,16 @@ class PLSE_Metabox {
      */
     public function setup_scripts () {
 
-        $plse_init = PLSE_Init::getInstance();
+        ///$plse_init = PLSE_Init::getInstance();
 
         // load scripts common to PLSE_Settings and PLSE_Meta, get the label for where to position
-        $script_label = $plse_init->load_admin_scripts();
-
-        //<script src="dist/html-duration-picker.min.js"></script>
+        //////$script_label = $plse_init->load_admin_scripts();
+        $script_label = $this->init->load_admin_scripts();
 
         wp_enqueue_script( PLSE_SCHEMA_EXTENDER_SLUG, $url . $this->plse_admin_js, array('jquery'), null, true );
 
         // use PLSE_Options to inject variables into JS specifically for PLSE_Meta media library button clicks 
-        $plse_init->load_js_passthrough_script( 
+        $this->init->load_js_passthrough_script( 
             $script_label,
             $this->meta_js_name,
             $this->options_data->get_options_fields()
@@ -152,7 +159,8 @@ class PLSE_Metabox {
      * 
      * @since    1.0.0
      * @access   public
-     * @return   array|null    schema field data needed to create metabox, or null
+     * @param    string      $schema_label the Schema label, e.g. 'GAME', 'Game', 'game'
+     * @return   array|null  Schema field data needed to create metabox, or null
      */
     public function load_schema_fields ( $schema_label ) {
 
@@ -179,11 +187,16 @@ class PLSE_Metabox {
     }
 
     /**
-     * Check if a metabox should be drawn. Schema are assigned either to a Custom Post Type,
-     * or through a category assigned to the post, both in plugin options.
+     * Check if a metabox should be drawn. Schema are assigned in plugin options, either by:
+     * - a Custom Post Type
+     * - a category assigned to the $post
+     * 
+     * NOTE: users editing the metaboxes can set whether the Schema is rendered, independently 
+     * of whether the metabox is drawn, if set in plugin options.
      * 
      * @since    1.0.0
      * @access   public
+     * @param    string    $schema_label     a Schema label, 'GAME', 'Game', or 'game'
      * @return   boolean   if a metabox needed for Schema, return true, else false
      */
     public function check_if_metabox_needed ( $schema_label ) {
@@ -216,6 +229,12 @@ class PLSE_Metabox {
      * @access   public
      */
     public function setup_metaboxes () {
+
+        // see if plugin settings allow posts to disable Schema rendering
+        $this->check_local_control = get_option( PLSE_LOCAL_POST_CONTROL_SLUG );
+
+        // see if URLs should be actively checked for validity (e.g. 404 errors)
+        $this->check_urls = get_option( PLSE_CHECK_URLS_SLUG );
 
         // get a list of all defined schema classes in the /schema directory
         $schema_list = $this->init->get_available_schemas();
@@ -334,19 +353,20 @@ class PLSE_Metabox {
         // add nonce
         $nonce = $meta_field_args['nonce'];
         $context = $meta_field_args['slug'];
-
         wp_nonce_field( $context, $nonce );
 
         // loop through each Schema field
         foreach ( $fields as $key => $field ) {
 
             /*
-             * Don't draw the local rendering checkbox, if plugin options 
-             * globally disabled local control of Schema rendering
+             * Conditionally draw the local rendering checkbox:
+             * - don't draw if plugin options disabled local control of Schema rendering
+             * - draw if plugin options locally enabled rendering control
              */
             if ( $key == PLSE_SCHEMA_RENDER_KEY ) {
-                $option = get_option( PLSE_LOCAL_POST_CONTROL_SLUG );
-                if ( $option != $this->init->get_checkbox_on() ) {
+                // $option = get_option( PLSE_LOCAL_POST_CONTROL_SLUG );
+                if ( $this->check_local_control != $this->init->get_checkbox_on() ) {
+                // if ( $option != $this->init->get_checkbox_on() ) {
                     continue; // break out of the foreach loop
                 }
             }
@@ -360,11 +380,15 @@ class PLSE_Metabox {
             echo '<li><label for="' . $field['slug'] . '" class="plse-option-description"><span>';
             echo $field['label'] . ':</span></label>';
 
-            // get the stored option value for metabox field directly from database
+            /* 
+             * if we store Schema data using the Options API, access the option directly.
+             * Normally this is not the case, and Schema data is stored in each $post meta-data
+             */
             if( $field[ 'wp_data' ] == 'option' ) {
+
                 $value = get_option( $field['slug'] );
-            }
-            elseif ( $field[ 'wp_data' ] == 'post_meta' ) {
+
+            } else if ( $field[ 'wp_data' ] == 'post_meta' ) {
 
                 // get the string associated with this field in this post (if no slug, get all the CPTs for this post)
                 if ( $field['select_multiple'] ) {
@@ -376,9 +400,8 @@ class PLSE_Metabox {
             }
 
             /*
-             * Flag if a required field, and if the field is not filled out. 
-             * (add message at top-right of <li>). Individual field rendering 
-             * check for validity only
+             * Flag required fields that are not filled out. 
+             * (add message at top-right of <li>).
              */
             if ( $field['required'] ) {
                 $missing = ''; $req_msg = 'required';
@@ -400,10 +423,8 @@ class PLSE_Metabox {
 
         }
 
-        echo '</ul>';
-
         // close the box
-        echo '</div>';
+        echo '</ul></div>';
 
     }
 
@@ -426,6 +447,7 @@ class PLSE_Metabox {
      */
     public function render_hidden_field ( $args, $value ) {
         $value = sanitize_text_field( $value );
+        // render the field
         echo '<input type="hidden" id="' . sanitize_key( $args['slug'] ) . '" name="' . sanitize_key( $args['slug'] ) .'" value="' . esc_attr( $value ) . '" />';
     }
 
@@ -441,14 +463,17 @@ class PLSE_Metabox {
      */
     public function render_simple_field ( $args, $value, $err = '' ) {
         $slug = sanitize_key( $args['slug'] );
+
         // if it's an array, flatten it
         if ( is_array( $value ) ) $value = $value[0];
         $value = esc_attr( $value );
         $type = $args['type'];
         if ( $args['class'] ) $class = $args['class']; else $class = '';
         if ( $args['size'] ) $size = $args['size']; else $size = '40';
+
+        // render the field
         echo '<input title="' . $args['title'] . '" type="' . $type . '" class="' . $class . '" id="' . $slug . '" name="' . $slug .'" size="' . $size . '" value="' . $value . '" />';
-        if ( $err )echo $err;
+        if ( ! empty( $err ) ) echo $err;
     }
 
     /**
@@ -517,46 +542,17 @@ class PLSE_Metabox {
      * 
      * @since    1.0.0
      * @access   public
-     * @param    array    $args field parameters, select
+     * @param    array    $args     field parameters, select
      * @param    string   $value    the field value
      */
     public function render_url_field ( $args, $value ) {
-
         $err = ''; 
 
-        if ( ! empty( $value ) ) { // no checks or message if field empty
-
-            // if active URL checking was set in plugin options, do the check
-            $option = get_option('plse-settings-config-check-urls'); // value is 'on' or nothing
-
-            if ( $option ) {
-
-                // check if the URL (or a redirect) is reachable
-                $valid = $this->init->get_final_url( $value );
-
-                if ( ! $valid ) { // a false was returned, nothing came back (Internet down?)
-
-                    $err = $this->init->add_status_to_field( __( 'status unknown (check connection)' ) ); // caution
-
-                } else {
-
-                    if ( stripos( $valid, 'Error:') !== false ) {
-                        $err = $this->init->add_status_to_field( __( $valid ), 'plse-input-msg-err' );
-                    } else if ( $valid != $value ) {
-                        if ( stripos( $value, 'http:') !== false && stripos( $value, 'https') !== false ) {
-                            $err = $this->init->add_status_to_field( __( 'valid, url was changed to https' ), 'plse-input-msg-ok' );
-                            $value = $valid; // convert http to https
-                        } else {
-                            $err = $this->init->add_status_to_field( __( 'valid, redirected, change to: ' ) . $valid, 'plse-input-msg-ok' );
-                        }
-                    } else {
-                        $err = $this->init->add_status_to_field( __( 'validated'), 'plse-input-msg-ok' );
-                    }
-
-                }
-
-            }
-
+        // validate - if specified by plugin options $check_urls then try to access the URL
+        if ( ! empty( $value ) && $this->check_urls ) { // no checks or message if field empty
+            $result = $this->init->get_url_status( $value );
+            $err   = $result['err'];
+            $value = $result['value'];
         }
 
         // render the URL field, with warnings or errors added
@@ -574,16 +570,15 @@ class PLSE_Metabox {
      */
     public function render_textarea_field ( $args, $value ) {
         $err = '';
-        $rows = '5';
-        $cols = '60';
         $slug = sanitize_key( $args['slug'] );
         if ( is_array( $value ) ) $value = $value[0];
         $value = esc_html( $value );
-        if ( isset( $args['rows'] ) ) $rows = $args['rows'];
-        if ( isset( $args['cols'] ) ) $cols = $args['cols'];
-        if ( $this->init->is_required( $args ) ) {
-            $err = $this->init->add_status_to_field( __( 'this field is required....' ) );
-        }
+        if ( isset( $args['rows'] ) ) $rows = $args['rows']; else $rows = '5';
+        if ( isset( $args['cols'] ) ) $cols = $args['cols']; else $cols = '60';
+
+        // no special validation for textarea fields
+
+        // render the field
         echo '<textarea title="' . $args['title'] . '" id="' . $slug . '" name="' . $slug .'" rows="' . $rows . '" cols="' . $cols . '">' . $value . '</textarea>';
         if ( ! empty( $err ) ) echo $err;
     }
@@ -628,7 +623,7 @@ class PLSE_Metabox {
         if ( is_array( $value ) ) $value = $value[0];
         $value = esc_attr( $value );
 
-        // check if time field is valid
+        // validate time
         if ( ! $this->init->is_time( $value ) ) {
             $err = $this->init->add_status_to_field( __( 'invalid time') );
         }
@@ -670,6 +665,7 @@ class PLSE_Metabox {
             }
         }
 
+        // render the field
         echo '<div class="plse-meta-ctl-highlight">';
         echo '<input title="' . $args['title']. '" name="' . $slug . '" id="' . $slug . '" class="plse-duration-picker plse-slider-input" id="range-control" type="range" min="0" max="' . $max . '" step="1" value="' . $value . '">';
         echo '<span class="plse-slider-output"></span>'; // class online used in JS, not in CSS
@@ -694,8 +690,11 @@ class PLSE_Metabox {
         if ( is_array( $value ) ) $value = $value[0];
         $value = esc_attr( $value );
 
+        // render the field
         echo '<div class="plse-meta-ctl-highlight">';
         echo '<input title="' . $title . '" style="display:inline-block;" type="checkbox" id="' . $slug . '" name="' . $slug . '"';
+
+        // validate and set value
         if ( $value == $this->init->get_checkbox_on() ) echo ' CHECKED';
         echo ' />&nbsp;';	
         echo '<span style="display:inline-block; width=90%;">' . $title . '</span>';
@@ -708,16 +707,19 @@ class PLSE_Metabox {
      * 
      * @since    1.0.0
      * @access   public
+     * @param    array    $args     field parameters, select
+     * @param    string   $value    the field value
      */
     public function render_datalist_field ( $args, $value ) {
         $option_list = $args['option_list'];
+        if ( ! $option_list ) return; // error, options weren't added by dev
+
         $slug = sanitize_key( $args['slug'] );
         if ( isset( $args['size'] ) ) $size = $args['size']; else $size = '30';
         if ( is_array( $value ) ) $value = $value[0];
         $value = esc_attr( $value );
 
-        // since the datalist is part of the plugin, not validated
-
+        // since the datalist is part of the plugin, values are not validated
         $dropdown = '<div class="plse-options-datalist">';
         $dropdown .= '<input type="text" title="' . $args['title'] . '" id="' . $slug . '" name="' . $slug . '" autocomplete="on" class="plse-datalist" size="' . $size . '" value="' . $value . '" list="';
 
@@ -736,8 +738,10 @@ class PLSE_Metabox {
 
         }
 
+        // message describing how to use a datalist
         $dropdown .= '<p>' . __( 'Begin typing to find value, or type in your own value. Delete all text, click in the field, and re-type to search for a new value.' ) . '</p></div>';
 
+        // render the field
         echo $dropdown;
     }
 
@@ -752,16 +756,19 @@ class PLSE_Metabox {
      */
     public function render_select_single_field ( $args, $value ) {
         $option_list = $args['option_list'];
+        if ( ! $option_list ) return; // error, options weren't added by dev
         if ( is_array( $value ) ) $value = $value[0];
         $slug = sanitize_key( $args['slug'] );
         $value = esc_attr( $value );
 
+        // since option_lists come from the plugin, not validated
         $dropdown  = '<div class="plse-option-select">';
         $dropdown .= '<select title="' . $args['title'] . ' id="' . $slug . '" name="' . $slug . '" class="cpt-dropdown">' . "\n";
         $dropdown .= $this->datalists->get_select( $option_list, $value );
         $dropdown .= '</select>' . "\n";
         $dropdown .= '<p class="plse-option-select-description">' . __( 'Select one option from the list' ) . '</p></div>';
 
+        // render the field
         echo $dropdown;
     }
 
@@ -776,7 +783,7 @@ class PLSE_Metabox {
      */
     public function render_select_multiple_field ( $args, $value ) {
         $option_list = $args['option_list'];
-        if ( ! $option_list ) return; // options weren't added
+        if ( ! $option_list ) return; // error, options weren't added by dev
         $slug = sanitize_key( $args['slug'] );
 
         // if multi-select, $value is an array with a sub-array of values
@@ -793,7 +800,8 @@ class PLSE_Metabox {
     }
 
     /**
-     * Render Custom Post Type list.
+     * Render Custom Post Type list. The option_list is a list of all 
+     * Custom Post Types currently defined in WP.
      * 
      * @since    1.0.0
      * @access   public
@@ -805,7 +813,8 @@ class PLSE_Metabox {
     }
 
     /**
-     * Render Category list.
+     * Render Category list. The option_list is a list of all Categories
+     * defined for the current post type in WP.
      * 
      * @since    1.0.0
      * @access   public
@@ -851,7 +860,7 @@ class PLSE_Metabox {
         $img_thumb_class = ''; // added class if repeater fields specify images
 
         // maximum number of repeater fields allowed (adjusted if we have a datalist)
-        $max = $this->repeater_max; 
+        $max = $this->REPEATER_MAX; 
 
         // adjust table width to allow tiny thumbnail
         if( $is_image == true ) {
@@ -863,7 +872,7 @@ class PLSE_Metabox {
         }
 
         /*
-         * NOTE: $value is supposed to be an array, unlike other fields stored in DB.
+         * NOTE: $value is supposed to be an array, unlike most other fields stored in DB.
          * NOTE: a maximum number of added fields is calculated from the $option_list size, if present
          * TODO: UNIQUE-IFY the RESULTS (no duplicates)
          */
@@ -916,25 +925,49 @@ class PLSE_Metabox {
                      */
                     $count = 0;
                     if( is_array( $value ) ):
-                        
+
+                        if ( $is_image ) $tdstyle = 'width:330px;'; else $tdstyle = '';
+
                         // create fields already in the database
                         foreach( $value as $field ) { 
                             $value = esc_attr( $value );
+
                             if ( ! empty( $field ) ) {
                                 $wroteflag = true; // field saved to DB was not empty
+
+                                $err = '';
+
+                                // if we are checking URLs, check them here
+                                if ( $args['subtype'] == PLSE_INPUT_TYPES['URL'] && $this->check_urls ) { // no checks or message if field empty
+
+                                    // try connecting to the supplied URL
+                                    $result = $this->init->get_url_status( $field );
+                                    $err   = $result['err'];
+                                    $field = $result['value'];
+
+                                }
+
+                            if ( $is_image ) { // dummy row for spacing
+                                echo '<tr><td><hr></td></tr>';
+                            }
+
                             ?>
+
                             <tr>
-                                <td><input id="<?php echo $slug . $count; ?>" name="<?php echo $slug; ?>[]" type="<?php echo $type; ?>" <?php echo $list_attr; ?> class="plse-repeater-input<?php echo $img_thumb_class; ?>" value="<?php if($field != '') echo $field; ?>" size="<?php echo $size; ?>" placeholder="type in value" /></td>
-                            <td>
-                                <!-- media library button (children[0]) -->
-                                <?php
-                                    if( $is_image ) { // repeater URL is an image
-                                        echo '<input title="' . $title . '" type="button" class="button plse-media-button" data-media="'. $slug . $count . '" value="Upload Image" />';
-                                    }
-                                ?>
-                                <!-- remove button (children[1]) -->
-                                <a class="button plse-repeater-remove-row-btn" href="#1">Remove</a>
-                            </td>
+                                <td style="<?php echo $tdstyle; ?>">
+                                    <input id="<?php echo $slug . $count; ?>" name="<?php echo $slug; ?>[]" type="<?php echo $type; ?>" <?php echo $list_attr; ?> class="plse-repeater-input<?php echo $img_thumb_class; ?>" value="<?php if($field != '') echo $field; ?>" size="<?php echo $size; ?>" placeholder="type in value" />
+                                </td>
+                                <td>
+                                    <!-- media library button (children[0]) -->
+                                    <?php
+                                        if( $is_image ) { // repeater URL is an image
+                                            echo '<input title="' . $title . '" type="button" class="button plse-media-button" data-media="'. $slug . $count . '" value="Upload Image" />';
+                                        }
+                                    ?>
+                                    <!-- remove button (children[1]) -->
+                                    <a class="button plse-repeater-remove-row-btn" href="#1">Remove</a>
+                                    <?php if ( ! empty( $err ) ) echo $err; ?>
+                                </td>
                             </tr>
                         <?php 
                             }
@@ -944,15 +977,18 @@ class PLSE_Metabox {
                         if ( ! $wroteflag ):
                             ?>
                             <tr>
-                                <td><input id="<?php echo $slug . $count; ?>" name="<?php echo $slug; ?>[]" type="<?php echo $type; ?>" <?php echo $list_attr; ?> class="plse-repeater-input<?php echo $img_thumb_class; ?>" value="<?php if($field != '') echo $field; ?>" size="<?php echo $size; ?>" placeholder="type in value" /></td>
-                            <td>
-                                <?php
-                                    if( $is_image ) { // repeater URL is an image
-                                        echo '<input title="' . $title . '" type="button" class="button plse-media-button" data-media="'. $slug . $count . '" value="Upload Image" />';
-                                    }
-                                ?>
-                                <a class="button plse-repeater-remove-row-btn" href="#1">Remove</a>
-                            </td>
+                                <td>
+                                    <input id="<?php echo $slug . $count; ?>" name="<?php echo $slug; ?>[]" type="<?php echo $type; ?>" <?php echo $list_attr; ?> class="plse-repeater-input<?php echo $img_thumb_class; ?>" value="<?php if($field != '') echo $field; ?>" size="<?php echo $size; ?>" placeholder="type in value" />
+                                </td>
+                                <td>
+                                    <?php
+                                        if( $is_image ) { // repeater URL is an image
+                                            echo '<input title="' . $title . '" type="button" class="button plse-media-button" data-media="'. $slug . $count . '" value="Upload Image" />';
+                                        }
+                                    ?>
+                                    <a class="button plse-repeater-remove-row-btn" href="#1">Remove</a>
+                                    <?php if ( ! empty( $err ) ) echo $err; ?>
+                                </td>
                             </tr>
                             <?php 
                             //field below is brand-new, never had a value
@@ -969,6 +1005,7 @@ class PLSE_Metabox {
                                 }
                             ?>
                             <a class="button plse-repeater-remove-row-btn button-disabled" href="#">Remove</a>
+                            <?php if ( ! empty( $err ) ) echo $err; ?>
                         </td>
                     </tr>
                     <?php endif;
@@ -995,7 +1032,7 @@ class PLSE_Metabox {
             if ( isset( $option_list ) ) {
             echo '<p>' . __( 'Begin typing to find value, or type in your own value. Delete all text, click in the field, and re-type to search for a new value.' ) . '</p>';
             }
-            if ( $is_image ) echo __( '<p>' . __( 'Hit the tab key after entering to check if the image is valid.' ) . '</p>' );
+            if ( $is_image ) echo __( '<p>' . __( 'Previously saved URL values have their status marked. For images, hit the tab key after entering to check if a just-entered image is valid. Otherwise, update and reload the page to confirm.' ) . '</p>' );
 
         ?>
         </div>
@@ -1033,6 +1070,13 @@ class PLSE_Metabox {
             echo '<img title="' . $title . '" class="plse-upload-img-box" id="'. $slug . '-img-id" src="' . $this->init->get_default_placeholder_icon_url() . '" width="128" height="128">';
         }
 
+        // try connecting to the supplied URL, if specified in plugin options
+        if ( ! empty( $value ) && $this->check_urls ) {
+            $result = $this->init->get_url_status( $value );
+            $err   = $result['err'];
+            $value = $result['value'];
+        }
+
         echo '</div><div class="plse-meta-upload-col">';
 
         echo '<div>' . __( 'Image URL in WordPress' ) . '</div>';
@@ -1040,7 +1084,7 @@ class PLSE_Metabox {
 
         // media library button (ajax call)
         echo '<input type="text" name="' . sanitize_key( $slug ) . '" id="' . $slug . '" value="' . $value . '">';
-        echo '<input title="' . $title . '" type="button" class="button plse-media-button" data-media="'. $slug . '" value="Upload Image" />';
+        echo '<input title="' . $title . '" type="button" class="button plse-media-button" data-media="'. $slug . '" value="Upload Image" />&nbsp;';
 
         if ( ! empty( $err ) ) echo $err;
 
@@ -1049,7 +1093,12 @@ class PLSE_Metabox {
     }
 
     /**
-     * Video URL also captures a thumbnail
+     * Video URL also captures a thumbnail image.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    array     $args field parameters, select
+     * @param    string    $value    the URL of the video (YouTube or Vimeo supported)
      */
     public function render_video_field ( $args, $value ) {
 
@@ -1101,6 +1150,11 @@ class PLSE_Metabox {
 
     /**
      * Check entered data before saving.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    number    $post_id    the ID of the post
+     * @param    mixed     $post_data  post data
      */
     public function metabox_before_save ( $post_id, $post_data ) {
 
@@ -1108,11 +1162,13 @@ class PLSE_Metabox {
 
     /**
      * Save the metabox data.
+     * NOTE: errors can prevent a save, even if the UI doesn't crash. 
+     * Confirm by reloading the page, checking Web Console for 500 errors.
      * 
      * @since    1.0.0
      * @access   public
      * @param    number   $post_id    ID of current post
-     * @param    WP_Post  $post    the current post
+     * @param    WP_Post  $post       the current post
      */
     public function metabox_save ( $post_id, $post ) {
 
@@ -1258,6 +1314,9 @@ class PLSE_Metabox {
 
     /**
      * Do something after metabox data is saved.
+     * 
+     * @since    1.0.0
+     * @access   public
      */
     public function metabox_after_save () {
 
@@ -1276,7 +1335,7 @@ class PLSE_Metabox {
      * @param     number     $duration    the duration of the transient, default to 5 seconds
      */
     public function metabox_store_transient ( $err_msg, $duration = 5 ) {
-        set_transient( $this->schema_transient . get_current_user_id(), $err_msg, $duration );
+        set_transient( $this->schema_transient_name . get_current_user_id(), $err_msg, $duration );
     }
 
     /**
@@ -1287,22 +1346,27 @@ class PLSE_Metabox {
      * 
      * @since     1.0.0
      * @access    public
+     * @return    string    the string stored in the transient
      */
     public function metabox_read_transient () {
-        return get_transient( $this->schema_transient );
+        return get_transient( $this->schema_transient_name );
     }
 
     /**
      * Display errors.
      * 
-     * TODO:
-     * TODO:
-     * THIS IS NOT WORKING. IF you try a do_action('admin_init'), the error renders 
+     * NOTE: THIS IS NOT WORKING. 
+     * If you try a do_action('admin_init'), the error renders 
      * BEFORE WP begins creating the pages
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    string    $notice_type   defined notice type, status, warning, error
+     * @param    string    $err_msg       error message
      */
     public function metabox_show_errors ( $notice_type, $err_msg ) {
 
-        $stored_err_msg = get_transient( $this->schema_transient );
+        $stored_err_msg = $this->metabox_read_transient();
         if( $stored_error_msg ) {
             $err_msg = $stored_err_msg;
         }

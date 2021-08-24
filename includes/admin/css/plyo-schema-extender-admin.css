@@ -91,6 +91,15 @@
   background-color: #f9f9f9;
 }
 
+.plse-options-msg {
+    display:inline-block;
+    padding: 0 3px 2px 3px;
+    margin-left: 4px;
+    border-radius: 4px;
+    font-variant-caps: small-caps;
+    background-color: rgb(238, 238, 238);
+}
+
 /*
  * BOX WITH OPTIONS
  */

@@ -115,6 +115,11 @@ if ( ! defined( 'YOAST_MENU_SLUG' ) ) {
     define( 'YOAST_MENU_SLUG', 'wpseo_dashboard' );
 }
 
+// this option is defined if Yoast Local SEO is installed
+if ( ! defined( 'YOAST_LOCAL_SEO_SLUG' ) ) {
+    define( 'YOAST_LOCAL_SEO_SLUG', 'wpseo_local' );
+}
+
 /**
  * --------------------------------------------------------------------------
  * SLUG CONSTANTS
@@ -270,6 +275,8 @@ if ( ! defined( 'PLSE_CAT_SLUG' ) ) {
 // TODO: VALIDATION FOR ALL METABOX FIELDS
 // TODO: SANITIZE FOR ALL METABOX FIELDS
 // TODO: PRIVATE ERRORS TO PLUGIN SETTINGS FROM RENDER, METABOX
+
+// TODO: $check_xxxx for checking get_option('slug') outside of PLSE_Options
 //
 // TODO: convert $args to $field
 // AUDIT: string constants
