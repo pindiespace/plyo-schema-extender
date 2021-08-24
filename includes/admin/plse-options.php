@@ -368,8 +368,8 @@ class PLSE_Options {
             echo '<div class="plse-options-col">' . $this->init->get_logo() . '</div>';
             echo '<div class="plse-options-col plse-options-valign">';
             echo '<h2 class="plse-options-h2">' . PLSE_SCHEMA_EXTENDER_NAME . '</h2>'; 
-                echo '<p>' . PLSE_SCHEMA_OPTIONS_DESCRIPTION . '</p>';
-                echo '</div>';
+            echo '<p class="plse-options-description">' . PLSE_SCHEMA_OPTIONS_DESCRIPTION . '</p>';
+            echo '</div>';
             echo '</div>' . "\n";
 
 

@@ -83,6 +83,10 @@
     margin-bottom:0.6em;
 }
 
+.plse-options-description {
+    margin-right:28px;
+}
+
 /* paragraphs within a colum */
 .plse-options-col p {
   margin-top:0;
@@ -283,6 +287,7 @@
   .plse-tab-nav ul li a {
     display: block;
     position: relative;
+    box-shadow: none!important; /* this seems to be coming from somewhere else */
     margin-right: -1rem;
     padding: 0.3rem 4rem;
     text-decoration: none !important;
@@ -311,6 +316,7 @@
     left: 0;
     right: 0;
     background: #ccc;
+    border:0;
     border: 1px solid rgba(0, 0, 0, 0.2);
     border-bottom: none;
     border-radius: 5px 5px 0 0;
@@ -373,6 +379,7 @@
     border-radius: 5px;
     border: 1px solid #aaa;
     box-shadow: 2px 2px 6px #aaa;
+    margin-right:20px; /* consistency with other plugin UI */
 }
 
 #content-tabs .content-tab.open {

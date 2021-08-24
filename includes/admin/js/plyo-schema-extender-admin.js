@@ -35,6 +35,8 @@
                 // get the tab panel
                 var contentTab = $(this).attr('href');
 
+                ////////////////////this.style.boxShadow =  '0px 0px';
+
                 //tabs btn
                 tabs.removeClass('open');
                 $(this).addClass('open');
@@ -370,7 +372,6 @@
         });
 
         // fire this once,for all thumbnails on load
-        //$("input[name*='_thumbnail_url'").trigger('blur');
         $(".plse-repeater-input.plse-repeater-url-is-image").trigger('blur');
 
 
