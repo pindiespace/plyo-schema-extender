@@ -29,6 +29,7 @@
 /* detail message when an input field is invalid, but not necessarily empty */
 .plse-input-msg {
     display:inline-block;
+    max-width: 285px;
     padding: 0 3px 2px 3px;
     border-radius: 4px;
     font-variant-caps: small-caps;
@@ -84,13 +85,13 @@
 }
 
 .plse-options-description {
-    margin-right:28px;
+    margin-right:20px;
 }
 
 /* paragraphs within a colum */
 .plse-options-col p {
   margin-top:0;
-  border-radius: 4px;
+  border-radius: 6px;
   padding:0.7em;
   background-color: #f9f9f9;
 }
@@ -141,14 +142,20 @@
     background-color: #efefef;
 }
 
+
 /* formats multi-select scrollboxes */
 .plse-option-select {
-    width: 100%;
+    /* width: 100%; */
+}
+
+.plse-option-select label {
+    display: block;
 }
 
 .plse-option-select-description {
     display:inline-block;
-    padding: 2px 4px 2px 2px;
+    margin:0 4px 0 0!important;
+    padding:2px!important;
     border-radius: 0 6px 6px 0;
     background-color: #eee;
 }
@@ -157,13 +164,17 @@
     display:inline-block;
 }
 
-.plse-options-datalist {
+.plse-option-datalist {
     height: 50px;
-    display: flex;
-    align-items: center
+    /* display: flex;
+    align-items: center; */
 }
 
-.plse-options-datalist p {
+.plse-option-datalist label { /* NOT WORKING!!!!! */
+    display:block;
+}
+
+.plse-option-datalist p {
     margin-left:6px;
 }
 
@@ -243,20 +254,29 @@
     background-color: rgb(230, 230, 230);
 }
 
+.plse-option-ctl-highlight label {
+    display: block;
+}
+
 /* range element */
 .plse-slider-input {
     width:400px;
 }
 
 /* image column in the Image control */
-.plse-meta-image-col {
+.plse-input-image-col {
     display:inline-block;
     text-align: center;
     vertical-align: middle;
 }
 
+.plse-input-image-col img {
+    max-width:80%;
+    height:auto;
+}
+
 /* upload button column in the Image control */
-.plse-meta-upload-col {
+.plse-input-upload-col {
     display: inline-block;
     text-align: left;
     vertical-align: middle;

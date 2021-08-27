@@ -167,7 +167,62 @@ class PLSE_Datalists {
         'zu' => 'Zulu - isiZulu'
     );
 
+    private $us_states = array(
+        'AL' => 'Alabama',
+        'AK' => 'Alaska',
+        'AZ' => 'Arizona',
+        'AR' => 'Arkansas',
+        'CA' => 'California',
+        'CO' => 'Colorado',
+        'CT' => 'Connecticut',
+        'DE' => 'Delaware',
+        'DC' => 'District Of Columbia',
+        'FL' => 'Florida',
+        'GA' => 'Georgia',
+        'HI' => 'Hawaii',
+        'ID' => 'Idaho',
+        'IL' => 'Illinois',
+        'IN' => 'Indiana',
+        'IA' => 'Iowa',
+        'KS' => 'Kansas',
+        'KY' => 'Kentucky',
+        'LA' => 'Louisiana',
+        'ME' => 'Maine',
+        'MD' => 'Maryland',
+        'MA' => 'Massachusetts',
+        'MI' => 'Michigan',
+        'MN' => 'Minnesota',
+        'MS' => 'Mississippi',
+        'MO' => 'Missouri',
+        'MT' => 'Montana',
+        'NE' => 'Nebraska',
+        'NV' => 'Nevada',
+        'NH' => 'New Hampshire',
+        'NJ' => 'New Jersey',
+        'NM' => 'New Mexico',
+        'NY' => 'New York',
+        'NC' => 'North Carolina',
+        'ND' => 'North Dakota',
+        'OH' => 'Ohio',
+        'OK' => 'Oklahoma',
+        'OR' => 'Oregon',
+        'PA' => 'Pennsylvania',
+        'RI' => 'Rhode Island',
+        'SC' => 'South Carolina',
+        'SD' => 'South Dakota',
+        'TN' => 'Tennessee',
+        'TX' => 'Texas',
+        'UT' => 'Utah',
+        'VT' => 'Vermont',
+        'VA' => 'Virginia',
+        'WA' => 'Washington',
+        'WV' => 'West Virginia',
+        'WI' => 'Wisconsin',
+        'WY' => 'Wyoming'
+    );
+
     private $countries = array(
+        'US' => 'United States',
         'AF' => 'Afghanistan',
         'AX' => 'Aland Islands',
         'AL' => 'Albania',
@@ -406,7 +461,6 @@ class PLSE_Datalists {
         'UA' => 'Ukraine',
         'AE' => 'United Arab Emirates',
         'GB' => 'United Kingdom',
-        'US' => 'United States',
         'UM' => 'United States Minor Outlying Islands',
         'UY' => 'Uruguay',
         'UZ' => 'Uzbekistan',
@@ -482,7 +536,7 @@ class PLSE_Datalists {
         'xbox360' => 'XBox 360',
         'xbox one' => 'XBox One',
         'playstation' => 'PlayStation',
-        'plastation' => 'Playstation 3',
+        'playstation' => 'Playstation 3',
         'playstation 4' => 'Playstation 4',
         'playstation 5' => 'Playstation 5',
         'nintendo wii' => 'Nintendo Wii',
@@ -506,30 +560,30 @@ class PLSE_Datalists {
      * {@link https://developers.google.com/search/docs/advanced/structured-data/software-app}
      */
     private $application_category = array(
-        'GameApplication' => 'GameApplication',
-        'MobileApplication' => 'MobileApplication',
-        'WebApplication' => 'WebApplication',
-        'SocialNetworkingApplication' => 'SocialNetworkingApplication',
-        'TravelApplication' => 'TavelApplication',
-        'ShoppingApplication' => 'ShoppingApplication',
-        'SportsApplication' => 'SportsApplication',
-        'LifestyleApplication' => 'LifestyleApplication',
-        'BusinessApplication' => 'BusinessApplication',
-        'DesignApplication' => 'DesignApplication',
-        'DeveloperApplication' => 'DeveloperApplication',
-        'DriverApplication' => 'DriverApplication',
-        'EducationalApplication' => 'EducationalApplication',
-        'HealthApplication' => 'HealthApplication',
-        'FinanceApplication' => 'FinanceApplication',
-        'SecurityApplication' => 'SecurityApplication',
-        'BrowserApplication' => 'BrowserApplication',
-        'CommunicationApplication' => 'CommunicationApplication',
-        'DesktopEnhancementApplication' => 'DesktopEnhancementApplication',
-        'EntertainmentApplication' => 'EntertainmentApplication',
-        'MultimediaApplication' => 'MultimediaApplication',
-        'HomeApplication' => 'HomeApplication',
-        'UtilitiesApplication' => 'UtilitiesApplication',
-        'ReferenceApplication' => 'ReferenceApplication',
+        'GameApplication' => 'Game',
+        'MobileApplication' => 'Mobile App',
+        'WebApplication' => 'Web App',
+        'SocialNetworkingApplication' => 'Social Networking',
+        'TravelApplication' => 'Travel',
+        'ShoppingApplication' => 'Online Shopping',
+        'SportsApplication' => 'Sports',
+        'LifestyleApplication' => 'Lifestyle',
+        'BusinessApplication' => 'Business',
+        'DesignApplication' => 'Design Tool',
+        'DeveloperApplication' => 'Developer Tool',
+        'DriverApplication' => 'System Driver',
+        'EducationalApplication' => 'Educational',
+        'HealthApplication' => 'Healthcare',
+        'FinanceApplication' => 'Finance',
+        'SecurityApplication' => 'Security',
+        'BrowserApplication' => 'Browser',
+        'CommunicationApplication' => 'Communication',
+        'DesktopEnhancementApplication' => 'Desktop Utility',
+        'EntertainmentApplication' => 'Entertainment',
+        'MultimediaApplication' => 'Multimedia',
+        'HomeApplication' => 'Home',
+        'UtilitiesApplication' => 'Utilities',
+        'ReferenceApplication' => 'Reference',
     );
 
     private $service_genres = array(
@@ -604,7 +658,7 @@ class PLSE_Datalists {
      * Enable the singleton pattern.
      * @since    1.0.0
      * @access   public
-     * @return   PLSE_Metabox_Datalists    $self__instance
+     * @return   PLSE_Datalists    $self__instance
      */
     public static function getInstance () {
         if ( is_null( self::$__instance ) ) {
@@ -633,15 +687,31 @@ class PLSE_Datalists {
         return null;
     }
 
-    public function get_rev_arr ( $array_slug ) {
-        if ( isset( $this->{ $array_slug } ) ) {
-            $arr = array();
-            foreach ( $this->{ $array_slug } as $key => $val ) {
-                $arr[$val] = $key;
+    /**
+     * Reverse an array.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    array|string    either an array, or slug to find an array in this class
+     * @return   array|null      array with keys and values reversed
+     */
+    public function get_rev_arr ( $arr ) {
+
+        if ( isset ( $arr ) ) {
+
+            if ( is_array( $arr ) ) {
+                
+                return array_flip( $arr );
+
+            } else if ( is_string( $arr ) ) {
+
+                return array_flip( $this->{ $arr } );
+
             }
-            return $arr;
+
         }
         return null;
+
     }
 
      /**
@@ -649,7 +719,7 @@ class PLSE_Datalists {
       * 
       * @since    1.0.0
       * @access   public
-      * @param    array     $arr    an associative array
+      * @param    array     $arr    an associative array stored $value => $key
       * @param    string    $id     id to associated with text field
       * @return   string    $list   the complete datalist element
       */
@@ -667,34 +737,60 @@ class PLSE_Datalists {
       * 
       * @since    1.0.0
       * @access   public
-      * @param    array|string    $arr    either the name of a standard array, or a custom array to use
-      * @param    array|string    $selected    either the value that is selected, or an array of selected values
-      * @return   string    $list the <option... list (not the complete <select> control)
+      * @param    array|string    $arr       either the name of a standard $value => $key array in PLSE_Datalists, or a custom array $key => $value array to use
+      * @param    array|string    $selected  the value(s) in the DB, single or array
+      * @param    boolean         $reverse   if true, reverse keys and values (need to use datalist arrays in <select>)
+      * @return   string          $list      the <option... list (not the complete <select> control)
       */
-     public function get_select ( $arr, $selected = '' ) {
+     public function get_select ( $arr, $selected = '', $reverse = false ) {
 
         // if string is passed for array options, use PHP $$ 'variable variable' to convert string to local array name
-        if ( ! is_array( $arr ) ) { 
-            $arr = $this->{$arr}; // $arr is the name of standard array
+        if ( ! is_array( $arr ) ) {
+            $arr = $this->{$arr}; // $arr is the name of a standard array in this class
+            if ( ! is_array( $arr ) ) {
+                echo "ERROR - supplied datalist string does not correspond to array in PLSE_Datalists";
+                return null;
+            }
+
         }
+
+        $list = '';
 
         // loop through options, assigning selected values
         foreach ( $arr as $key => $value ) {
+
             $sel_value = '';
-            if ( is_array( $selected) ) { // multi select, array of selected options
+
+            // if we are using a datalist (rather than supplied array), swap the variables
+            if ( $reverse === true ) {
+                $tmp = $key;
+                $key = $value;
+                $value = $tmp;
+            }
+
+            // determine if $selected is one value, or an array
+            if ( is_array( $selected ) ) { 
+
+                // multi select, array of selected options in DB
                 foreach( $selected as $sel ) {
-                    if ( $key == $sel) {
+                    if ( $value == $sel) {
                         $sel_value = 'selected';
                     }
                 }
-            } else if ( $key == $selected ) { // single select, one string matching one of the options
+
+            } else if ( $value == $selected ) { 
+
+                // one string matching one of the options in DB
                 $sel_value = 'selected';
+
             }
-            $list .= '<option value="' . $key . '" ' . $sel_value . '>' . $value . '</option>';
+
+            $list .= '<option value="' . $value . '" ' . $sel_value . '>' . $key . '</option>';
+
         }
 
         return $list;
-     }
+    }
 
     /**
      * ---------------------------------------------------------------------
@@ -717,8 +813,33 @@ class PLSE_Datalists {
         return $this->get_datalist( $this->languages, $id );
     }
 
+    public function get_languages_select ( $value = '' ) {
+        return $this->get_select( $this->languages, $value, true );
+    }
+
     public function get_languages_size () {
         return count( $this->languages );
+    }
+
+    /**
+     * Provide a list of USA state fields. Users type in 
+     * values to progressively select the correct value
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @return   string    HTML for a <datalist>
+     */
+    public function get_us_states_datalist ( $id = '' ) {
+        if ( ! $id ) $id = 'plse-us-states-data';
+        return $this->get_datalist( $this->us_states, $id );
+    }
+
+    public function get_us_states_select ( $value = '' ) {
+        return $this->get_select( $this->us_states, $value, true );
+    }
+
+    public function get_us_states_size () {
+        return count( $this->us_states );
     }
 
     /**
@@ -734,8 +855,8 @@ class PLSE_Datalists {
         return $this->get_datalist( $this->countries, $id );
     }
 
-    public function get_countries_select () {
-        return $this->get_select( $this->countries );
+    public function get_countries_select ( $value = '' ) {
+        return $this->get_select( $this->countries, $value, true );
     }
 
     public function get_countries_size () {
@@ -754,8 +875,8 @@ class PLSE_Datalists {
         return $this->get_datalist( $this->game_genres, $id );
     }
 
-    public function get_game_genres_select () {
-        return $this->get_select( $this->game_genres );
+    public function get_game_genres_select ( $value = '' ) {
+        return $this->get_select( $this->game_genres, $value, true );
     }
 
     public function get_game_genres_size () {
@@ -774,8 +895,8 @@ class PLSE_Datalists {
         return $this->get_datalist( $this->platforms, $id );
     }
 
-    public function get_platforms_select () {
-        return $this->get_select( $this->platforms );
+    public function get_platforms_select ( $value = '' ) {
+        return $this->get_select( $this->platforms, $value, true );
     }
 
     public function get_platforms_size () {
@@ -794,8 +915,8 @@ class PLSE_Datalists {
         return $this->get_datalist( $this->os, $id );
     }
 
-    public function get_os_select () {
-        return $this->get_select( $this->os );
+    public function get_os_select ( $value = '' ) {
+        return $this->get_select( $this->os, $value, true );
     }
 
     public function get_os_size () {
@@ -814,8 +935,8 @@ class PLSE_Datalists {
         return $this->get_datalist( $this->application_category, $id );
     }
 
-    public function get_application_category_select () {
-        return $this->get_select( $this->application_category );
+    public function get_application_category_select ( $value = '' ) {
+        return $this->get_select( $this->application_category, $value, true );
     }
 
     public function get_application_category_size () {
@@ -834,8 +955,8 @@ class PLSE_Datalists {
         return $this->get_datalist( $this->service_genres, $id );
     }
 
-    public function get_service_genres_select () {
-        return $this->get_select( $this->service_genres );
+    public function get_service_genres_select ( $value = '' ) {
+        return $this->get_select( $this->service_genres, $value, true );
     }
 
     public function get_service_genres_size () {

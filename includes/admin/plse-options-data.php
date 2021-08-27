@@ -139,6 +139,9 @@ class PLSE_Options_Data {
      * |- select_multiple = if true, multiple options selected from a list
      * |- option_list     = either an array of values, or a string specifying a datalist in PLSE_Datalists
      * |- is_image        = for url fields, if the value is an image, show a thumbnail
+     * |- slug_dependent  = slug for another option field to set control value
+     * |- msg_disabled    = message to show next to disabled control
+     * |- msg_enabled     = message to show next to enabled control
      * 
      * @since    1.0.0
      * @access   private
@@ -185,7 +188,7 @@ class PLSE_Options_Data {
                     'type'   => PLSE_INPUT_TYPES['BUTTON'],
                     'label' => 'Copy SEO values',
                     'title' => 'Copy Yoast Local SEO Data',
-                    'slug_dependent' => YOAST_LOCAL_SEO_SLUG, // Yoast Local SEO slug
+                    'slug_dependent' => YOAST_LOCAL_SEO_SLUG, // Yoast Local SEO slug, if installed
                     'msg_enabled' => 'Click to copy',
                     'msg_disabled' => 'Yoast Local SEO plugin not present'
                 ),
@@ -199,7 +202,7 @@ class PLSE_Options_Data {
                     'title' => 'Yoast Local SEO values',
                     'slug_dependent' => WPSEO_VERSION, // Yoast is present, a constant
                     'msg_enabled' => 'Check to use',
-                    'msg_disabled' => 'Yoast Local SEO plugin not present'
+                    'msg_disabled' => 'Yoast plugin not present'
                 ),
 
                 //'local_post_control' => array(
@@ -318,7 +321,9 @@ class PLSE_Options_Data {
                 'country' => array(
                     'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_ADDRESS . '-country-field',
                     'description'  => 'Organization Country (uses Yoast Local SEO if present)',
-                    'type'   => PLSE_INPUT_TYPES['TEXT'],
+                    //'type'   => PLSE_INPUT_TYPES['TEXT'],
+                    'type'   => PLSE_INPUT_TYPES['SELECT_SINGLE'],
+                    'option_list' => 'countries',
                     'label'  => 'Full name or abbreviation',
                     'title'  => 'Full name of country is best for Schema',
                     'yoast_slug'  => 'location_country'
@@ -366,32 +371,56 @@ class PLSE_Options_Data {
                     'title'  => 'Clicking one of the listed categories will add the Schema to all posts using the category',
                 ),
 
-/////////////////////////////////////
-/*
-                // service subtype
-                'service_subtype' => array(
-                    'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-subtype-field',
-                    'description'  => 'Default Service Business SubType',
-                    'type'   => PLSE_INPUT_TYPES['SELECT_SINGLE'],
-                    'label' => 'Descriptive type',
-                    'title' => 'Enter a specific service type',
-                    'option_list' => 'countries',
-                    //'option_list' => array(
-                    //    'PHIL' => 'phil',
-                    //    'BOB' => 'bob'
-                    //)
-                ),
-*/
-//////////////////////////////////////
-
                 // service type
                 'service_type' => array(
                     'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-type-field',
-                    'description'  => 'Default Service Business Type',
-                    'type'   => PLSE_INPUT_TYPES['DATALIST'],
-                    'option_list' => 'service_genres', // kernel of function name in PLSE_Datalist
                     'label' => 'Descriptive type',
+                    'type'   => PLSE_INPUT_TYPES['DATALIST'],
+                    'subtype' => PLSE_INPUT_TYPES['TEXT'],
+                    'description'  => 'Default Service Business Type',
+                    'option_list' => 'service_genres', // kernel of function name in PLSE_Datalist
                     'title' => 'Enter a specific service type',
+                ),
+
+                'service_addtl_images' => array(
+                    'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_SERVICE . '-additional-images',
+                    'label' => 'Additional images of the service',
+                    'title' => 'Add one or more images of the service',
+                    'type' => PLSE_INPUT_TYPES['REPEATER'],
+                    'subtype' => PLSE_INPUT_TYPES['URL'],
+                    'required' => '',
+                    'wp_data' => 'post_meta',
+                    'is_image' => true // for repeater fields
+                ),
+
+                'service_description' => array(
+                    'slug' => PLSE_OPTIONS_SLUG . '-' . PLSE_SCHEMA_SERVICE . '-description',
+                    'label' => 'Service Description',
+                    'type' => PLSE_INPUT_TYPES['TEXTAREA'],
+                    'description' => 'Detailed Description of Service',
+                    'title' => 'More detailed descritpion of the service',
+                ),
+
+                'service_length' => array(
+                    'slug' => PLSE_OPTIONS_SLUG . '-' . PLSE_SCHEMA_SERVICE . '-service-length',
+                    'label' => 'Length of Service',
+                    'type'  => PLSE_INPUT_TYPES['DURATION'],
+                    'description' => 'Start of the service',
+                    'title' => 'Start of Service',
+                    'max' => '10800', // 3 hours, in seconds
+                ),
+
+                'service_focus' => array(
+                    'slug' => PLSE_OPTIONS_SLUG . '-' . PLSE_SCHEMA_SERVICE . '-service_focus',
+                    'label' => 'Service Focus',
+                    'type' => PLSE_INPUT_TYPES['SELECT_SINGLE'],
+                    'description' => 'Most important of the services',
+                    'title' => 'Service Focus',
+                    'option_list' => array(
+                        'PHILKEY' => 'phil', // stores 'phil', displays 'PHIL'
+                        'BOBKEY' => 'bob',
+                        'KRESLKEY' => 'kresl'
+                    ),
                 ),
 
                 'logo' => array(
@@ -511,7 +540,7 @@ class PLSE_Options_Data {
      * Enable the singleton pattern.
      * @since    1.0.0
      * @access   public
-     * @return   PLSE_Base    $self__instance
+     * @return   PLSE_Options_Data    $self__instance
      */
     public static function getInstance () {
         if ( is_null( self::$__instance ) ) {

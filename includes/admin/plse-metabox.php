@@ -23,6 +23,42 @@ class PLSE_Metabox {
     static private $__instance = null;
 
     /**
+     * PLSE_Init class instance.
+     * 
+     * @since    1.0.0
+     * @access   private
+     * @var      PLSE_Init    $init    the PLSE_Init class
+     */
+    private $init = null;
+
+    /**
+     * shared field definitions, Schema data is loaded separately
+     * 
+     * @since    1.0.0
+     * @access   private
+     * @var      PLSE_Options_Data    $options_data    the PLSE_Options_Data class
+     */
+    private $options_data = null;
+
+    /**
+     * datalists, e.g. country name lists
+     * 
+     * @since    1.0.0
+     * @access   private
+     * @var      PLSE_Datalists    $datalists    the PLSE_Datalists class
+     */
+    private $datalists = null;
+
+    /**
+     * Store reference to shared PLSE_Init class.
+     *
+     * @since    1.0.0
+     * @access   private
+     * @var      PLSE_Fields    $fields    the PLSE_Init class.
+     */
+    private $fields = null;
+
+    /**
      * name of JS variable holding relevant PHP variables passed from this class by PLSE_Init.
      * 
      * @since    1.0.0
@@ -90,6 +126,9 @@ class PLSE_Metabox {
         // datalists, e.g. country name lists
         $this->datalists = PLSE_Datalists::getInstance();
 
+        // field rendering
+        $this->fields = PLSE_Fields::getInstance();
+
         // initialze metaboxes assigned by plugin options
         add_action( 'admin_init', [ $this, 'setup' ] );
 
@@ -99,7 +138,7 @@ class PLSE_Metabox {
      * Enable the singleton pattern.
      * @since    1.0.0
      * @access   public
-     * @return   PLSE_Base    $self__instance
+     * @return   PLSE_Metabox    $self__instance
      */
     public static function getInstance () {
         if ( is_null( self::$__instance ) ) {
@@ -145,7 +184,7 @@ class PLSE_Metabox {
 
         wp_enqueue_script( PLSE_SCHEMA_EXTENDER_SLUG, $url . $this->plse_admin_js, array('jquery'), null, true );
 
-        // use PLSE_Options to inject variables into JS specifically for PLSE_Meta media library button clicks 
+        // use PLSE_Options to inject variables into JS specifically for PLSE_Meta Media library button clicks 
         $this->init->load_js_passthrough_script( 
             $script_label,
             $this->meta_js_name,
@@ -415,6 +454,9 @@ class PLSE_Metabox {
             // use dynamic method to fire the rendering function for the field
             $render_method = 'render_' . $field['type'] . '_field';
 
+            // add the value to the field description (allows options and metabox to use same rendering functions)
+            $field['value'] = $value;
+
             if ( method_exists( $this, $render_method ) ) { 
                 $this->$render_method( $field, $value ); 
             }
@@ -442,13 +484,13 @@ class PLSE_Metabox {
      * 
      * @since    1.0.0
      * @access   public
-     * @param    array     $args     arguments needed to render the field
+     * @param    array     $field     arguments needed to render the field
      * @param    string    $value    serialized or unserialized field value
      */
-    public function render_hidden_field ( $args, $value ) {
-        $value = sanitize_text_field( $value );
+    public function render_hidden_field ( $field ) {
+        $value = esc_attr( sanitize_text_field( $field['value'] ) );
         // render the field
-        echo '<input type="hidden" id="' . sanitize_key( $args['slug'] ) . '" name="' . sanitize_key( $args['slug'] ) .'" value="' . esc_attr( $value ) . '" />';
+        echo '<input type="hidden" id="' . sanitize_key( $field['slug'] ) . '" name="' . sanitize_key( $field['slug'] ) .'" value="' . $value . '" />';
     }
 
     /**
@@ -457,22 +499,13 @@ class PLSE_Metabox {
      * 
      * @since    1.0.0
      * @access   public
-     * @param    array    $args    arguments neeeded to render the field
+     * @param    array    $field    arguments neeeded to render the field
      * @param    string   $value   serialized or unserialized field value
      * @param    string   $err     error message, formated in HTML error style
      */
-    public function render_simple_field ( $args, $value, $err = '' ) {
-        $slug = sanitize_key( $args['slug'] );
-
-        // if it's an array, flatten it
-        if ( is_array( $value ) ) $value = $value[0];
-        $value = esc_attr( $value );
-        $type = $args['type'];
-        if ( $args['class'] ) $class = $args['class']; else $class = '';
-        if ( $args['size'] ) $size = $args['size']; else $size = '40';
-
-        // render the field
-        echo '<input title="' . $args['title'] . '" type="' . $type . '" class="' . $class . '" id="' . $slug . '" name="' . $slug .'" size="' . $size . '" value="' . $value . '" />';
+    public function render_simple_field ( $field, $err = '' ) {
+        $err = '';
+        $this->fields->render_simple_field( $field );
         if ( ! empty( $err ) ) echo $err;
     }
 
@@ -481,12 +514,11 @@ class PLSE_Metabox {
      * 
      * @since    1.0.0
      * @access   public
-     * @param    array     $args arguments needed to render the field
+     * @param    array     $field arguments needed to render the field
      * @param    string    $value    field value
      */
-    public function render_text_field ( $args, $value ) {
-        $err = '';
-        return $this->render_simple_field( $args, $value, $err );
+    public function render_text_field ( $field ) {
+        $this->render_simple_field( $field );
     }
 
     /**
@@ -494,15 +526,16 @@ class PLSE_Metabox {
      * 
      * @since    1.0.0
      * @access   public
-     * @param    array    $args field parameters, select
+     * @param    array    $field field parameters, select
      * @param    string   $value    the field value
      */
-    public function render_postal_field ( $args, $value ) {
+    public function render_postal_field ( $field ) {
+        $value = field['value'];
         $err = '';
         if ( ! empty( $value ) && ! $this->init->is_postal( $value ) ) {
-            $err = $this->init->add_status_to_field( __( 'this is not a valid postal code' ) );
+            $err = $this->fields->add_status_to_field( __( 'this is not a valid postal code' ) );
         }
-        return $this->render_simple_field( $args, $value, $err );
+        $this->render_simple_field( $field, $err );
     }
 
     /**
@@ -510,15 +543,16 @@ class PLSE_Metabox {
      * 
      * @since    1.0.0
      * @access   public
-     * @param    array    $args field parameters, select
+     * @param    array    $field field parameters, select
      * @param    string   $value the field value
      */
-    public function render_tel_field ( $args, $value ) {
+    public function render_tel_field ( $field ) {
+        $value = $field['value'];
         $err = '';
         if ( ! empty( $value ) && ! $this->init->is_phone( $value ) ) {
-            $err = $this->init->add_status_to_field( __( 'this is not a valid phone number' ) );
+            $err = $this->fields->add_status_to_field( __( 'this is not a valid phone number' ) );
         }
-        return $this->render_simple_field( $args, $value, $err );
+        $this->render_simple_field( $field, $err );
     }
 
     /**
@@ -526,15 +560,16 @@ class PLSE_Metabox {
      * 
      * @since    1.0.0
      * @access   public
-     * @param    array    $args field parameters, select
+     * @param    array    $field field parameters, select
      * @param    string   $value    the field value
      */
-    public function render_email_field ( $args, $value ) {
+    public function render_email_field ( $field ) {
+        $value = $field['value'];
         $err = '';
         if ( ! empty( $value ) && ! $this->init->is_email( $value ) ) {
-            $err = $this->init->add_status_to_field( __( 'this is not a valid email' ) );
+            $err = $this->fields->add_status_to_field( __( 'this is not a valid email' ) );
         }
-        return $this->render_simple_field( $args, $value, $err );
+        $this->render_simple_field( $field, $err );
     }
 
     /**
@@ -542,21 +577,23 @@ class PLSE_Metabox {
      * 
      * @since    1.0.0
      * @access   public
-     * @param    array    $args     field parameters, select
+     * @param    array    $field     field parameters, select
      * @param    string   $value    the field value
      */
-    public function render_url_field ( $args, $value ) {
+    public function render_url_field ( $field ) {
+        $value = $field['value'];
         $err = ''; 
 
         // validate - if specified by plugin options $check_urls then try to access the URL
         if ( ! empty( $value ) && $this->check_urls ) { // no checks or message if field empty
+            // check error, render status
             $result = $this->init->get_url_status( $value );
-            $err   = $result['err'];
+            $err   = $this->fields->add_status_to_field( $result['err'], $result['class'] );
             $value = $result['value'];
         }
 
         // render the URL field, with warnings or errors added
-        $this->render_simple_field( $args, $value, $err );
+        $this->render_simple_field( $field, $err );
 
     }
 
@@ -565,21 +602,12 @@ class PLSE_Metabox {
      * 
      * @since    1.0.0
      * @access   public
-     * @param    array    $args field parameters, select
+     * @param    array    $field field parameters, select
      * @param    string   $value    the field value
      */
-    public function render_textarea_field ( $args, $value ) {
+    public function render_textarea_field ( $field ) {
         $err = '';
-        $slug = sanitize_key( $args['slug'] );
-        if ( is_array( $value ) ) $value = $value[0];
-        $value = esc_html( $value );
-        if ( isset( $args['rows'] ) ) $rows = $args['rows']; else $rows = '5';
-        if ( isset( $args['cols'] ) ) $cols = $args['cols']; else $cols = '60';
-
-        // no special validation for textarea fields
-
-        // render the field
-        echo '<textarea title="' . $args['title'] . '" id="' . $slug . '" name="' . $slug .'" rows="' . $rows . '" cols="' . $cols . '">' . $value . '</textarea>';
+        $value = $this->fields->render_textarea_field ( $field );
         if ( ! empty( $err ) ) echo $err;
     }
 
@@ -590,22 +618,18 @@ class PLSE_Metabox {
      * 
      * @since    1.0.0
      * @access   public
-     * @param    array    $args field parameters, select
+     * @param    array    $field field parameters, select
      * @param    string   $value    the field value, with correct date format YYYY-MM-DD
      */
-    public function render_date_field ( $args, $value ) {
+    public function render_date_field ( $field ) {
+
         $err = '';
-        $slug = sanitize_key( $args['slug'] );
-        if ( is_array( $value ) ) $value = $value[0];
-        $value = esc_attr( $value );
+        $value = $this->fields->render_date_field ( $field );
 
         // validate the date
         if ( ! $this->init->is_date( $value ) ) {
-            $err = $this->init->add_status_to_field( __( 'invalid date') );
+            $err = $this->fields->add_status_to_field( __( 'invalid date') );
         }
-
-        // render the date field
-        echo '<input title="' . $args['title'] . '" id="' . $slug . '" type="date" name="' . $slug . '" value="' . $value . '">';
         if ( ! empty( $err ) ) echo $err;
     }
 
@@ -614,22 +638,18 @@ class PLSE_Metabox {
      * 
      * @since    1.0.0
      * @access   public
-     * @param    array    $args     field parameters, select
+     * @param    array    $field     field parameters, select
      * @param    string   $value    the field value, formatted HH:MM:AM/PM
      */
-    public function render_time_field ( $args, $value ) {
+    public function render_time_field ( $field ) {
+
         $err = '';
-        $slug = sanitize_key( $args['slug'] );
-        if ( is_array( $value ) ) $value = $value[0];
-        $value = esc_attr( $value );
+        $value = $this->fields->render_time_field ( $field );
 
-        // validate time
+        // validate the date
         if ( ! $this->init->is_time( $value ) ) {
-            $err = $this->init->add_status_to_field( __( 'invalid time') );
+            $err = $this->fields->add_status_to_field( __( 'invalid time') );
         }
-
-        // render the field
-        echo '<input title="' . $args['title'] . '" id="' . $slug . '" type="time" name="' . $slug . '" value="' . $value . '">';
         if ( ! empty( $err ) ) echo $err;
     }
 
@@ -640,38 +660,14 @@ class PLSE_Metabox {
      * 
      * @since    1.0.0
      * @access   public
-     * @param    array    $args    field parameters, select
+     * @param    array    $field    field parameters, select
      * @param    number   $value   duration, in seconds.
      */
-    public function render_duration_field ( $args, $value ) {
+    public function render_duration_field ( $field ) {
+
         $err = '';
-        $slug = sanitize_key( $args['slug'] );
-
-        // max is defined in seconds. 21600 = 6 hours default
-        if ( isset( $args['max'] ) ) $max = $args['max']; else $max = '21600';
-
-        // value is in seconds
-        if ( is_array( $value ) ) $value = $value[0];
-        $value = esc_attr( $value );
-
-        // if value is missing or some falsy thing, make it zero
-        if ( ! $value ) $value = '0';
-
-        if ( ! $this->init->is_int( $value ) ) {
-            $err = $this->init->add_status_to_field( __( 'not a number' ) );
-        } else {
-            if ( $value < 0 ) {
-                $err = $this->init_add_status_to_field( __( 'need positive value') );
-            }
-        }
-
-        // render the field
-        echo '<div class="plse-meta-ctl-highlight">';
-        echo '<input title="' . $args['title']. '" name="' . $slug . '" id="' . $slug . '" class="plse-duration-picker plse-slider-input" id="range-control" type="range" min="0" max="' . $max . '" step="1" value="' . $value . '">';
-        echo '<span class="plse-slider-output"></span>'; // class online used in JS, not in CSS
-        echo '</div>';
-        echo '<p>Slide the slider, or use keyboard arrow keys to adjust.</p>';
-
+        $field['class'] = 'plse-meta-ctl-highlight';
+        $value = $this->fields->render_duration_field( $field );
         if ( ! empty( $err ) ) echo $err;
 
     }
@@ -681,24 +677,19 @@ class PLSE_Metabox {
      * 
      * @since    1.0.0
      * @access   public
-     * @param    array    $args field parameters, select
+     * @param    array    $field field parameters, select
      * @param    string   $value    the field value 'on' or not on
      */
-    public function render_checkbox_field ( $args, $value ) {
-        $slug = sanitize_key( $args['slug'] );
-        $title = esc_html( $args['title'] );
-        if ( is_array( $value ) ) $value = $value[0];
-        $value = esc_attr( $value );
+    public function render_checkbox_field ( $field ) {
 
-        // render the field
-        echo '<div class="plse-meta-ctl-highlight">';
-        echo '<input title="' . $title . '" style="display:inline-block;" type="checkbox" id="' . $slug . '" name="' . $slug . '"';
+        $err = '';
+        $field['class'] = 'plse-meta-ctl-highlight';
+        $value = $this->fields->render_checkbox_field( $field );
 
-        // validate and set value
-        if ( $value == $this->init->get_checkbox_on() ) echo ' CHECKED';
-        echo ' />&nbsp;';	
-        echo '<span style="display:inline-block; width=90%;">' . $title . '</span>';
-        echo '</div>';
+        // validation would go here
+
+        if ( ! empty( $err ) ) echo $err;
+
     }
 
     /**
@@ -707,96 +698,46 @@ class PLSE_Metabox {
      * 
      * @since    1.0.0
      * @access   public
-     * @param    array    $args     field parameters, select
+     * @param    array    $field     field parameters, select
      * @param    string   $value    the field value
      */
-    public function render_datalist_field ( $args, $value ) {
-        $option_list = $args['option_list'];
-        if ( ! $option_list ) return; // error, options weren't added by dev
+    public function render_datalist_field ( $field ) {
+        $err = '';
+        $field['class'] = 'plse-option-datalist';
 
-        $slug = sanitize_key( $args['slug'] );
-        if ( isset( $args['size'] ) ) $size = $args['size']; else $size = '30';
-        if ( is_array( $value ) ) $value = $value[0];
-        $value = esc_attr( $value );
+        // validation goes here
 
-        // since the datalist is part of the plugin, values are not validated
-        $dropdown = '<div class="plse-options-datalist">';
-        $dropdown .= '<input type="text" title="' . $args['title'] . '" id="' . $slug . '" name="' . $slug . '" autocomplete="on" class="plse-datalist" size="' . $size . '" value="' . $value . '" list="';
+        $this->fields->render_datalist_field( $field );
+        if ( ! empty( $err ) ) echo $err;
 
-        if ( is_array( $option_list ) ) { // option list in field definition
-
-            $dropdown = $this->datalists->get_datalist( $option_list, $slug . '-data' );
-
-        } else { // option list specifies a standard list in PLSE_Datalists
-
-            // load the datalist (note they must follow naming conventions)
-            $dropdown .= 'plse-' . $option_list . '-data' . '">'; // option list id 
-            $method = 'get_' . $option_list . '_datalist';
-            if ( method_exists( $this->datalists, $method ) ) { 
-                $dropdown .= $this->datalists->$method(); 
-            }
-
-        }
-
-        // message describing how to use a datalist
-        $dropdown .= '<p>' . __( 'Begin typing to find value, or type in your own value. Delete all text, click in the field, and re-type to search for a new value.' ) . '</p></div>';
-
-        // render the field
-        echo $dropdown;
     }
 
     /**
      * Render a pulldown menu with only one option selectable.
-     * Requires an option list be defined in the field $args, or in PLSE_Datalists
+     * Requires an option list be defined in the field $field, or in PLSE_Datalists
      * 
      * @since    1.0.0
      * @access   public
-     * @param    array    $args field parameters, select
+     * @param    array    $field field parameters, select
      * @param    string   $value    the field value
      */
-    public function render_select_single_field ( $args, $value ) {
-        $option_list = $args['option_list'];
-        if ( ! $option_list ) return; // error, options weren't added by dev
-        if ( is_array( $value ) ) $value = $value[0];
-        $slug = sanitize_key( $args['slug'] );
-        $value = esc_attr( $value );
-
-        // since option_lists come from the plugin, not validated
-        $dropdown  = '<div class="plse-option-select">';
-        $dropdown .= '<select title="' . $args['title'] . ' id="' . $slug . '" name="' . $slug . '" class="cpt-dropdown">' . "\n";
-        $dropdown .= $this->datalists->get_select( $option_list, $value );
-        $dropdown .= '</select>' . "\n";
-        $dropdown .= '<p class="plse-option-select-description">' . __( 'Select one option from the list' ) . '</p></div>';
-
-        // render the field
-        echo $dropdown;
+    public function render_select_single_field ( $field ) {
+        $field['class'] = 'plse-meta-select';
+        $this->fields->render_select_single_field( $field );
     }
 
     /**
      * Render a scrolling list of options allowing multiple select.
-     * Requires an option list be defined in the field $args, or in PLSE_Datalists
+     * Requires an option list be defined in the field $field, or in PLSE_Datalists
      * 
      * @since    1.0.0
      * @access   public
-     * @param    array    $args field parameters, select
+     * @param    array    $field field parameters, select
      * @param    array    $value    an array with all options selected
      */
-    public function render_select_multiple_field ( $args, $value ) {
-        $option_list = $args['option_list'];
-        if ( ! $option_list ) return; // error, options weren't added by dev
-        $slug = sanitize_key( $args['slug'] );
-
-        // if multi-select, $value is an array with a sub-array of values
-        if ( is_array( $value ) ) $value = $value[0];
-
-        // create the scrolling list
-        $dropdown = '<div class="plse-option-select">';
-        $dropdown .= '<select multiple="multiple" title="' . $args['title'] . ' id="' . $slug . '" name="' . $slug . '[]" class="cpt-dropdown" >' . "\n";   
-        $dropdown .= $this->datalists->get_select( $option_list, $value );
-        $dropdown .= '</select>' . "\n";
-        $dropdown .= '<p class="plse-option-select-description">' . __( '(CTL-Click to for select and deselect)') . '</p></div>';
-
-        echo $dropdown;
+    public function render_select_multiple_field ( $field, $err = '' ) {
+        $field['class'] = 'plse-option-select';
+        $value = $this->fields->render_select_multiple_field( $field );
     }
 
     /**
@@ -805,11 +746,17 @@ class PLSE_Metabox {
      * 
      * @since    1.0.0
      * @access   public
-     * @param    array    $args field parameters, select
+     * @param    array    $field field parameters, select
      * @param    array    $value    an array with all options selected
      */
-    public function render_multi_cpt_field ( $args, $value ) {
-        $this->render_select_multiple_field( $args, $value );
+    public function render_multi_cpt_field ( $field ) {
+        $cpts = $this->init->get_all_cpts(); // get all potential selections
+        if ( ! $cpts ) {
+            $err = $this->fields->add_status_to_field( __( 'No Custom Post Types are defined yet.' ) );
+        }
+        // CPTs are dynamically loaded, so they should *always* be ok
+        $field['option_list'] = $this->init->get_option_list_from_cpts( $cpts );
+        $this->render_select_multiple_field( $field );
     }
 
     /**
@@ -818,11 +765,18 @@ class PLSE_Metabox {
      * 
      * @since    1.0.0
      * @access   public
-     * @param    array    $args field parameters, select
+     * @param    array    $field field parameters, select
      * @param    array    $value    an array with all options selected
      */
-    public function render_multi_cat_field ( $args, $value ) {
-        $this->render_select_multiple_field( $args, $value );
+    public function render_multi_cat_field ( $field ) {
+        $cats = $this->init->get_all_cats();
+        if ( ! $cats ) {
+            $err = $this->fields->add_status_to_field( __( 'this is not a valid postal code' ) );
+        }
+        // Categories are dynamically loaded, so they *always* should be ok
+        $field['option_list'] = $this->init->get_option_list_from_cats( $cats );
+
+        $this->render_select_multiple_field( $field );
     }
 
     /**
@@ -833,212 +787,13 @@ class PLSE_Metabox {
      * 
      * @since    1.0.0
      * @access   public
-     * @param    array    $args field parameters, select
+     * @param    array    $field field parameters, select
      * @param    array    $value an array with multiple values
      */
-    public function render_repeater_field ( $args, $value ) {
+    public function render_repeater_field ( $field ) {
 
-        $slug = sanitize_key( $args['slug'] );
-
-        // URL field specifies an image
-        $is_image = $args['is_image'];
-
-        // adjust size of fields
-        if ( isset( $args['size'] ) ) {
-            $size = $args['size']; 
-        } else {
-            $size = '40';
-        }
-
-        // adjust text field type (url, date, time...), which is 'subtype' for repeaters
-        if ( isset( $args['subtype'] ) ) $type = $args['subtype']; else $type ='text';
-
-        // check if an option_list should be attached to repeater fields
-        $option_list = $args['option_list'];
-        $datalist_id = ''; // id for datalist, if option_list defined
-        $datalist = '';  // storage for datalists, if option_list defined
-        $img_thumb_class = ''; // added class if repeater fields specify images
-
-        // maximum number of repeater fields allowed (adjusted if we have a datalist)
-        $max = $this->REPEATER_MAX; 
-
-        // adjust table width to allow tiny thumbnail
-        if( $is_image == true ) {
-            $table_width = '100%';
-            $img_thumb_class = ' plse-repeater-url-is-image';
-        }
-        else {
-            $table_width = '70%';
-        }
-
-        /*
-         * NOTE: $value is supposed to be an array, unlike most other fields stored in DB.
-         * NOTE: a maximum number of added fields is calculated from the $option_list size, if present
-         * TODO: UNIQUE-IFY the RESULTS (no duplicates)
-         */
-
-        // create a datalist, if data is present
-        if ( isset( $option_list ) ) {
-
-            if ( is_array( $option_list ) ) { // $option_list is an array
-
-                $datalist_id = $slug . '-data';
-                $datalist = $this->datalists->get_datalist( $option_list, $datalist_id );
-                $max = count( $option_list ); // size of array
-
-            } else { // option list specifies a standard list in PLSE_Datalists
-
-                // load the datalist (note they must follow naming conventions)
-                $method = 'get_' . $option_list . '_datalist';
-                if ( method_exists( $this->datalists, $method ) ) { 
-                    $datalist .= $this->datalists->$method();
-                    $datalist_id = $option_list;
-                    $datalist_id = 'plse-' . $datalist_id . '-data'; // $option list is the id value 
-                }
-
-                // get the size of the loaded datalist, set repeater max to that value
-                $method = 'get_' . $option_list . '_size';
-                if ( method_exists( $this->datalists, $method ) ) {
-                    $max = $this->datalists->$method();
-                }
-
-            }
-
-            echo $datalist;
-            $list_attr = 'list="' . $datalist_id . '"';
-
-        }
-
-        /*
-         * begin rendering the table with repeater options
-         */
-        ?>
-        <div id="plse-repeater-<?php echo $slug; ?>" class="plse-repeater plse-meta-ctl-highlight">
-            <div id="plse-repeater-max-warning" class="plse-repeater-max-warning" style="display:none;">You have reached the maximum number of values</div>
-            <table class="plse-repeater-table" width="<?php echo $table_width; ?>" data-max="<?php echo $max; ?>">
-                <tbody>
-                    <!--default row, or rows from datatbase-->
-                    <?php 
-                    /*
-                     * this creates a unique ID for each input field. Additional fields are added 
-                     * using jQuery, and incremented from this count.
-                     */
-                    $count = 0;
-                    if( is_array( $value ) ):
-
-                        if ( $is_image ) $tdstyle = 'width:330px;'; else $tdstyle = '';
-
-                        // create fields already in the database
-                        foreach( $value as $field ) { 
-                            $value = esc_attr( $value );
-
-                            if ( ! empty( $field ) ) {
-                                $wroteflag = true; // field saved to DB was not empty
-
-                                $err = '';
-
-                                // if we are checking URLs, check them here
-                                if ( $args['subtype'] == PLSE_INPUT_TYPES['URL'] && $this->check_urls ) { // no checks or message if field empty
-
-                                    // try connecting to the supplied URL
-                                    $result = $this->init->get_url_status( $field );
-                                    $err   = $result['err'];
-                                    $field = $result['value'];
-
-                                }
-
-                            if ( $is_image ) { // dummy row for spacing
-                                echo '<tr><td><hr></td></tr>';
-                            }
-
-                            ?>
-
-                            <tr>
-                                <td style="<?php echo $tdstyle; ?>">
-                                    <input id="<?php echo $slug . $count; ?>" name="<?php echo $slug; ?>[]" type="<?php echo $type; ?>" <?php echo $list_attr; ?> class="plse-repeater-input<?php echo $img_thumb_class; ?>" value="<?php if($field != '') echo $field; ?>" size="<?php echo $size; ?>" placeholder="type in value" />
-                                </td>
-                                <td>
-                                    <!-- media library button (children[0]) -->
-                                    <?php
-                                        if( $is_image ) { // repeater URL is an image
-                                            echo '<input title="' . $title . '" type="button" class="button plse-media-button" data-media="'. $slug . $count . '" value="Upload Image" />';
-                                        }
-                                    ?>
-                                    <!-- remove button (children[1]) -->
-                                    <a class="button plse-repeater-remove-row-btn" href="#1">Remove</a>
-                                    <?php if ( ! empty( $err ) ) echo $err; ?>
-                                </td>
-                            </tr>
-                        <?php 
-                            }
-                        $count++; // increment count for unique input field ID
-                        }
-                        // default, when we saved an empty field to the DB
-                        if ( ! $wroteflag ):
-                            ?>
-                            <tr>
-                                <td>
-                                    <input id="<?php echo $slug . $count; ?>" name="<?php echo $slug; ?>[]" type="<?php echo $type; ?>" <?php echo $list_attr; ?> class="plse-repeater-input<?php echo $img_thumb_class; ?>" value="<?php if($field != '') echo $field; ?>" size="<?php echo $size; ?>" placeholder="type in value" />
-                                </td>
-                                <td>
-                                    <?php
-                                        if( $is_image ) { // repeater URL is an image
-                                            echo '<input title="' . $title . '" type="button" class="button plse-media-button" data-media="'. $slug . $count . '" value="Upload Image" />';
-                                        }
-                                    ?>
-                                    <a class="button plse-repeater-remove-row-btn" href="#1">Remove</a>
-                                    <?php if ( ! empty( $err ) ) echo $err; ?>
-                                </td>
-                            </tr>
-                            <?php 
-                            //field below is brand-new, never had a value
-                        endif;
-                    else: ?>
-                    <tr class="plse-repeater-default-row" style="display: table-row">
-                        <td>
-                            <input id="<?php echo $slug . $count; ?>" name="<?php echo $slug; ?>[]" type="<?php echo $type; ?>" <?php echo $list_attr; ?> class="plse-repeater-input<?php echo $img_thumb_class; ?>" size="<?php echo $size; ?>" placeholder="<?php echo __( 'enter' ) . strtolower( $type ); ?>"/>
-                        </td>
-                        <td>
-                            <?php
-                                if( $is_image ) { // repeater URL is an image
-                                    echo '<input title="' . $title . '" type="button" class="button plse-media-button" data-media="'. $slug . $count . '" value="Upload Image" />';
-                                }
-                            ?>
-                            <a class="button plse-repeater-remove-row-btn button-disabled" href="#">Remove</a>
-                            <?php if ( ! empty( $err ) ) echo $err; ?>
-                        </td>
-                    </tr>
-                    <?php endif;
-                    ?>
-                    <!--invisible blank row, copied to create new visible row ID is filled in by jQuery when it is copied-->
-                    <tr class="plse-repeater-empty-row" style="display: none">
-                        <td>
-                            <input id="<?php echo $slug; ?>" name="<?php echo $slug; ?>[]" type="<?php echo $type; ?>" <?php echo $list_attr; ?> class="plse-repeater-input<?php echo $img_thumb_class; ?>" size="<?php echo $size; ?>" placeholder="<?php echo __( 'enter ' ) . strtolower( $type ); ?>"/>
-                        </td>
-                        <td>
-                            <?php 
-                                // Note: we just write $slug for 'data_media' in media upload button. jQuery used to dynamically convert the 'data-media' attribute from $slug to $slug + row number
-                                if( $is_image ) {
-                                    echo '<input title="' . $title . '" type="button" class="button plse-media-button" data-media="'. $slug .'" value="Upload Image" />';
-                                }
-                            ?>
-                            <a class="button plse-repeater-remove-row-btn" href="#">Remove</a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        <p><a class="button plse-repeater-add-row-btn" href="#">Add another</a></p>
-        <?php 
-            if ( isset( $option_list ) ) {
-            echo '<p>' . __( 'Begin typing to find value, or type in your own value. Delete all text, click in the field, and re-type to search for a new value.' ) . '</p>';
-            }
-            if ( $is_image ) echo __( '<p>' . __( 'Previously saved URL values have their status marked. For images, hit the tab key after entering to check if a just-entered image is valid. Otherwise, update and reload the page to confirm.' ) . '</p>' );
-
-        ?>
-        </div>
-
-<?php 
-
+        $field['class'] = 'plse-repeater';
+        $value = $this->fields->render_repeater_field( $field );
     }
 
     /**
@@ -1046,50 +801,17 @@ class PLSE_Metabox {
      * 
      * @since    1.0.0
      * @access   public
-     * @param    array    $args field parameters, select
+     * @param    array    $field field parameters, select
      * @param    string    $value    the URL of the image
      */
-    public function render_image_field ( $args, $value ) {
+    public function render_image_field ( $field ) {
+        $field['class'] = 'plse-meta-ctl-highlight';
+        $value = $this->fields->render_image_field( $field );
+    }
 
-        $slug = sanitize_key( $args['slug'] );
-        if ( is_array( $value ) ) $value = $value[0];
-        $value = esc_url( $value );
-
-        if ( ! $this->init->is_url( $value ) ) {
-            $err = $this->init->add_status_to_field( __( 'not valid url' ) );
-        }
-
-        $title = $args['title'];
-
-        echo '<div class="plse-meta-ctl-highlight">'; // highlights overall control
-        echo '<div class="plse-meta-image-col">';
-
-        if ( $value ) {
-            echo '<img title="' . $title . '" class="plse-upload-img-box" id="' . $slug . '-img-id" src="' . $value . '" width="128" height="128">';
-        } else {
-            echo '<img title="' . $title . '" class="plse-upload-img-box" id="'. $slug . '-img-id" src="' . $this->init->get_default_placeholder_icon_url() . '" width="128" height="128">';
-        }
-
-        // try connecting to the supplied URL, if specified in plugin options
-        if ( ! empty( $value ) && $this->check_urls ) {
-            $result = $this->init->get_url_status( $value );
-            $err   = $result['err'];
-            $value = $result['value'];
-        }
-
-        echo '</div><div class="plse-meta-upload-col">';
-
-        echo '<div>' . __( 'Image URL in WordPress' ) . '</div>';
-        echo '<div>';
-
-        // media library button (ajax call)
-        echo '<input type="text" name="' . sanitize_key( $slug ) . '" id="' . $slug . '" value="' . $value . '">';
-        echo '<input title="' . $title . '" type="button" class="button plse-media-button" data-media="'. $slug . '" value="Upload Image" />&nbsp;';
-
-        if ( ! empty( $err ) ) echo $err;
-
-        echo '</div></div></div>';
-
+    public function render_audio_field ( $field ) {
+        $field['class'] = 'plse-meta-ctl-highlight';
+        $value = $this->fields->render_audio_field( $field );
     }
 
     /**
@@ -1097,13 +819,13 @@ class PLSE_Metabox {
      * 
      * @since    1.0.0
      * @access   public
-     * @param    array     $args field parameters, select
+     * @param    array     $field field parameters, select
      * @param    string    $value    the URL of the video (YouTube or Vimeo supported)
      */
-    public function render_video_field ( $args, $value ) {
-
-        $slug = sanitize_key( $args['slug'] );
-        $title = $args['title'];
+    public function render_video_field ( $field ) {
+        $value = $field['value'];
+        $slug = sanitize_key( $field['slug'] );
+        $title = $field['title'];
 
         /**
          * create the thumbnail URL
@@ -1111,16 +833,15 @@ class PLSE_Metabox {
          */ 
         echo '<div class="plse-video-metabox plse-meta-ctl-highlight">';
         // add a special class for JS to the URL field for dynamic video embed
-        $args['class'] = 'plse-embedded-video-url';
-        $args['size'] = '72'; // same width as video + thumbnail takes up onscreen
-        $args['type'] = 'URL';
+        $field['class'] = 'plse-embedded-video-url';
+        $field['size'] = '72'; // same width as video + thumbnail takes up onscreen
+        $field['type'] = 'URL';
         if ( is_array( $value ) ) $value = $value[0];
         $value = esc_url( $value );
-        //$this->render_url_field( $args, $value );
 
         echo '<table style="width:100%"><tr>';
         // create the input field for the url
-        echo '<td colspan="2" style="padding-bottom:4px;">' . $this->render_url_field( $args, $value ) . '</td>';
+        echo '<td colspan="2" style="padding-bottom:4px;">' . $this->render_url_field( $field, $value ) . '</td>';
         echo '</td></tr><tr><td style="width:50%; text-align:center;position:relative">';
         if ( $value ) {
             // get a thumbnail image from the video URL
@@ -1140,6 +861,37 @@ class PLSE_Metabox {
 
         echo '</div>';
 
+    }
+
+
+    /**
+     * Render an input field, type="number" with integers only.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    array     $field field parameters, select
+     * @param    string    $value    an integer value
+     */
+    public function render_int_field ( $field ) {
+        if ( isset( $field['min'] ) ) $field['min'] = (int) $field['min'];
+        if ( isset( $field['max'] ) ) $field['max'] = (int) $field['max'];
+        if ( isset( $field['step'] ) ) $field['step'] = (int) $field['step'];
+        $this->render_simple_field( $field );
+    }
+
+    /**
+     * Render an input field, type="number" with floating-point only
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    array     $field field parameters, select
+     * @param    string    $value    an floating-point value, optionally decimal places
+     */
+    public function render_float_field ( $field ) {
+        if ( isset( $field['min'] ) ) $field['min'] = (float) $field['min'];
+        if ( isset( $field['max'] ) ) $field['max'] = (float) $field['max'];
+        if ( isset( $field['step'] ) ) $field['step'] = (float) $field['step'];
+        $this->render_simple_field( $field );
     }
 
     /**
@@ -1246,9 +998,9 @@ class PLSE_Metabox {
                                 // format: '2015-11-26'
                                 break;
 
-                            case PLSE_INPUT_TYPES['SELECT_MULTIPLE']:
-                                $value = $value;
-                                break;
+                            //case PLSE_INPUT_TYPES['SELECT_MULTIPLE']:
+                            //    $value = $value;
+                            //    break;
 
                             case PLSE_INPUT_TYPES['REPEATER']:
                                 $count = count( $value );
@@ -1280,7 +1032,7 @@ class PLSE_Metabox {
                                         if ( ! is_array( $val ) ) $value = sanitize_text_field( $value );
                                     }
                                 }
-                                if ( ! is_array( $value ) ) $value = sanitize_text_field( $value );
+                                else if ( ! is_array( $value ) ) $value = sanitize_text_field( $value );
                                 // TODO: sanitize array
                                 break;
 

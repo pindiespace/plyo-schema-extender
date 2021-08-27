@@ -272,9 +272,14 @@ if ( ! defined( 'PLSE_CAT_SLUG' ) ) {
 
 // *************************************************************
 // TODO:
+// TODO: DATE RANGE AND TIME RANGE VALIDATION
 // TODO: VALIDATION FOR ALL METABOX FIELDS
 // TODO: SANITIZE FOR ALL METABOX FIELDS
 // TODO: PRIVATE ERRORS TO PLUGIN SETTINGS FROM RENDER, METABOX
+
+// TODO: $field['err'] to compartmentalize
+
+// TODO: remove option saving from metabox, just wp_data
 
 // TODO: $check_xxxx for checking get_option('slug') outside of PLSE_Options
 //
@@ -326,14 +331,16 @@ add_action( 'plugins_loaded', function () {
 
                     global $pagenow;
 
-                    // load options class
-                    require_once PLSE_SCHEMA_EXTENDER_PATH . '/includes/admin/plse-options.php';
-
                     // load datalists (e.g. list of countries)
                     require_once PLSE_SCHEMA_EXTENDER_PATH . '/includes/admin/plse-datalists.php';
 
-                     // Reorder menus. Put the menu for this plugin below the Yoast listing
+                    // load input field rendering (not needed outside admin)
+                    require_once PLSE_SCHEMA_EXTENDER_PATH . '/includes/admin/plse-fields.php';
 
+                    // load options class
+                    require_once PLSE_SCHEMA_EXTENDER_PATH . '/includes/admin/plse-options.php';
+
+                     // Reorder menus. Put the menu for this plugin below the Yoast listing
                     add_filter('custom_menu_order', function() { return true; });
                     add_filter( 'menu_order', function ( $menu_order ) {
 

@@ -198,12 +198,12 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'required' => '',
                 'wp_data' => 'post_meta',
                 'option_list' => array(
-                    'ERSB E' => 'Everyone',
-                    'ERSB 10+' => '10 and up',
-                    'ERSB T' => 'Teens ',
-                    'ERSB M' => 'Mature',
-                    'ERSB AO' => 'Adults Only',
-                    'ERSB RP' => 'Rating Pending'
+                    'Everyone' => 'ERSB E',
+                    '10 and up' => 'ERSB 10+',
+                    'Teens' => 'ERSB T',
+                    'Mature' => 'ERSB M',
+                    'Adults Only' => 'ERSB AO',
+                    'Rating Pending' => 'ERSB RP'
                 ),
                 'select_multiple' => false
             ),
@@ -217,9 +217,9 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'required' => '',
                 'wp_data' => 'post_meta',
                 'option_list' => array(
-                    'CoOp' => 'CoOp',
-                    'MultiPlayer' => 'MultiPlayer',
-                    'SinglePlayer' => 'SinglePlayer'
+                    'Cooperative (CoOp)' => 'CoOp',
+                    'Multi-Player' => 'MultiPlayer',
+                    'Single Player' => 'SinglePlayer'
                 ),
                 'is_image' => false
 
@@ -290,17 +290,16 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'type' => PLSE_INPUT_TYPES['SELECT_MULTIPLE'],
                 'required' => '',
                 'wp_data' => 'post_meta',
-                // TODO: change to plse-datalists
                 'option_list' => array(
-                    'playstation' => 'PlayStation',
-                    'xbox' => 'XBox',
-                    'nintendo' => 'Nintendo',
-                    'ios' => 'iOS',
-                    'android' => 'Android',
-                    'macos' => 'MacOS',
-                    'windows' => 'Windows',
-                    'linux' => 'Linux',
-                    'web' => 'Web-Based'
+                    'PlayStation' => 'playstation',
+                    'XBox' => 'xbox',
+                    'Nintendo' => 'nintendo',
+                    'iOS' => 'ios',
+                    'Android' => 'android',
+                    'MacOS' => 'macos',
+                    'Windows' => 'windows',
+                    'Linux' => 'linux',
+                    'Web-Based' => 'web',
                 ),
                 'select_multiple' => true
             ),
@@ -374,6 +373,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'label' => 'Trailer Video Language',
                 'title' => 'Link to video showing gameplay',
                 //'type' => PLSE_INPUT_TYPES['DATALIST'],
+                //'subtype' => 'text',
                 'type' => PLSE_INPUT_TYPES['SELECT_SINGLE'],
                 'required' => '',
                 'wp_data' => 'post_meta',

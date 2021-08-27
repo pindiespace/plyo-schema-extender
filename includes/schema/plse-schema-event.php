@@ -181,8 +181,8 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
                 'wp_data' => 'post_meta',
                 'option_list' => array(
                     'Mixed Online and Offline' => 'MixedEventAttendanceMode',
-                    'Offline' => 'OfflineEventAttendanceMode',
-                    'Online' => 'OnlineEventAttendanceMode',
+                    'Offline' =>'OfflineEventAttendanceMode',
+                    'Online' => 'OnlineEventAttendanceMode' ,
                 ),
 
             ),

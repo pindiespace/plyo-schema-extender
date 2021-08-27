@@ -35,8 +35,6 @@
                 // get the tab panel
                 var contentTab = $(this).attr('href');
 
-                ////////////////////this.style.boxShadow =  '0px 0px';
-
                 //tabs btn
                 tabs.removeClass('open');
                 $(this).addClass('open');
@@ -269,11 +267,11 @@
 
             // find the number of rows on the table. If it is >= max, keep it at max
             length = table.find('tbody>tr').length;
-            let max = table.attr('data-max'); 
+            let max = table.attr('data-max');
 
             // check if we exceeded the maximum allowed number of repeater fields
             if (length > max) {
-                $('.plse-repeater-max-warning').css('display','block');
+                fieldSet.find('.plse-repeater-max-warning').css('display','block');
             } else {
                 // find the last table row in the control <table> holding repeated fields
                 let prev = fieldSet.find('tbody>tr:last');
@@ -323,8 +321,8 @@
 
         // remove a text input repeater row
         $('.plse-repeater-remove-row-btn').on('click', function(e) {
-            let table = $(this).parents('table'); // enclosing table
-            $(this).parents('tr').remove();
+            let table = $(this).closest('table'); // enclosing table
+            $(this).closest('tr').remove();
             let length = table.find('tbody>tr').length;
             let max = table.attr('data-max'); 
             /////////console.log('table:' + table + ' length:' + length + ' max:' + max)
@@ -343,7 +341,7 @@
         //$("input[name*='_thumbnail_url'").on('blur', function(e) {
             ///////console.log("blurred out of image thumbnail")
             let url = this.value;
-            let col = $(this).parents('td');
+            let col = $(this).closest('td');
 
             // delete any previously-attached images
             $(col).find('.repeater-thumbnail-img').remove();

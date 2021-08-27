@@ -136,7 +136,7 @@ class PLSE_Init {
      * Enable the singleton pattern.
      * @since    1.0.0
      * @access   public
-     * @return   PLSE_Base    $self__instance
+     * @return   PLSE_Init    $self__instance
      */
     public static function getInstance () {
         if ( is_null( self::$__instance ) ) {
@@ -938,7 +938,7 @@ class PLSE_Init {
         // Validate URI
         if ( filter_var( $in, FILTER_VALIDATE_URL ) === FALSE
             // check only for http/https schemes.
-            || !in_array( strtolower( parse_url( $in, PHP_URL_SCHEME ) ), ['http','https'], true )
+            || ! in_array( strtolower( parse_url( $in, PHP_URL_SCHEME ) ), ['http','https'], true )
         ) {
             return false;
         }
@@ -1185,28 +1185,33 @@ class PLSE_Init {
      */
     function get_url_status ( $url ) {
 
-        $err = '';
+        $err = ''; // just a string
 
         // check if the URL (or a redirect) is reachable
         $valid = $this->get_final_url( $url );
 
         if ( ! $valid ) { // a false was returned, nothing came back (Internet down?)
 
-            $err = $this->add_status_to_field( __( 'status unknown (check connection) for:' ) . $url ); // caution
+            $err = __( 'status unknown (check connection) for:' ) . $url; // caution
+            $class = 'plse-input-msg-caution';
 
         } else {
 
             if ( stripos( $valid, 'Error:') !== false ) {
-                $err = $this->add_status_to_field( __( $valid ), 'plse-input-msg-err' );
+                $err = $valid;
+                $class = 'plse-input-msg-error';
             } else if ( $valid != $url ) {
                 if ( stripos( $url, 'http:') !== false && stripos( $url, 'https') !== false ) {
-                    $err = $this->add_status_to_field( __( 'valid, url was changed to https' ), 'plse-input-msg-ok' );
+                    $err   = __( 'valid, url was changed to https' );
+                    $class = 'plse-input-msg-caution';
                     $url = $valid; // convert http to https
                 } else {
-                    $err = $this->add_status_to_field( __( 'valid, redirected, change to: ' ) . $valid, 'plse-input-msg-ok' );
+                    $err = __( 'valid, redirected, change to: ' ) . $valid;
+                    $class = 'plse-input-msg-caution';
                 }
             } else {
-                $err = $this->add_status_to_field( __( 'validated'), 'plse-input-msg-ok' );
+                $err = __( 'validated');
+                $class = 'plse-input-msg-ok';
             }
 
         }
@@ -1214,14 +1219,198 @@ class PLSE_Init {
         // return the status, and altered (if changed) URL value
         return array(
             'err' => $err,
-            'value' => $url
+            'value' => $url,
+            'class' => $class,
         );
 
     }
 
     /**
      * -----------------------------------------------------------------------
-     * UTILITIES
+     * POSTS, POST TYPES, CATEGORIES, TAGS
+     * -----------------------------------------------------------------------
+     */
+
+    /**
+     * Get the current post type
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @return   string     the current post, WP_Post
+     */
+    public function get_post () {
+
+        global $post, $current_screen;
+
+        // we have a post so we can just get the post type from that
+        if ( $post && $post->post_type ) return $post;
+
+        // check the global $current_screen object - set in sceen.php
+        elseif ( $current_screen && $current_screen->post_type ) return $current_screen;
+
+        // if current page is post.php and post isset(), query for its post type 
+        elseif ( $pagenow === 'post.php'  && isset( $_GET['post'] ) ) {
+            $post_id = $_GET['post'];
+            return get_post( $post_id );
+        }
+
+        // post type unknown
+        return null;
+
+      }
+
+    /**
+     * Get the type of the current post.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @return   string    the current post type (slug)
+     */
+    public function get_post_cpt () {
+
+        // check the global $typenow - set in admin.php
+        global $typenow;
+        if ( $typenow ) return $typenow;
+
+        // check the global post
+        $post = $this->get_post();
+        if ( $post ) return $post->post_type;
+
+        // try to pick it up from the query string
+        if ( ! empty( $_GET['post'] ) ) {
+            $post = get_post( $_GET['post'] );
+            $typenow = $post->post_type;
+        }
+
+        // try to pick it up from the quick edit AJAX post
+        elseif ( ! empty( $_POST['post_ID'] ) ) {
+            $post = get_post( $_POST['post_ID'] );
+            $typenow = $post->post_type;
+        }
+
+        return $typenow;
+
+    }
+
+    /**
+     * Extract the option and value from a returned list of Custom Post Types.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    array    $cpts   an array of all custom post types defined in the system
+     * @return   array    $option_list the list of options, formatted as $key => $value
+     */
+    public function get_option_list_from_cpts ( $cpts ) {
+        $option_list = array();
+
+        foreach ( $cpts as $cpt ) {
+
+            $option_list[ $cpt->label ] = $cpt->rewrite['slug'];
+
+        }
+        return $option_list;
+    }
+
+    /**
+     * Get a standard option_list from returned categories.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    array   $cats    list of categories defined for the post
+     * @return   array   $option_list the list of categories, formatted as key => value
+     */
+    public function get_option_list_from_cats ( $cats ) {
+
+        $option_list = array();
+
+        if ( is_array( $cats ) ) {
+            foreach ( $cats as $term ) {
+                // a WP_Term object, not an array...
+                $option_list[ $term->name ] = $term->slug;
+            }
+        }
+        return $option_list;
+    }
+
+    /**
+     * Get the full Custom Post Type List (non-built-in)
+     * by setting to 'public' we ignore the pb_* post types
+     * @since    1.0.0
+     * @access   public
+     * @return   array    $post_types    return all the Custom Post Types
+     */
+    public function get_all_cpts () {
+        $args = array(
+            'public'   => true,
+            '_builtin' => false
+        );
+        $post_types = get_post_types( $args, 'objects' );
+        return $post_types;
+    }
+
+    /**
+     * Get the full category list
+     * @since    1.0.0
+     * @access   public
+     * @return   array    $cats    return categories
+     */
+    public function get_all_cats () {
+        $args = array(
+            'hide_empty' => 0,
+        );
+        $cats = get_categories( $args );
+        return $cats;
+    }
+
+    /**
+     * -----------------------------------------------------------------------
+     * SCHEMA UTILITIES
+     * -----------------------------------------------------------------------
+     */
+
+    /**
+     * Convert slug (e.g. 'game') to label (e.g. 'GAME' )
+     */
+    public function slug_to_label ( $slug ) {
+        return strtoupper( $slug );
+    }
+
+    /**
+     * Convert label (e.g. 'GAME') to slug (e.g. 'game')
+     */
+    public function label_to_slug ( $label ) {
+        return strtolower( $label );
+    }
+
+    /**
+     * Convert label to corresponding class slug
+     * 'GAME' to 'Game'
+     */
+    public function label_to_class_slug ( $label ) {
+        return ucfirst( strtolower( $label ) );
+    }
+
+    /**
+     * Get image properties from a URL, useful in creating ImageObject
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @return   array
+     */
+    public function get_image_properties_from_url ( $url ) {
+        $image_url = attachment_url_to_postid( $url );
+        $props = wp_get_attachment_image_src( $image_url, 'full' );
+        return array(
+            'url' => $props[0],
+            'width' => $props[1],
+            'height' => $props[2],
+            'ratio' => intval( $props[1] ) / intval( $props[2] ) // width to height ratio
+        );
+    }
+
+    /**
+     * -----------------------------------------------------------------------
+     * COMPATIBILITY CHECKS
      * -----------------------------------------------------------------------
      */
 
@@ -1359,171 +1548,6 @@ class PLSE_Init {
     }
 
     /**
-     * Convert slug (e.g. 'game') to label (e.g. 'GAME' )
-     */
-    public function slug_to_label ( $slug ) {
-        return strtoupper( $slug );
-    }
-
-    /**
-     * Convert label (e.g. 'GAME') to slug (e.g. 'game')
-     */
-    public function label_to_slug ( $label ) {
-        return strtolower( $label );
-    }
-
-    /**
-     * Convert label to corresponding class slug
-     * 'GAME' to 'Game'
-     */
-    public function label_to_class_slug ( $label ) {
-        return ucfirst( strtolower( $label ) );
-    }
-
-    /**
-     * Get the current post type
-     * TODO: currently not used
-     * @since    1.0.0
-     * @access   public
-     * @returns  string     post_type as a text string
-     */
-    public function get_post () {
-
-        global $post, $current_screen;
-
-        // we have a post so we can just get the post type from that
-        if ( $post && $post->post_type ) return $post;
-
-        // check the global $current_screen object - set in sceen.php
-        elseif ( $current_screen && $current_screen->post_type ) return $current_screen;
-
-        // if current page is post.php and post isset(), query for its post type 
-        elseif ( $pagenow === 'post.php'  && isset( $_GET['post'] ) ) {
-            $post_id = $_GET['post'];
-            return get_post( $post_id );
-        }
-
-        // post type unknown
-        return null;
-
-      }
-
-    /**
-     * Get the type of the current post.
-     */
-    public function get_post_cpt () {
-
-        // check the global $typenow - set in admin.php
-        global $typenow;
-        if ( $typenow ) return $typenow;
-
-        // check the global post
-        $post = $this->get_post();
-        if ( $post ) return $post->post_type;
-
-        // try to pick it up from the query string
-        if ( ! empty( $_GET['post'] ) ) {
-            $post = get_post( $_GET['post'] );
-            $typenow = $post->post_type;
-        }
-
-        // try to pick it up from the quick edit AJAX post
-        elseif ( ! empty( $_POST['post_ID'] ) ) {
-            $post = get_post( $_POST['post_ID'] );
-            $typenow = $post->post_type;
-        }
-
-        return $typenow;
-
-    }
-
-    /**
-     * Extract the option and value from a returned list of Custom Post Types.
-     * 
-     * @since    1.0.0
-     * @access   public
-     * @return   array    $option_list a standard option array (key => value)
-     */
-    public function get_option_list_from_cpts ( $cpts ) {
-        $option_list = array();
-
-        foreach ( $cpts as $cpt ) {
-
-            $option_list[ $cpt->label ] = $cpt->rewrite['slug'];
-
-        }
-        return $option_list;
-    }
-
-    /**
-     * Get a standard option_list from returned categories.
-     * 
-     * @since    1.0.0
-     * @access   public
-     * @return   array   $cats the list of categories, formatted as key => value
-     */
-    public function get_option_list_from_cats ( $cats ) {
-
-        $option_list = array();
-
-        if ( is_array( $cats ) ) {
-            foreach ( $cats as $term ) {
-                // a WP_Term object, not an array...
-                $option_list[ $term->name ] = $term->slug;
-            }
-        }
-        return $option_list;
-    }
-
-    /**
-     * Get the full Custom Post Type List (non-built-in)
-     * by setting to 'public' we ignore the pb_* post types
-     * @since    1.0.0
-     * @access   public
-     * @return   array    $post_types    return all the Custom Post Types
-     */
-    public function get_all_cpts () {
-        $args = array(
-            'public'   => true,
-            '_builtin' => false
-        );
-        $post_types = get_post_types( $args, 'objects' );
-        return $post_types;
-    }
-
-    /**
-     * Get the full category list
-     * @since    1.0.0
-     * @access   public
-     * @return   array    $cats    return categories
-     */
-    public function get_all_cats () {
-        $args = array(
-            'hide_empty' => 0,
-        );
-        $cats = get_categories( $args );
-        return $cats;
-    }
-
-    /**
-     * Get image properties from a URL
-     * 
-     * @since    1.0.0
-     * @access   public
-     * @return   array
-     */
-    public function get_image_properties_from_url ( $url ) {
-        $image_url = attachment_url_to_postid( $url );
-        $props = wp_get_attachment_image_src( $image_url, 'full' );
-        return array(
-            'url' => $props[0],
-            'width' => $props[1],
-            'height' => $props[2],
-            'ratio' => intval( $props[1] ) / intval( $props[2] ) // width to height ratio
-        );
-    }
-
-    /**
      * -----------------------------------------------------------------------
      * ERROR MESSAGES
      * Used when the plugin can't work (e.g. no Yoast)
@@ -1540,9 +1564,9 @@ class PLSE_Init {
      * @param    string    $status_class controls appearance of message
      * @return   string    wrap the error message in HTML for display
      */
-    public function add_status_to_field ( $msg = '', $status_class = 'plse-input-msg-caution' ) {
-        return '<span class="plse-input-msg ' . $status_class .'">' . $msg . '</span><br>';
-    }
+    //public function add_status_to_field ( $msg = '', $status_class = 'plse-input-msg-caution' ) {
+    //    return '<span class="plse-input-msg ' . $status_class .'">' . $msg . '</span><br>';
+    //}
 
     /**
      * Add an error dialog at the top of the WP_Admin options explaining prblems.
