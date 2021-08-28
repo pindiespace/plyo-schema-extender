@@ -227,15 +227,17 @@ if ( ! defined( 'PLSE_INPUT_TYPES' ) ) {
         'HIDDEN' => 'hidden',
         'BUTTON' => 'button',
         'TEXT' => 'text',
+        'PHONE' => 'tel',
+        'POSTAL' => 'postal',
+        'EMAIL' => 'email',
+        'URL' => 'url',
+        'INT' => 'int',
+        'FLOAT' => 'float',
         'TEXTAREA' => 'textarea',
+        'CHECKBOX' => 'checkbox',
         'DATE' => 'date', // DD:MM:YEAR
         'TIME' => 'time', // HH:MM:AM/PM
         'DURATION' => 'duration', // custom duration field HH:MM:SS
-        'POSTAL' => 'text',
-        'PHONE' => 'tel',
-        'EMAIL' => 'email',
-        'URL' => 'url',
-        'CHECKBOX' => 'checkbox',
         'SELECT_SINGLE' => 'select_single', // uses <select>
         'SELECT_MULTIPLE' => 'select_multiple', // uses <select multiple>
         'REPEATER' => 'repeater', // table of text fields for expandable lists
@@ -245,8 +247,7 @@ if ( ! defined( 'PLSE_INPUT_TYPES' ) ) {
         'IMAGE' => 'image',
         'AUDIO' => 'audio',
         'VIDEO' => 'video',
-        'INT' => 'int',
-        'FLOAT' => 'float'
+
     ) );
 
 }

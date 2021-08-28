@@ -488,25 +488,7 @@ class PLSE_Metabox {
      * @param    string    $value    serialized or unserialized field value
      */
     public function render_hidden_field ( $field ) {
-        $value = esc_attr( sanitize_text_field( $field['value'] ) );
-        // render the field
-        echo '<input type="hidden" id="' . sanitize_key( $field['slug'] ) . '" name="' . sanitize_key( $field['slug'] ) .'" value="' . $value . '" />';
-    }
-
-    /**
-     * Render a simple input field (type: text, url, email )
-     * NOT directly called - Used by other fields
-     * 
-     * @since    1.0.0
-     * @access   public
-     * @param    array    $field    arguments neeeded to render the field
-     * @param    string   $value   serialized or unserialized field value
-     * @param    string   $err     error message, formated in HTML error style
-     */
-    public function render_simple_field ( $field, $err = '' ) {
-        $err = '';
         $this->fields->render_simple_field( $field );
-        if ( ! empty( $err ) ) echo $err;
     }
 
     /**
@@ -518,7 +500,7 @@ class PLSE_Metabox {
      * @param    string    $value    field value
      */
     public function render_text_field ( $field ) {
-        $this->render_simple_field( $field );
+        $value = $this->fields->render_text_field( $field );
     }
 
     /**
@@ -530,12 +512,7 @@ class PLSE_Metabox {
      * @param    string   $value    the field value
      */
     public function render_postal_field ( $field ) {
-        $value = field['value'];
-        $err = '';
-        if ( ! empty( $value ) && ! $this->init->is_postal( $value ) ) {
-            $err = $this->fields->add_status_to_field( __( 'this is not a valid postal code' ) );
-        }
-        $this->render_simple_field( $field, $err );
+        $value = $this->fields->render_postal_field( $field );
     }
 
     /**
@@ -547,12 +524,7 @@ class PLSE_Metabox {
      * @param    string   $value the field value
      */
     public function render_tel_field ( $field ) {
-        $value = $field['value'];
-        $err = '';
-        if ( ! empty( $value ) && ! $this->init->is_phone( $value ) ) {
-            $err = $this->fields->add_status_to_field( __( 'this is not a valid phone number' ) );
-        }
-        $this->render_simple_field( $field, $err );
+        $value = $this->fields->render_postal_field( $field );
     }
 
     /**
@@ -564,12 +536,7 @@ class PLSE_Metabox {
      * @param    string   $value    the field value
      */
     public function render_email_field ( $field ) {
-        $value = $field['value'];
-        $err = '';
-        if ( ! empty( $value ) && ! $this->init->is_email( $value ) ) {
-            $err = $this->fields->add_status_to_field( __( 'this is not a valid email' ) );
-        }
-        $this->render_simple_field( $field, $err );
+        $value = $this->fields->render_email_field( $field );
     }
 
     /**
@@ -581,20 +548,7 @@ class PLSE_Metabox {
      * @param    string   $value    the field value
      */
     public function render_url_field ( $field ) {
-        $value = $field['value'];
-        $err = ''; 
-
-        // validate - if specified by plugin options $check_urls then try to access the URL
-        if ( ! empty( $value ) && $this->check_urls ) { // no checks or message if field empty
-            // check error, render status
-            $result = $this->init->get_url_status( $value );
-            $err   = $this->fields->add_status_to_field( $result['err'], $result['class'] );
-            $value = $result['value'];
-        }
-
-        // render the URL field, with warnings or errors added
-        $this->render_simple_field( $field, $err );
-
+        $value = $this->fields->render_url_field( $field );
     }
 
     /**
@@ -606,9 +560,7 @@ class PLSE_Metabox {
      * @param    string   $value    the field value
      */
     public function render_textarea_field ( $field ) {
-        $err = '';
         $value = $this->fields->render_textarea_field ( $field );
-        if ( ! empty( $err ) ) echo $err;
     }
 
     /**
@@ -622,15 +574,7 @@ class PLSE_Metabox {
      * @param    string   $value    the field value, with correct date format YYYY-MM-DD
      */
     public function render_date_field ( $field ) {
-
-        $err = '';
         $value = $this->fields->render_date_field ( $field );
-
-        // validate the date
-        if ( ! $this->init->is_date( $value ) ) {
-            $err = $this->fields->add_status_to_field( __( 'invalid date') );
-        }
-        if ( ! empty( $err ) ) echo $err;
     }
 
     /**
@@ -642,15 +586,7 @@ class PLSE_Metabox {
      * @param    string   $value    the field value, formatted HH:MM:AM/PM
      */
     public function render_time_field ( $field ) {
-
-        $err = '';
         $value = $this->fields->render_time_field ( $field );
-
-        // validate the date
-        if ( ! $this->init->is_time( $value ) ) {
-            $err = $this->fields->add_status_to_field( __( 'invalid time') );
-        }
-        if ( ! empty( $err ) ) echo $err;
     }
 
     /**
@@ -775,7 +711,6 @@ class PLSE_Metabox {
         }
         // Categories are dynamically loaded, so they *always* should be ok
         $field['option_list'] = $this->init->get_option_list_from_cats( $cats );
-
         $this->render_select_multiple_field( $field );
     }
 
@@ -791,7 +726,6 @@ class PLSE_Metabox {
      * @param    array    $value an array with multiple values
      */
     public function render_repeater_field ( $field ) {
-
         $field['class'] = 'plse-repeater';
         $value = $this->fields->render_repeater_field( $field );
     }

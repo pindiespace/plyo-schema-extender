@@ -476,7 +476,6 @@ class PLSE_Init {
         return $image_meta;
     }
 
-
     /**
      * Get image meta-data.
      * 
@@ -888,121 +887,9 @@ class PLSE_Init {
 
     /**
      * -----------------------------------------------------------------------
-     * TEXT FIELD VALIDATIONS
+     * DATE AND TIME CONVERSIONS
      * -----------------------------------------------------------------------
      */
-
-    /**
-     * Field is required.
-     */
-    public function is_required ( $in ) {
-        if ( empty( $in ) && $in['required'] == 'required') {
-           return true;
-        }
-        return false;
-    }
-
-    /**
-     * validate for letters, numbers, spaces only.
-     * 
-     */
-    public function is_alphanumeric ( $in ) {
-        if ( preg_match('/^[a-zA-Z0-9\s]+$/', $out ) ) {
-            return $in;
-        }
-        return false;
-    }
-
-    /**
-     * Phone number validation.
-     */
-    public function is_phone ( $in ) {
-        // sanitize
-        // check for phone format
-        $s = preg_replace( '/[\s\#0-9_\-\+\/\(\)\.]/', '', $in );
-        if ( strlen( $s ) ) {
-           return false; // empty
-        }
-        return true;
-    }
-
-    public function is_postal ( $in ) {
-        $s = preg_replace( '/[\s\-A-Za-z0-9]/', '', $out );
-        if ( strlen( $s ) ) {
-            return false;
-        }
-        return true;
-    }
-
-    public function is_url ( $in ) {
-        // Validate URI
-        if ( filter_var( $in, FILTER_VALIDATE_URL ) === FALSE
-            // check only for http/https schemes.
-            || ! in_array( strtolower( parse_url( $in, PHP_URL_SCHEME ) ), ['http','https'], true )
-        ) {
-            return false;
-        }
-        return true;
-    }
-
-    public function is_email ( $in ) {
-        return is_email( $in );
-    }
-
-    /**
-     * -----------------------------------------------------------------------
-     * DATE AND TIME VALIDATIONS
-     * -----------------------------------------------------------------------
-     */
-
-    /**
-     * Check datestring with format:
-     * yyyy-mm-dd (what is returned from HTML5 type=date fields)
-     * by converting to timestamp (strtotime()), then using wp_checkdate()
-     * 
-     * @since    1.0.0
-     * @access   public
-     * @param    string    $in    the date, in yyyy-mm-dd format
-     * @return   boolean    if valid, return true, else false
-     */
-    public function is_date ( $in ) {
-
-        if( strtotime( $in ) ) {
-
-            // assumes yyyy-mm-dd string format!
-            $dd = explode( '-', $in );
-
-            // check if the string can be converted to a Gregorian date
-            return wp_checkdate( $dd[1], $dd[2], $dd[0], $in );
-
-        }
-
-        return false;
-    }
-
-    /**
-     * Check if we have a valid time string
-     * 
-     * @since    1.0.0
-     * @access   public
-     * @param    string     $in    the time, in string format
-     * @return   boolean    if valid time, return true, else false
-     */
-    public function is_time ( $in ) {
-        return strtotime( $in );
-    }
-
-    /**
-     * Check if we have a valid number.
-     * 
-     * @since    1.0.0
-     * @access   public
-     * @param    string    $in    the duration, in seconds
-     * @return   boolean   if valid duration, return true, else false
-     */
-    public function is_int ( $in ) {
-        return is_int( (int) $in );
-    }
 
     /**
      * Convert time duration, in seconds to ISO8601

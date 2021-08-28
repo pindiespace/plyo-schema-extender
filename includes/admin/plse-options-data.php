@@ -388,8 +388,8 @@ class PLSE_Options_Data {
                     'title' => 'Add one or more images of the service',
                     'type' => PLSE_INPUT_TYPES['REPEATER'],
                     'subtype' => PLSE_INPUT_TYPES['URL'],
+                    'description' => 'Additional images associated with the service',
                     'required' => '',
-                    'wp_data' => 'post_meta',
                     'is_image' => true // for repeater fields
                 ),
 
@@ -401,11 +401,47 @@ class PLSE_Options_Data {
                     'title' => 'More detailed descritpion of the service',
                 ),
 
+                'start_date' => array(
+                    'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_SERVICE . '-start-date',
+                    'label' => 'Start Date',
+                    'title' => 'Day when the event starts',
+                    'type'  => PLSE_INPUT_TYPES['DATE'],
+                    'description' => 'When the Service first started',
+                    'required' => 'required',
+                ),
+
+                'start_time' => array(
+                    'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_SERVICE . '-start-time',
+                    'label' => 'Start Time',
+                    'title' => 'Day when the event starts',
+                    'type'  => PLSE_INPUT_TYPES['TIME'],
+                    'description' => 'The time the Service first started',
+                    'required' => 'required',
+                ),
+
+                'service_number' => array(
+                    'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_SERVICE . '-number',
+                    'label' => 'Service Number',
+                    'title' => 'The Number of the Service',
+                    'type'  => PLSE_INPUT_TYPES['INT'],
+                    'description' => 'The number associated with the service',
+                    'required' => 'required',
+                ),
+
+                'service_quantity' => array(
+                    'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_SERVICE . '-quantity',
+                    'label' => 'Service Quantity',
+                    'title' => 'The Quantity of the Service',
+                    'type'  => PLSE_INPUT_TYPES['FLOAT'],
+                    'description' => 'The quantity associated with the service',
+                    'required' => 'required',
+                ),
+
                 'service_length' => array(
                     'slug' => PLSE_OPTIONS_SLUG . '-' . PLSE_SCHEMA_SERVICE . '-service-length',
                     'label' => 'Length of Service',
                     'type'  => PLSE_INPUT_TYPES['DURATION'],
-                    'description' => 'Start of the service',
+                    'description' => 'The length the service typically runs',
                     'title' => 'Start of Service',
                     'max' => '10800', // 3 hours, in seconds
                 ),

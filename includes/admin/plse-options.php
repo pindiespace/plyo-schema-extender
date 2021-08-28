@@ -525,8 +525,7 @@ class PLSE_Options {
         register_setting(
             $this->option_group, // overall option group
             $field['slug'],      // slug for input field
-            // third argument is callback for validation function
-            [ $this, $validation_callback ] // VALIDATION CALLBACK
+            [ $this, $validation_callback ] // third argument is callback for validation function
         );
 
     }
@@ -567,27 +566,19 @@ class PLSE_Options {
      * @param    array    $field name of field, state, additional properties
      */
     public function render_hidden_field ( $field ) {
-        $value = $field['value'];
-        $slug  = sanitize_key( $field['slug'] );
-        $state = esc_html( $field['state'] );
-        $title = esc_html( $field['title'] );
-        $label = esc_html( $field['label'] );
-
-        echo '<label style="display:block;" for="' . $slug . '">' . $label . '</label>';
-        echo '<input type="hidden" id="' . $slug . '" name="' . $slug . '" value="' . $value . '" />';	
-
+        $this->fields->render_simple_field( $field );
     }
 
     /**
-     * Render a button.
+     * Render a button. Doesn't save DB values, but connects to JS or Ajax 
+     * scripts.
      * 
      * @since    1.0.0
      * @access   public
      * @param    array    $field    arguments neeeded to render the field
-     * @param    string   $value   serialized or unserialized field value
+     * @param    string   $value    serialized or unserialized field value
      */
     public function render_button_field ( $field ) {
-
         $slug  = sanitize_key( $field['slug'] );
         $state = esc_html( $field['state'] );
         $title = esc_html( $field['title'] );
@@ -595,9 +586,11 @@ class PLSE_Options {
 
         /*
          * option value (from a different field) that affects this control 
-         * use variable variable '$$' to make field ($field) value into a class variable
+         * use variable variable '${...}' to make field ($field) value into a class variable
+         * 
+         * for Yoast Local SEO, this will create a test for the array that plugin generates.
          */
-        if ( ! is_array( $this->{$field['slug_dependent']} ) ) {
+        if ( ! is_array( $this->{ $field['slug_dependent'] } ) ) {
             $disabled='disabled';
             $msg = $field['msg_disabled'];
         } else {
@@ -631,7 +624,8 @@ class PLSE_Options {
      * @param    array    $field name of field, state, additional properties
      */
     public function render_text_field ( $field ) {
-        $value = $this->render_simple_field( $field );
+        $field['class'] = 'plse-option-input';
+        $value = $this->fields->render_text_field( $field );
     }
 
     /**
@@ -641,10 +635,8 @@ class PLSE_Options {
      * @param    array    $field name of field, state, additional properties
      */
     public function render_postal_field ( $field ) {
-        $value = $this->render_simple_field( $field );
-        if ( ! $this->init->is_postal( $value ) ) {
-            echo $this->fields->add_status_to_field( __( 'Invalid postal address') );
-        }
+        $field['class'] = 'plse-option-input';
+        $value = $this->fields->render_postal_field( $field );
     }
 
     /**
@@ -654,10 +646,8 @@ class PLSE_Options {
      * @param    array    $field name of field, state, additional properties
      */
     public function render_tel_field ( $field ) {
-        $value = $this->render_simple_field( $field );
-        if ( ! $this->init->is_phone( $value ) ) {
-            echo $this->fields->add_status_to_field( __( 'Invalid phone') );
-        }
+        $field['class'] = 'plse-option-input';
+        $value = $this->fields->render_phone_field( $field );
     }
 
     /**
@@ -667,10 +657,8 @@ class PLSE_Options {
      * @param    array    $field name of field, state, additional properties
      */
     public function render_email_field ( $field ) {
-        $value = $this->render_simple_field( $field );
-        if ( ! $this->init->is_email( $value ) ) {
-            echo $this->fields->add_status_to_field( __( 'Invalid email' ) );
-        }
+        $field['class'] = 'plse-option-input';
+        $value = $this->fields->render_email_field( $field );
     }
 
     /**
@@ -680,10 +668,28 @@ class PLSE_Options {
      * @param    array    $field name of field, state, additional properties
      */
     public function render_url_field ( $field ) {
-        $value = $this->render_simple_field( $field );
-        if ( ! $this->init->get_final_url( $value ) ) {
-            echo $this->fields->add_status_to_field( __( 'Invalid URL') );
-        }
+        $field['class'] = 'plse-option-input';
+        $value = $this->fields->render_url_field( $field );
+    }
+
+    /**
+     * render an integer field
+     * @since    1.0.0
+     * @access   public
+     * @param    array    $field name of field, state, additional properties
+     */
+    public function render_int_field ( $field ) {
+        $this->fields->render_int_field( $field );
+    }
+
+    /**
+     * render an float field
+     * @since    1.0.0
+     * @access   public
+     * @param    array    $field name of field, state, additional properties
+     */
+    public function render_float_field ( $field ) {
+        $this->fields->render_float_field( $field );
     }
 
     /**
@@ -694,7 +700,6 @@ class PLSE_Options {
      * @param    array    $field name of field, state, additional properties
      */
     public function render_textarea_field ( $field ) {
-
         $field['class'] = 'plse-option-input';
         $value = $this->fields->render_textarea_field( $field );
     }
@@ -708,6 +713,17 @@ class PLSE_Options {
     public function render_date_field ( $field ) {
         $field['class'] = 'plse-option-input';
         $value = $this->fields->render_date_field( $field );
+    }
+
+    /**
+     * Render a time field.
+     * @since    1.0.0
+     * @access   public
+     * @param    array    $field name of field, state, additional properties
+     */
+    public function render_time_field ( $field ) {
+        $field['class'] = 'plse-option-input';
+        $value = $this->fields->render_time_field( $field );
     }
 
     /**
@@ -730,11 +746,9 @@ class PLSE_Options {
      * @param    array    $field name of field, state, additional properties
      */
     public function render_checkbox_field ( $field ) {
-
         $field['class'] = 'plse-option-ctl-highlight';
         $value = $this->fields->render_checkbox_field( $field );
     }
-
 
     /**
      * Render a datalist. Only text datalists supported.
@@ -860,32 +874,6 @@ class PLSE_Options {
         $value = $this->fields->render_video_field( $field );
     }
 
-    /**
-     * render an integer field
-     * @since    1.0.0
-     * @access   public
-     * @param    array    $field name of field, state, additional properties
-     */
-    public function render_int_field ( $field ) {
-        if ( isset( $field['min'] ) ) $field['min'] = (float) $field['min'];
-        if ( isset( $field['max'] ) ) $field['max'] = (float) $field['max'];
-        if ( isset( $field['step'] ) ) $field['step'] = (float) $field['step'];
-        $this->render_simple_field( $field, $value );
-    }
-
-    /**
-     * render an float field
-     * @since    1.0.0
-     * @access   public
-     * @param    array    $field name of field, state, additional properties
-     */
-    public function render_float_field ( $field ) {
-        if ( isset( $field['min'] ) ) $field['min'] = (float) $field['min'];
-        if ( isset( $field['max'] ) ) $field['max'] = (float) $field['max'];
-        if ( isset( $field['step'] ) ) $field['step'] = (float) $field['step'];
-        $this->render_simple_field( $field, $value );
-    }
-
     /*
      * ------------------------------------------------------------------------
      * DATA VALIDATION (AND SANITIZE) METHODS
@@ -925,10 +913,21 @@ class PLSE_Options {
         return apply_filters( [ $this, 'validate_hidden_field' ], $out, $in );
     }
 
+    /**
+     * Validate text field.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    $string    $in    data input into the field.
+     * @return   mixed      use apply_filters to return $in and $out
+     */
+    public function validate_text_field ( $in ) {
+        $out = $in;
+        return apply_filters( [ $this, 'validate_text_field' ], $out, $in );
+    }
 
     /**
-     * Validate phone field, after WooCommerce method, check for string length 
-     * after stripping all valid characters.
+     * Validate phone field.
      * 
      * @since    1.0.0
      * @access   public
@@ -938,7 +937,7 @@ class PLSE_Options {
     public function validate_phone_field ( $in ) {
         // sanitize
         $out = $in = trim( sanitize_text_field( $in ) );
-        if( ! $this->init->is_phone( $out ) ) {
+        if( ! $this->fields->is_phone( $out ) ) {
             add_settings_error(
                 $this->option_group,
                 'phone_validation_error',
@@ -960,11 +959,11 @@ class PLSE_Options {
      */
     public function validate_postal_field ( $in ) {
         $out = $in = trim( sanitize_text_field ( $in ) );
-        if ( ! $this->init->is_postal( $out ) ) {
+        if ( ! $this->fields->is_postal( $out ) ) {
             add_settings_error(
                 $this->option_group,
                 'phone_validation_error',
-                '<span style="color:red">Error:</span>' . __( 'Invalid Postal Code, extra characters: ('.$out.'), please re-enter' ),
+                '<span style="color:red">Error: </span>' . __( 'Invalid Postal Code, extra characters: ('.$out.'), please re-enter' ),
                 'error'
             );
         }
@@ -981,7 +980,7 @@ class PLSE_Options {
      */
     public function validate_email_field ( $in ) {
         $out = $in = sanitize_email( trim( $in ) );
-        if ( ! is_email( $out ) ) {
+        if ( ! $this->fields->is_email( $out ) ) {
             add_settings_error(
                 $this->option_group,
                 'email_validation_error',
@@ -1002,7 +1001,7 @@ class PLSE_Options {
      */
     public function validate_url_field ( $in ) {
         $in = sanitize_text_field( trim( $in ) );
-        $out = esc_url( $in, [ 'http', 'https' ] );
+        $out = esc_url_raw( $in, [ 'http', 'https' ] );
         if ( $out != $in || ! $this->init->get_final_url( $out) ) {
             add_settings_error(
                 $this->option_group,
@@ -1014,6 +1013,61 @@ class PLSE_Options {
         return apply_filters( [ $this, 'validate_url_field' ], $out, $in );
     }
 
+    /**
+     * Validate the value of a field as an integer.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    $string    $in    data input into the field.
+     * @return   mixed      use apply_filters to return $in and $out
+     */
+    public function validate_int_field ( $in ) {
+        $out = sanitize_text_field( trim( $in ) );
+        if ( ! $this->fields->is_int( $out ) ) {
+            add_settings_error(
+                $this->option_group,
+                'int_validation_error',
+                '<span style="color:red">Error:</span>' . __( 'Invalid Integer ('. $out .'), please re-enter' ),
+                'error'
+            );
+        }
+        return apply_filters( [ $this, 'validate_int_field' ], $out, $in );
+    }
+
+    /**
+     * Validate the value of a field as an integer.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    $string    $in    data input into the field.
+     * @return   mixed      use apply_filters to return $in and $out
+     */
+    public function validate_float_field ( $in ) {
+        $out = sanitize_text_field( trim( $in ) );
+        if ( ! $this->fields->is_float( $out ) ) {
+            add_settings_error(
+                $this->option_group,
+                'int_validation_error',
+                '<span style="color:red">Error:</span>' . __( 'Invalid Float ('. $out .'), please re-enter' ),
+                'error'
+            );
+        }
+        return apply_filters( [ $this, 'validate_int_field' ], $out, $in );
+    }
+
+    /**
+     * Validate textarea.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    $string    $in    data input into the field.
+     * @return   mixed      use apply_filters to return $in and $out
+     */
+    public function validate_textarea_field ( $in ) {
+        $out = $in = sanitize_text_field( trim( $in ) );
+        // TODO: validation
+        return apply_filters( [ $this, 'validate_textarea_field' ], $out, $in );
+    }
 
     /**
      * Validate checkbox.
@@ -1030,6 +1084,34 @@ class PLSE_Options {
     }
 
     /**
+     * Validate date.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    $string    $in    data input into the field.
+     * @return   mixed      use apply_filters to return $in and $out
+     */
+    public function validate_date_field ( $in ) {
+        $out = $in = sanitize_text_field( trim( $in ) );
+        // TODO: validation
+        return apply_filters( [ $this, 'validate_date_field' ], $out, $in );
+    }
+
+    /**
+     * Validate duration.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    $string    $in    data input into the field.
+     * @return   mixed      use apply_filters to return $in and $out
+     */
+    public function validate_duration_field ( $in ) {
+        $out = $in = sanitize_text_field( trim( $in ) );
+        // TODO: validation
+        //return apply_filters( [ $this, 'validate_duration_field' ], $out, $in );
+    }
+
+    /**
      * Validate multi-select dropdown for available Custom Post Types.
      * 
      * @since    1.0.0
@@ -1039,9 +1121,6 @@ class PLSE_Options {
      */
     public function validate_cpt_field ( $in ) {
         $out = $in;
-        // TODO: sanitize
-        // sanitize_key() or slug
-        // return empty string if sanitize fails
         return apply_filters( [ $this, 'validate_multi_cpt_field' ], $out, $in );
     }
 
@@ -1054,8 +1133,6 @@ class PLSE_Options {
      */
     public function validate_cat_field ( $in ) {
         $out = $in;
-        // TODO: sanitize key or slug
-        // Return the array processing any additional functions filtered by this action
         return apply_filters( [ $this, 'validate_multi_cat_field' ], $out, $in );
     }
 
@@ -1068,52 +1145,62 @@ class PLSE_Options {
      * @return   mixed      use apply_filters to return $in and $out
      */
     public function validate_image_field ( $in ) {
-        $out = $in;
-        // TODO: validate image
-        // Return the array processing any additional functions filtered by this action
+        $in = sanitize_text_field( trim( $in ) );
+        $out = esc_url_raw( $in, [ 'http', 'https' ] );
+        if ( $out != $in || ! $this->init->get_final_url( $out) ) {
+            add_settings_error(
+                $this->option_group,
+                'url_validation_error',
+                '<span style="color:red">Error:</span>' . __( 'Invalid Image URL ('. $out .'), please re-enter' ),
+                'error'
+            );
+        }
         return apply_filters( [ $this, 'validate_image_field' ], $out, $in );
     }
 
     /**
-     * Validate the value of a field as an integer.
+     * Validate audio field data.
      * 
      * @since    1.0.0
      * @access   public
      * @param    $string    $in    data input into the field.
      * @return   mixed      use apply_filters to return $in and $out
      */
-    public function validate_int_field ( $in ) {
-        $out = sanitize_text_field( trim( $in ) );
-        if ( ! is_int( $out ) ) {
+    public function validate_audio_field ( $in ) {
+        $in = sanitize_text_field( trim( $in ) );
+        $out = esc_url_raw( $in, [ 'http', 'https' ] );
+        if ( $out != $in || ! $this->init->get_final_url( $out) ) {
             add_settings_error(
                 $this->option_group,
-                'int_validation_error',
-                '<span style="color:red">Error:</span>' . __( 'Invalid Integer ('.$out.'), please re-enter' ),
+                'url_validation_error',
+                '<span style="color:red">Error:</span>' . __( 'Invalid Audio URL ('. $out .'), please re-enter' ),
                 'error'
             );
         }
-        return apply_filters( [ $this, 'validate_int_field' ], $out, $in );
+        return apply_filters( [ $this, 'validate_audio_field' ], $out, $in );
     }
 
     /**
-     * Validate the value of a field as floating-point.
+     * Validate video field data.
      * 
      * @since    1.0.0
      * @access   public
      * @param    $string    $in    data input into the field.
      * @return   mixed      use apply_filters to return $in and $out
      */
-    public function validate_float_field ( $in ) {
-        $out = sanitize_text_field( trim( $in ) );
-        if ( ! is_float( $out ) ) {
+    public function validate_video_field ( $in ) {
+        $in = sanitize_text_field( trim( $in ) );
+        $out = esc_url_raw( $in, [ 'http', 'https' ] );
+        if ( $out != $in || ! $this->init->get_final_url( $out) ) {
             add_settings_error(
                 $this->option_group,
-                'float_validation_error',
-                '<span style="color:red">Error:</span>' . __( 'Invalid Floating-point number ('.$out.'), please re-enter' ),
+                'url_validation_error',
+                '<span style="color:red">Error:</span>' . __( 'Invalid Video URL ('. $out .'), please re-enter' ),
                 'error'
             );
         }
-        return apply_filters( [ $this, 'validate_int_field' ], $out, $in );
+        return apply_filters( [ $this, 'validate_video_field' ], $out, $in );
     }
+
 
 } // end of class
