@@ -388,7 +388,7 @@
             this.setAttribute('value', val );
             let p = $(this).parents('div')[0];
             p.getElementsByClassName('plse-slider-output')[0].innerHTML = hms;
-
+            console.log('new duration value is:' + val);
         });
 
         // fire this once on load
@@ -425,13 +425,15 @@
             e.preventDefault();
             var slug = $(this).data('media');
             console.log("BUTTON DATA-slug:" + slug);
-            console.log("IMAGE SLUG:" + $('#' + slug + '-img-id').attr('src'));
+            //console.log("IMAGE SLUG:" + $('#' + slug + '-img-id').attr('src'));
 
             // if we do this, media uploader is stuck on the first data-media we return. 
             // if(mediaUploader) {
             //    mediaUploader.open();
             //    return;
             // }
+
+            // NOTE: may see a LastPass error here, .toLowerCase is not a function
 
             mediaUploader = wp.media.frames.meta_image_frame = wp.media({
                 title: 'Select or upload image',

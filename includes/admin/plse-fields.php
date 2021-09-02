@@ -161,6 +161,43 @@ class PLSE_Fields {
     }
 
     /**
+     * Get value, either an array or simple value
+     * 1. Most metabox fields
+     *   - simple value, text, number
+     *   -  Array ( [0] => MultiPlayer [1] => SinglePlayer [2] => )
+     * 2. metabox multi-select <select multiple...>
+     *   - Array ( [0] => Array ( [plyo-schema-extender-game-operating_system] => Array ( [0] => steamos ) ) )
+     * 3. Options (Settings API)
+     *   - simple value
+     *   . Array ( [plse-settings-game-cpt-slug] => Array ( [0] => game ) )
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    mixed    $field the incoming value, which may be array, string, etc.
+     * @return   mixed    the value, removed from wrapper arrays, either an array, string, number
+     */
+    public function get_value ( $field ) {
+        $val = $field['value'];
+        if ( is_array( $val ) ) {
+            if ( isset( $val[0] ) ) {
+                if ( isset( $val[0][ $field['slug'] ] ) ) { 
+                    echo '$val[0][ $field[\'slug\'] ]';
+                    return $val[0][ $field['slug'] ]; // indexed array under slug
+                } else {
+                    /////echo '$val[0]';
+                    return $val; // simple indexed array
+                }
+            } else if ( isset( $val[ $field['slug'] ] ) ) {
+                /////echo '$val[ $field[\'slug\'] ]';
+                /////print_r ($val[ $field['slug' ] ]);
+                return $val[ $field['slug' ] ]; 
+            }
+        }
+        /////echo 'SIMPLE VALUE';
+        return $val;
+    }
+
+    /**
      * Field is required.
      * 
      * @since    1.0.0
@@ -175,22 +212,30 @@ class PLSE_Fields {
     }
 
     /**
-     * Field was changed by sanitization.
+     * Field values were changed by sanitization.
      * 
      * @since    1.0.0
      * @access   public
      * @param    array    $field
      */
-    public function was_sanitized ( $field, $value ) {
-        // if the field was not empty
-        if ( ! empty( $field['value'] ) ) {
-
-            // if the field changed after processing
-            if ( $field['value'] != $value ) {
-                return true;
+    public function was_sanitized ( $field, $val2 ) {
+        $val1 = $field['value'];
+        if ( is_array( $val1 ) ) {
+            foreach ( $val1 as $key => $v ) {
+                if ( ! isset( $val2[ $key ] ) ) return true;
+                if ( $v != $val2[$key] ) return true;
             }
-        } 
+        } else {
+            // if the field was not empty
+            if ( ! empty( $field['value'] ) ) {
 
+                // if the field changed after processing
+                if ( $field['value'] != $value ) {
+                    return true;
+                }
+            }
+        }
+ 
         return false;
     }
 
@@ -350,6 +395,197 @@ class PLSE_Fields {
 
     /**
      * -----------------------------------------------------------------------
+     * URL VALIDATIONS
+     * See if URL resolves to a real Internet address
+     * {@link https://stackoverflow.com/questions/3799134/how-to-get-final-url-after-following-http-redirections-in-pure-php/7555543}
+     * -----------------------------------------------------------------------
+     */
+
+    /**
+     * get_redirect_url()
+     * 
+     * Gets the address that the provided URL redirects to, or just returns the original 
+     * URL if there is no redirection. Returns errors for common HTTP/HTTPS errors
+     * 
+     * Modified from:
+     * {@link https://stackoverflow.com/questions/3799134/how-to-get-final-url-after-following-http-redirections-in-pure-php/7555543}
+     *
+     * @since    1.0.0
+     * @access   public
+     * @param    string    $url   (http: or https:)
+     * @return   string    if ok, return URL (redirected), else false
+     */
+    public function get_redirect_url ( $url ) {
+
+        $redirect_url = null;
+
+        // break up the url into its components
+        $url_parts = @parse_url( $url );
+        if ( ! $url_parts ) return false;
+        if ( ! isset( $url_parts['host'] ) ) return false; //can't process relative URLs
+        if ( ! isset( $url_parts['path'] ) ) $url_parts['path'] = '/';
+
+        // url structure valid, so try to connect
+        $sock = @fsockopen( $url_parts['host'], ( isset($url_parts['port'] ) ? (int)$url_parts['port'] : 80 ), $errno, $errstr, 30 );
+        if ( ! $sock ) return 'Error: No Response';
+
+        // build the request
+        $request = "HEAD " . $url_parts['path'] . ( isset($url_parts['query'] ) ? '?' . $url_parts['query'] : '' ) . " HTTP/1.1\r\n";
+        $request .= 'Host: ' . $url_parts['host'] . "\r\n";
+        $request .= "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36\r\n";
+        $request .= "Connection: Close\r\n\r\n";
+        fwrite( $sock, $request );
+        $response = '';
+
+        // wait for a response
+        while ( ! feof( $sock ) ) $response .= fread($sock, 8192);
+        fclose($sock);
+
+        // not a redirect, but if we get a 200 response with no redirects, the URL is valid, so return it
+        if ( stripos( $response, '200 OK') !== false ) {
+            return $url;
+        }
+
+        // if the URL doesn't exist, return an error
+        if ( stripos( $response, '404 Not Found' ) !== false ) {
+            return 'Error: 404 Not Found';
+        }
+
+        // if the server is valid, but request isn't return an error
+        if ( stripos( $response, '400 Bad Request' ) !== false ) {
+            return 'Error: 400 malformed URL';
+        }
+
+        // if the server is valid, but request is invalid (e.g. not logged in), return an error
+        if ( stripos( $response, '403 Forbidden' ) !== false ) {
+            return 'Error: 403 forbidden';
+        }
+
+        // if the server is valid, but it doesn't return a value 
+        //if ( stripos( $response, '304 Not Modified' ) !== false ) {
+        //    return 'Error: clear your cache';
+        //}
+
+        // if the URL was moved, return the redirect
+        if ( preg_match( '/^Location: (.+?)$/m', $response, $matches ) ) {
+            if ( substr( $matches[1], 0, 1 ) == "/" )
+                return $url_parts['scheme'] . "://" . $url_parts['host'] . trim( $matches[1] );
+            else
+                return trim( $matches[1] );
+
+        } else {
+            return false;
+        }
+
+    }
+
+    /**
+     * get_all_redirects()
+     * 
+     * Follows and collects the original URL, plus all redirects, in order, for the given URL.
+     * 
+     * Modified from:
+     * {@link https://stackoverflow.com/questions/3799134/how-to-get-final-url-after-following-http-redirections-in-pure-php/7555543}
+     * 
+     * @since    1.0.0
+     * @access   private
+     * @param    string   $url
+     * @return   array    $redirects
+     */
+    public function get_all_redirects( $url ) {
+        $redirects = array();
+        while ( $newurl = $this->get_redirect_url( $url ) ) {
+            if ( in_array( $newurl, $redirects ) ) { break; }
+            $redirects[] = $newurl;
+            $url = $newurl;
+        }
+
+        return $redirects;
+    }
+
+    /**
+     * get_final_url()
+     * 
+     * Gets the address that the URL ultimately leads to.
+     * Returns $url itself if it isn't a redirect,
+     * or 'Error: No Response'
+     * or 'Error: 404 Not Found',
+     * 
+     * Modified from:
+     * {@link https://stackoverflow.com/questions/3799134/how-to-get-final-url-after-following-http-redirections-in-pure-php/7555543}
+     *
+     * @since    1.0.0
+     * @access   public
+     * @param    string $url
+     * @return   string|false if OK, return the final URL, else return false
+     */
+    public function get_final_url ( $url ) {
+
+        // if a URL is typed in without http|https add it so we can test (altered URL not returned by this test).
+        if ( stripos( $url, 'http' ) === false ) $url = 'http://' . $url;
+
+        // check if URL is valid, following redirects as necesary
+        $redirects = $this->get_all_redirects( $url );
+        if ( count( $redirects) > 0 ) {
+            return array_pop( $redirects );
+        } else {
+            return false;
+        }
+
+    }
+
+    /**
+     * Complete URL status check and reporting.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    string    $url    the http/https address to check
+     * @param    
+     */
+    public function get_url_status ( $url ) {
+
+        $err = ''; // just a string
+
+        // check if the URL (or a redirect) is reachable
+        $valid = $this->get_final_url( $url );
+
+        if ( ! $valid ) { // a false was returned, nothing came back (Internet down?)
+
+            $err = __( 'status unknown (check connection) for:' ) . $url; // caution
+            $class = 'plse-input-msg-caution';
+
+        } else {
+
+            if ( stripos( $valid, 'Error:') !== false ) {
+                $err = $valid;
+                $class = $this->ERROR_CLASS;
+            } else if ( $valid != $url ) {
+                if ( stripos( $url, 'http:') !== false && stripos( $url, 'https') !== false ) {
+                    $err   = __( 'valid, url was changed to https' );
+                    $class = $this->CAUTION_CLASS;
+                    $url = $valid; // convert http to https
+                } else {
+                    $err = __( 'valid, redirected, change to: ' ) . $valid;
+                    $class = 'plse-input-msg-caution';
+                }
+            } else {
+                $err = __( 'validated');
+                $class = $this->OK_CLASS;
+            }
+
+        }
+
+        // return the status, and altered (if changed) URL value
+        return array(
+            'err' => $err,
+            'value' => $url,
+            'class' => $class,
+        );
+
+    }
+
+    /**
+     * -----------------------------------------------------------------------
      * RENDER INPUT FIELDS
      * -----------------------------------------------------------------------
      */
@@ -368,11 +604,11 @@ class PLSE_Fields {
         switch ( $field['type'] ) {
 
             default:
-                $class = 'plse-option-description';
+                $class = 'plse-label-description';
                 break;
         }
 
-        $label = '<label class="' . $class . '" for="' . $field['slug'] . '">' . $field['label'] . '</label>';
+        $label = '<label class="" style="display:block;" for="' . $field['slug'] . '"><span class="' . $class . '">' . $field['label'] . ':</span></label>';
 
         return $label; // for error checks
 
@@ -389,7 +625,8 @@ class PLSE_Fields {
     public function render_simple_field ( $field ) {
 
         // if value is an array, return the first value only (can happen with post meta-data)
-        if ( is_array( $field['value'] ) ) $value = $field['value'][0];
+        //////////if ( is_array( $field['value'] ) ) $value = $field['value'][0];
+        $value = $this->get_value( $field );
 
         // required fields
         $value = esc_html( sanitize_text_field( $field['value'] ) );
@@ -516,7 +753,7 @@ class PLSE_Fields {
         $value = $this->render_simple_field( $field, $err );
         if ( ! empty( $value ) && $this->check_urls ) { // no checks or message if field empty
             // check error, render status
-            $result = $this->init->get_url_status( $value );
+            $result = $this->get_url_status( $value );
             if ( ! empty( $result['err'] ) ) {
                 $err = $this->add_status_to_field( $result['err'], $result['class'] );
             } else {
@@ -540,8 +777,12 @@ class PLSE_Fields {
     public function render_int_field ( $field ) {
         $err = '';
 
+        $value = $this->get_value( $field );
+        $value = (int) $value;
+
         // value is number
-        $value = (int) $field['value'];
+       ///////// $value = (int) $field['value'];
+        $field['type'] = 'number'; // change since there is no type='int'
 
         // range attributes
         if ( isset( $field['min'] ) ) $field['min'] = (int) $field['min']; else $field['min'] = 0;
@@ -578,8 +819,12 @@ class PLSE_Fields {
     public function render_float_field ( $field ) {
         $err = '';
 
+        $value = $this->get_value( $field );
+        $value = (float) $value;
+
         // value is number
-        $value = (float) $field['value'];
+        ////////$value = (float) $field['value'];
+        $field['type'] = 'number';
 
         // range attributes
         if ( isset( $field['min'] ) ) $field['min'] = (float) $field['min']; else $field['min'] = 0;
@@ -617,11 +862,13 @@ class PLSE_Fields {
      */
     public function render_textarea_field ( $field ) {
 
+        $value = $this->get_value( $field );
+
         // if value is an array, return the first value only (can happen with post meta-data)
-        if ( is_array( $field['value'] ) ) $value = $field['value'][0];
+        ////////if ( is_array( $field['value'] ) ) $value = $field['value'][0]; else $value = $field['value'];
 
         // required fields
-        $value = esc_html( sanitize_text_field( $field['value'] ) );
+        $value = esc_html( sanitize_text_field( $value ) );
         $slug  = sanitize_key( $field['slug'] );
         $title = esc_html( $field['title'] );
         $type = $field['type'];
@@ -658,11 +905,13 @@ class PLSE_Fields {
      */
     public function render_date_field ( $field ) {
 
+        $value = $this->get_value( $field );
+
         // if value is an array, return the first value only (can happen with post meta-data)
-        if ( is_array( $field['value'] ) ) $value = $field['value'][0];
+        ////if ( is_array( $field['value'] ) ) $value = $field['value'][0]; else $value = $field['value'];
 
         // required fields
-        $value = esc_html( sanitize_text_field( $field['value'] ) );
+        $value = esc_html( sanitize_text_field( $value ) );
         $slug  = sanitize_key( $field['slug'] );
         $title = esc_html( $field['title'] );
 
@@ -693,11 +942,13 @@ class PLSE_Fields {
      */
     public function render_time_field ( $field ) {
 
+        $value = $this->get_value( $field );
+
         // if value is an array, return the first value only (can happen with post meta-data)
-        if ( is_array( $field['value'] ) ) $value = $field['value'][0];
+        /////if ( is_array( $field['value'] ) ) $value = $field['value'][0]; else $value = $field['value'];
 
         // required fields
-        $value = esc_html( sanitize_text_field( $field['value'] ) );
+        $value = esc_html( sanitize_text_field( $value ) );
         $slug  = sanitize_key( $field['slug'] );
         $title = esc_html( $field['title'] );
 
@@ -728,15 +979,23 @@ class PLSE_Fields {
      */
     public function render_duration_field ( $field ) {
 
+        $value = $this->get_value( $field );
+
         // if value is an array, return the first value only (can happen with post meta-data)
-        if ( is_array( $field['value'] ) ) $value = $field['value'][0];
-        // if value is missing or some falsy thing, make it zero
-        if ( ! $value ) $value = '0';
+        //if ( is_array( $field['value'] ) ) {
+        //    echo "ITS AN ARRAY!!!!!!";
+        //    $value = $field['value'][0];
+        //} else {
+        //    $value = $field['value'];
+        //}
 
         // required fields
-        $value = esc_attr( sanitize_text_field( $field['value'] ) );
+        $value = esc_attr( sanitize_text_field( $value ) );
         $slug  = sanitize_key( $field['slug'] );
         $title = esc_html( $field['title'] );
+
+        // if value is missing or some falsy thing, make it zero
+        if ( ! $value ) $value = '0';
 
         // optional field values
         if ( isset( $field['state'] ) ) $state = esc_html( $field['state'] ); else $state = '';
@@ -768,11 +1027,13 @@ class PLSE_Fields {
      */
     public function render_checkbox_field ( $field ) {
 
+        $value = $this->get_value( $field );
+
         // if value is an array, return the first value only (can happen with post meta-data)
-        if ( is_array( $field['value'] ) ) $value = $field['value'][0];
+        ////////if ( is_array( $field['value'] ) ) $value = $field['value'][0]; else $value = $field['value'];
     
         // required fields
-        $value = esc_html( sanitize_key( $field['value'] ) );
+        $value = esc_html( sanitize_key( $value ) );
         $slug  = sanitize_key( $field['slug'] );
         $title = esc_html( $field['title'] );
 
@@ -806,11 +1067,13 @@ class PLSE_Fields {
      */
     public function render_datalist_field ( $field ) {
 
+        $value = $this->get_value( $field );
+
         // if value is an array, return the first value only (can happen with post meta-data)
-        if ( is_array( $field['value'] ) ) $value = $field['value'][0];
+        //////////if ( is_array( $field['value'] ) ) $value = $field['value'][0];
 
         // required fields
-        $value = esc_html( sanitize_text_field( $field['value'] ) );
+        $value = esc_html( sanitize_text_field( $value ) );
         $slug  = sanitize_key( $field['slug'] );
         $title = esc_html( $field['title'] );
        
@@ -884,11 +1147,13 @@ class PLSE_Fields {
      */
     public function render_select_single_field ( $field ) {
 
+        $value = $this->get_value( $field );
+
         // if value is an array, return the first value only (can happen with post meta-data)
-        if ( is_array( $field['value'] ) ) $value = $field['value'][0];
+        /////////if ( is_array( $field['value'] ) ) $value = $field['value'][0];
 
         // required fields
-        $value = esc_html( sanitize_text_field( $field['value'] ) );
+        $value = esc_html( sanitize_text_field( $value ) );
         $slug  = sanitize_key( $field['slug'] );
         $title = esc_html( $field['title'] );
 
@@ -951,15 +1216,9 @@ class PLSE_Fields {
          * multiple values present - get the actual option values out of their enclosing array
          * multiple values are stored as array( 'slug' => $value_array );
          */
-        $values = $field['value'];
+        $values = $this->get_value( $field );
 
-        // get the values array out of possible wrappers
-        if ( isset( $values[ $slug ] ) ) {
-            $v = $values[ $slug ]; // Settings API array( $array[slug1]=>array ) );
-        }
-        else if ( isset( $values[0] ) && is_array( $values[0] ) ) {
-            $v = $values[0][ $slug ]; // metabox meta-data array=>(array[0]=>([slug1]=>(array),[slug2]=>(array)))
-        }
+        if (isset($values['junk'])) echo "JUNK:" . $junk;
 
         // required fields
         $title = esc_html( $field['title'] );
@@ -975,7 +1234,7 @@ class PLSE_Fields {
             if ( is_array( $option_list ) ) {
 
                 // converts array to <option>...</option>
-                $options = $this->datalists->get_select( $option_list, $v );
+                $options = $this->datalists->get_select( $option_list, $values );
 
                 if ( empty( $options ) ) {
                     $err = $this->add_status_to_field( __( 'options not defined' ), $this->ERROR_CLASS );
@@ -986,7 +1245,7 @@ class PLSE_Fields {
                 // get a standard <option>...</option> list
                 $method = 'get_' . $option_list . '_select';
                 if ( method_exists( $this->datalists, $method ) ) { 
-                    $options = $this->datalists->$method( $v ); 
+                    $options = $this->datalists->$method( $values );
                     if ( empty( $options ) ) {
                         $err = $this->add_status_to_field( __( 'options not defined' ), $this->ERROR_CLASS );
                     }
@@ -997,12 +1256,16 @@ class PLSE_Fields {
         }
 
         // note $slug[], which specifies multiple values stored in one option.
-        echo '<div class="plse-option-select"><select multiple name="' . $slug .'[' . $slug . '][]" class="plse-option-select-dropdown" >' . "\n";
+        echo '<div class="plse-option-select">';
+        // add the field label
+        echo $this->render_label( $field );
+        echo '<select multiple name="' . $slug .'[' . $slug . '][]" class="plse-option-select-dropdown">' . "\n";
         echo $options;
         echo '</select>' . "\n";
         if ( ! empty( $err ) ) echo $err;
-        // add the field label
-        echo '<label class="plse-option-select-description" for="' . $slug . '">' . $label . '<br>' . __( '(CTL-Click to deselect)') . '</label>';
+        echo '<span>' . 'Use Ctl-Click to select and deselect multiple options.'. '</span>';
+
+        //echo '<label class="plse-option-select-description" for="' . $slug . '">' . $label . '<br>' . __( '(CTL-Click to deselect)') . '</label>';
         echo '</div>';
 
         return $values;
@@ -1022,17 +1285,21 @@ class PLSE_Fields {
      */
     public function render_repeater_field ( $field ) {
 
-        $values = $field['value'];
+        $values = $this->get_value( $field );
+        ////$values = $field['value'];
+
         $slug = sanitize_key( $field['slug'] );
 
         // URL field specifies an image
-        $is_image = $field['is_image'];
+        if ( isset( $field['is_image'] ) ) $is_image = $field['is_image']; else $is_image = '';
 
         // adjust size of fields
         if ( isset( $field['size'] ) ) $size = $field['size']; else $size = '40';
 
         // adjust text field type (url, date, time...), which is 'subtype' for repeaters
         if ( isset( $field['subtype'] ) ) $type = $field['subtype']; else $type ='text';
+
+        if ( isset( $field['class'] ) ) $class = $field['class']; else $class = '';
 
         // maximum number of repeater fields allowed (adjusted if we have a datalist)
         $max = $this->REPEATER_MAX;
@@ -1044,7 +1311,7 @@ class PLSE_Fields {
             $img_thumb_class = ' plse-repeater-url-is-image';
         }
         else {
-            $table_width = '70%';
+            $table_width = '74%';
         }
 
         /*
@@ -1101,8 +1368,11 @@ class PLSE_Fields {
          * begin rendering the table with repeater options
          */
         ?>
-        <div id="plse-repeater-<?php echo $slug; ?>" class="plse-repeater plse-meta-ctl-highlight">
+        <div id="plse-repeater-<?php echo $slug; ?>" class="plse-repeater <?php echo $class; ?>">
             <div id="plse-repeater-max-warning" class="plse-repeater-max-warning" style="display:none;">You have reached the maximum number of values</div>
+
+            <?php $this->render_label( $field ); ?>
+
             <table class="plse-repeater-table" width="<?php echo $table_width; ?>" data-max="<?php echo $max; ?>">
                 <tbody>
                     <!--default row, or rows from datatbase-->
@@ -1114,7 +1384,8 @@ class PLSE_Fields {
                     $count = 0;
                     if( is_array( $values ) ):
 
-                        if ( $is_image ) $tdstyle = 'width:330px;'; else $tdstyle = '';
+                        // set width of first <td> based on whether a small icon of the image will be drawn
+                        if ( $is_image ) $tdstyle = 'width:328px; white-space: nowrap;'; else $tdstyle = 'width:300px';
 
                         // create fields already in the database
                         foreach( $values as $repeater_value ) {
@@ -1130,7 +1401,7 @@ class PLSE_Fields {
                                 if ( $field['subtype'] == PLSE_INPUT_TYPES['URL'] && $this->check_urls ) { // no checks or message if field empty
 
                                     // try connecting to the supplied URL
-                                    $result = $this->init->get_url_status( $repeater_value );
+                                    $result = $this->get_url_status( $repeater_value );
                                     $err   = $this->add_status_to_field( $result['err'], $result['class'] );
                                     $repeater_value = $result['value'];
 
@@ -1239,14 +1510,16 @@ class PLSE_Fields {
      */
     public function render_image_field ( $field ) {
 
+        $value = $this->get_value( $field );
+
         $slug  = sanitize_key( $field['slug'] );
-        $value = $field['value'];
+        //////////////////$value = $field['value'];
 
         // if value is an array, return the first value only (can happen with post meta-data)
-        if ( is_array( $value ) ) $value = $field['value'][0];
+       //////////////// if ( is_array( $value ) ) $value = $field['value'][0];
 
         // required fields
-        $value = esc_html( esc_url_raw( $field['value'], ['http','https'] ) );
+        $value = esc_html( esc_url_raw( $value, ['http','https'] ) );
         if ( ! $this->is_url( $value ) ) {
             $err = $this->add_status_to_field( __( 'not valid url' ), $this->ERROR_CLASS );
         }
@@ -1296,14 +1569,15 @@ class PLSE_Fields {
      */
     public function render_audio_field ( $field ) {
 
+        $value = $this->get_value( $field );
         $slug = sanitize_key( $field['slug'] );
-        $value = $field['value'];
+        ///////////////////$value = $field['value'];
 
         // if value is an array, return the first value only (can happen with post meta-data)
-        if ( is_array( $value ) ) $value = $field['value'][0];
+        //////////////////////if ( is_array( $value ) ) $value = $field['value'][0];
 
         // required fields
-        $value = esc_html( esc_url_raw( $field['value'], ['http','https'] ) );
+        $value = esc_html( esc_url_raw( $value, ['http','https'] ) );
         if ( ! $this->is_url( $value ) ) {
             $err = $this->add_status_to_field( __( 'not valid url' ), $this->ERROR_CLASS );
         }
@@ -1342,11 +1616,12 @@ class PLSE_Fields {
      */
     public function render_video_field ( $field ) {
 
+        $value = $this->get_value( $field );
         $slug = sanitize_key( $field['slug'] );
         ///////////////$value = $field['value'];
 
         // required fields
-        $value = esc_html( esc_url_raw( $field['value'], ['http','https'] ) );
+        $value = esc_html( esc_url_raw( $value, ['http','https'] ) );
         if ( ! $this->is_url( $value ) ) {
             $err = $this->add_status_to_field( __( 'not valid url' ), $this->ERROR_CLASS );
         }

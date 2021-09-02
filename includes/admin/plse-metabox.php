@@ -416,8 +416,7 @@ class PLSE_Metabox {
             }
 
             // begin rendering the field
-            echo '<li><label for="' . $field['slug'] . '" class="plse-option-description"><span>';
-            echo $field['label'] . ':</span></label>';
+            echo '<li>';
 
             /* 
              * if we store Schema data using the Options API, access the option directly.
@@ -456,6 +455,10 @@ class PLSE_Metabox {
 
             // add the value to the field description (allows options and metabox to use same rendering functions)
             $field['value'] = $value;
+            //////////////////////////////////////////////
+            echo "V::";
+            print_r( $value );
+            //////////////////////////////////////////////
 
             if ( method_exists( $this, $render_method ) ) { 
                 $this->$render_method( $field, $value ); 
@@ -600,7 +603,6 @@ class PLSE_Metabox {
      * @param    number   $value   duration, in seconds.
      */
     public function render_duration_field ( $field ) {
-
         $err = '';
         $field['class'] = 'plse-meta-ctl-highlight';
         $value = $this->fields->render_duration_field( $field );
@@ -726,7 +728,7 @@ class PLSE_Metabox {
      * @param    array    $value an array with multiple values
      */
     public function render_repeater_field ( $field ) {
-        $field['class'] = 'plse-repeater';
+        $field['class'] = 'plse-option-ctl-highlight';
         $value = $this->fields->render_repeater_field( $field );
     }
 

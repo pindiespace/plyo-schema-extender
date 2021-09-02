@@ -13,11 +13,10 @@
  * STYLES USED IN OPTION AND METABOXES
  */
 
-/* for box that surrounds images in the UI */
-.plse-upload-img-box {
-    margin: 6px;
-    border: 1px solid black;
-    border-radius: 4px;
+.plse-no-wrap-parent {
+    white-space: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
 }
 
 /* for box that surrounds video in the UI */
@@ -134,14 +133,12 @@
 }
 
 /* formatting options <label> next to field */
-.plse-option-description {
-    display: inline-block;
+.plse-label-description {
     margin-left: 4px;
     border-radius: 6px 6px 0 0;
     padding: 2px 4px 0 4px;
     background-color: #efefef;
 }
-
 
 /* formats multi-select scrollboxes */
 .plse-option-select {
@@ -161,6 +158,7 @@
 }
 
 .plse-option-select-dropdown {
+    min-width:200px;
     display:inline-block;
 }
 
@@ -244,14 +242,18 @@
 /* formatting for <div> enclosing HTML5 type=range element (used for time duration in seconds) */
 .plse-meta-ctl-highlight {
     border-radius: 6px;
-    width: 530px;
+    min-width: 530px;
     padding: 8px 4px 8px 4px;
     background-color: rgb(250, 250, 250);
 }
 
 .plse-option-ctl-highlight {
+    padding: 4px;
     border-radius: 6px;
-    background-color: rgb(230, 230, 230);
+    width: 70%;
+    min-width: 580px;
+    /* background-color: rgb(230, 230, 230); */
+    background-color: #efefef;
 }
 
 .plse-option-ctl-highlight label {
@@ -261,6 +263,10 @@
 /* range element */
 .plse-slider-input {
     width:400px;
+}
+
+.plse-slider-input, .plse-slider-output {
+    vertical-align: middle;
 }
 
 /* image column in the Image control */

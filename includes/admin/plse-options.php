@@ -439,6 +439,7 @@ class PLSE_Options {
     public function admin_init_fields () {
 
         $schema = $this->options_data->get_options();
+
         $toggles = $this->options_data->get_toggles();
 
         foreach( $schema as $key => $section ) {
@@ -446,8 +447,13 @@ class PLSE_Options {
             /* 
              * get the checkbox toggle for Schema tabs (not config, general, address)
              * variable $state is added to the $field array for use in rendering
+             * Only Schemas have panels with a $toggles entry
              */
-            $state = $this->admin_settings_toggle( $toggles[ $key ] );
+            $state = '';
+            $toggle_section = $toggles[ $key ];
+            if ( ! empty( $toggle_section ) ) {
+                $state = $this->admin_settings_toggle( $toggles[ $key ] );
+            }
 
             // initialize the section (e.g. tab panel)
             $this->init_section( $section );
@@ -460,6 +466,28 @@ class PLSE_Options {
             }
 
         }
+
+    }
+
+    /**
+     * Create the checkbox for turning Schema tabbed panels on and off. Needs 
+     * its own section because it is always visible.
+     * @since    1.0.0
+     * @access   public
+     * @param    array    $section array with section data, plus checkbox toggle for Schema use.
+     * @return   string   the state stored using the Options API.
+     */
+    public function admin_settings_toggle ( $section ) {
+
+        // get the checkbox field value for the entire tab
+        $state = get_option( $section['fields']['used']['slug'] );
+
+        // make sure we have Schema checked
+        $this->init_section( $section );
+
+        $this->init_field( $section, $section['fields']['used'], $state ); // checkbox is never disabled
+
+        return $state;
 
     }
 
@@ -511,6 +539,13 @@ class PLSE_Options {
          */
         $field['value'] = get_option( $field['slug'] );
 
+        ///////////////////////////////
+        // NOTE: THIS SHOWS THAT LOADING THE METABOX PAGE
+        // ALSO LOADS THIS PAGE!!!!
+        //echo 'O:::::';
+        //print_r($field['value']);
+        ///////////////////////////////
+
         // add the field
         add_settings_field(
             $field['slug'],
@@ -524,30 +559,13 @@ class PLSE_Options {
         // register setting and validation callback
         register_setting(
             $this->option_group, // overall option group
-            $field['slug'],      // slug for input field
-            [ $this, $validation_callback ] // third argument is callback for validation function
+            $field['slug'],      // slug for input field (option name)
+            array(
+                'sanitize_callback' => array( $this, $validation_callback ),
+                'default' => NULL,
+            )
+            //array( $this, $validation_callback ) // third argument is callback for validation function
         );
-
-    }
-
-    /**
-     * Create the checkbox for turning Schema tabbed panels on and off. Needs 
-     * its own section because it is always visible.
-     * @since    1.0.0
-     * @access   public
-     * @param    array    $section array with section data, plus checkbox toggle for Schema use.
-     * @return   string   the state stored using the Options API.
-     */
-    public function admin_settings_toggle ( $section ) {
-
-        // get the checkbox field value for the entire tab
-        $state = get_option( $section['fields']['used']['slug'] );
-
-        // make sure we have Schema checked
-        $this->init_section( $section );
-        $this->init_field( $section, $section['fields']['used'], $state ); // checkbox is never disabled
-        
-        return $state;
 
     }
 
@@ -837,7 +855,7 @@ class PLSE_Options {
      * @param    array    $field    name of field, state, additional properties
      */
     public function render_repeater_field ( $field ) {
-        $field['class'] = 'plse-option-select';
+        $field['class'] = 'plse-option-ctl-highlight';
         $value = $this->fields->render_repeater_field( $field );
     }
 
@@ -879,6 +897,9 @@ class PLSE_Options {
      * DATA VALIDATION (AND SANITIZE) METHODS
      * These methods run when the options are saved, independently of 
      * validation and sanitization when rendering the form fields
+     * 
+     * Note: We don't use apply_filters since the field types are 
+     * standardized by content, rather than field name
      * ------------------------------------------------------------------------
      */
 
@@ -890,6 +911,22 @@ class PLSE_Options {
      */
     public function options_show_errors () {
         settings_errors();
+    }
+
+    /**
+     * Validate Button field. 
+     * 
+     * We DO NOT do validation for buttons, since 
+     * they interact with JavaScript only, not Ajax.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    $string    $in    data input into the field.
+     * @return   mixed      use apply_filters to return $in and $out
+     */
+    public function validate_button_field ( $in ) {
+        $out = $in;
+        return $out;
     }
 
     /**
@@ -910,7 +947,7 @@ class PLSE_Options {
                 'error'
             );
         }
-        return apply_filters( [ $this, 'validate_hidden_field' ], $out, $in );
+        return $out;
     }
 
     /**
@@ -922,8 +959,8 @@ class PLSE_Options {
      * @return   mixed      use apply_filters to return $in and $out
      */
     public function validate_text_field ( $in ) {
-        $out = $in;
-        return apply_filters( [ $this, 'validate_text_field' ], $out, $in );
+        $out = $in = trim( sanitize_text_field( $in ) );
+        return $out;
     }
 
     /**
@@ -934,8 +971,7 @@ class PLSE_Options {
      * @param    $string    $in    data input into the field.
      * @return   mixed      use apply_filters to return $in and $out
      */
-    public function validate_phone_field ( $in ) {
-        // sanitize
+    public function validate_tel_field ( $in ) {
         $out = $in = trim( sanitize_text_field( $in ) );
         if( ! $this->fields->is_phone( $out ) ) {
             add_settings_error(
@@ -945,8 +981,7 @@ class PLSE_Options {
                 'error'
             );
         }
-        return apply_filters( [ $this, 'validate_phone_field' ], $out, $in );
-
+        return $out;
     }
 
     /**
@@ -958,6 +993,7 @@ class PLSE_Options {
      * @return   mixed      use apply_filters to return $in and $out
      */
     public function validate_postal_field ( $in ) {
+
         $out = $in = trim( sanitize_text_field ( $in ) );
         if ( ! $this->fields->is_postal( $out ) ) {
             add_settings_error(
@@ -967,7 +1003,7 @@ class PLSE_Options {
                 'error'
             );
         }
-        return apply_filters( [ $this, 'validate_postal_field' ], $out, $in );
+        return $out;
     }
 
     /**
@@ -988,7 +1024,7 @@ class PLSE_Options {
                 'error'
             );
         }
-        return apply_filters( [ $this, 'validate_email_field' ], $out, $in );
+        return $out;
     }
 
     /**
@@ -1002,15 +1038,16 @@ class PLSE_Options {
     public function validate_url_field ( $in ) {
         $in = sanitize_text_field( trim( $in ) );
         $out = esc_url_raw( $in, [ 'http', 'https' ] );
-        if ( $out != $in || ! $this->init->get_final_url( $out) ) {
+        $final_url =  $this->fields->get_url_status( $out );
+        if ( $out != $in || $out != $final_url['value'] ) {
             add_settings_error(
                 $this->option_group,
                 'url_validation_error',
-                '<span style="color:red">Error:</span>' . __( 'Invalid URL ('.$out.'), please re-enter' ),
+                '<span style="color:red">Error:</span>' . __( 'Invalid URL (' ) . $final_url['err'] . $final_url['value'] . $final_url['class'] . __( '), please re-enter' ),
                 'error'
             );
         }
-        return apply_filters( [ $this, 'validate_url_field' ], $out, $in );
+        return $out;
     }
 
     /**
@@ -1031,7 +1068,7 @@ class PLSE_Options {
                 'error'
             );
         }
-        return apply_filters( [ $this, 'validate_int_field' ], $out, $in );
+        return $out;
     }
 
     /**
@@ -1047,12 +1084,12 @@ class PLSE_Options {
         if ( ! $this->fields->is_float( $out ) ) {
             add_settings_error(
                 $this->option_group,
-                'int_validation_error',
+                'float_validation_error',
                 '<span style="color:red">Error:</span>' . __( 'Invalid Float ('. $out .'), please re-enter' ),
                 'error'
             );
         }
-        return apply_filters( [ $this, 'validate_int_field' ], $out, $in );
+        return $out;
     }
 
     /**
@@ -1065,8 +1102,7 @@ class PLSE_Options {
      */
     public function validate_textarea_field ( $in ) {
         $out = $in = sanitize_text_field( trim( $in ) );
-        // TODO: validation
-        return apply_filters( [ $this, 'validate_textarea_field' ], $out, $in );
+        return $out;
     }
 
     /**
@@ -1079,8 +1115,7 @@ class PLSE_Options {
      */
     public function validate_checkbox_field ( $in ) {
         $out = $in = sanitize_text_field( trim( $in ) );
-        // TODO: validation
-        return apply_filters( [ $this, 'validate_checkbox_field' ], $out, $in );
+        return $out;
     }
 
     /**
@@ -1092,9 +1127,39 @@ class PLSE_Options {
      * @return   mixed      use apply_filters to return $in and $out
      */
     public function validate_date_field ( $in ) {
+
         $out = $in = sanitize_text_field( trim( $in ) );
-        // TODO: validation
-        return apply_filters( [ $this, 'validate_date_field' ], $out, $in );
+        if ( ! $this->fields->is_date( $out ) ) {
+            add_settings_error(
+                $this->option_group,
+                'date_validation_error',
+                '<span style="color:red">Error:</span>' . __( 'Invalid Date ('. $out .'), please re-enter' ),
+                'error'
+            );
+        }
+        return $out;
+    }
+
+    /**
+     * Validate time.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    $string    $in    data input into the field.
+     * @return   mixed      use apply_filters to return $in and $out
+     */
+    public function validate_time_field ( $in ) {
+
+        $out = $in = sanitize_text_field( trim( $in ) );
+        if ( ! $this->fields->is_time( $out ) ) {
+            add_settings_error(
+                $this->option_group,
+                'time_validation_error',
+                '<span style="color:red">Error:</span>' . __( 'Invalid Time ('. $out .'), please re-enter' ),
+                'error'
+            );
+        }
+        return $out;
     }
 
     /**
@@ -1107,8 +1172,65 @@ class PLSE_Options {
      */
     public function validate_duration_field ( $in ) {
         $out = $in = sanitize_text_field( trim( $in ) );
-        // TODO: validation
-        //return apply_filters( [ $this, 'validate_duration_field' ], $out, $in );
+        if ( ! $this->fields->is_number( $out ) ) {
+            add_settings_error(
+                $this->option_group,
+                'duration_validation_error',
+                '<span style="color:red">Error:</span>' . __( 'Invalid Duration ('. $out .'), please re-enter' ),
+                'error'
+            );
+        }
+        return $out;
+    }
+
+    /**
+     * Validate datalist.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    $string    $in    data input into the field.
+     * @return   mixed      use apply_filters to return $in and $out
+     */
+    public function validate_datalist_field ( $in ) {
+        $out = $in = sanitize_text_field( trim( $in ) );
+        return $out;
+    }
+
+    /**
+     * Validate <select> single (pulldown menu) field.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    $string    $in    data input into the field.
+     * @return   mixed      use apply_filters to return $in and $out
+     */
+    public function validate_select_single_field ( $in ) {
+        $out = $in = sanitize_text_field( trim( $in ) );
+        return $out;
+    }
+
+    /**
+     * Validate a <select multi...> field, assuming nested arrays.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    mixed    $input value
+     * @return   array    $out    sanitized output
+     */
+    public function validate_select_multiple_field ( $in ) {
+        $out = $in;
+        if ( ! is_array( $in ) ) return $in;
+        else {
+            foreach ( $in as $key => $value ) {
+                $out[ $key ] = $value;
+                if ( is_array( $out[ $key ] ) ) {
+                    foreach ( $out[ $key ] as $key1 => $value1 ) {
+                        $out[ $key ][ $key1 ] = sanitize_text_field( $value1 );
+                    }
+                }
+            }
+        }
+        return $out;
     }
 
     /**
@@ -1120,8 +1242,7 @@ class PLSE_Options {
      * @return   mixed      use apply_filters to return $in and $out
      */
     public function validate_cpt_field ( $in ) {
-        $out = $in;
-        return apply_filters( [ $this, 'validate_multi_cpt_field' ], $out, $in );
+        return $this->validate_select_multiple_field( $in );
     }
 
     /**
@@ -1132,12 +1253,22 @@ class PLSE_Options {
      * @return   mixed      use apply_filters to return $in and $out
      */
     public function validate_cat_field ( $in ) {
-        $out = $in;
-        return apply_filters( [ $this, 'validate_multi_cat_field' ], $out, $in );
+        return $this->validate_select_multiple_field( $in );
     }
 
     /**
-     * Validate file upload data (and let WP do the upload).
+     * Validate repeater field.
+     * @since    1.0.0
+     * @access   public
+     * @param    $string    $in    data input into the field.
+     * @return   mixed      use apply_filters to return $in and $out
+     */
+    public function validate_repeater_field ( $in ) {
+        return $this->validate_select_multiple_field( $in );
+    }
+
+    /**
+     * Validate image field URL.
      * 
      * @since    1.0.0
      * @access   public
@@ -1145,17 +1276,7 @@ class PLSE_Options {
      * @return   mixed      use apply_filters to return $in and $out
      */
     public function validate_image_field ( $in ) {
-        $in = sanitize_text_field( trim( $in ) );
-        $out = esc_url_raw( $in, [ 'http', 'https' ] );
-        if ( $out != $in || ! $this->init->get_final_url( $out) ) {
-            add_settings_error(
-                $this->option_group,
-                'url_validation_error',
-                '<span style="color:red">Error:</span>' . __( 'Invalid Image URL ('. $out .'), please re-enter' ),
-                'error'
-            );
-        }
-        return apply_filters( [ $this, 'validate_image_field' ], $out, $in );
+        return $this->validate_url_field( $in );
     }
 
     /**
@@ -1167,17 +1288,7 @@ class PLSE_Options {
      * @return   mixed      use apply_filters to return $in and $out
      */
     public function validate_audio_field ( $in ) {
-        $in = sanitize_text_field( trim( $in ) );
-        $out = esc_url_raw( $in, [ 'http', 'https' ] );
-        if ( $out != $in || ! $this->init->get_final_url( $out) ) {
-            add_settings_error(
-                $this->option_group,
-                'url_validation_error',
-                '<span style="color:red">Error:</span>' . __( 'Invalid Audio URL ('. $out .'), please re-enter' ),
-                'error'
-            );
-        }
-        return apply_filters( [ $this, 'validate_audio_field' ], $out, $in );
+        return $this->validate_url_field( $in );
     }
 
     /**
@@ -1189,18 +1300,7 @@ class PLSE_Options {
      * @return   mixed      use apply_filters to return $in and $out
      */
     public function validate_video_field ( $in ) {
-        $in = sanitize_text_field( trim( $in ) );
-        $out = esc_url_raw( $in, [ 'http', 'https' ] );
-        if ( $out != $in || ! $this->init->get_final_url( $out) ) {
-            add_settings_error(
-                $this->option_group,
-                'url_validation_error',
-                '<span style="color:red">Error:</span>' . __( 'Invalid Video URL ('. $out .'), please re-enter' ),
-                'error'
-            );
-        }
-        return apply_filters( [ $this, 'validate_video_field' ], $out, $in );
+        return $this->validate_url_field( $in );
     }
-
 
 } // end of class

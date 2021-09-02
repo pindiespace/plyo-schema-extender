@@ -91,26 +91,23 @@ class PLSE_Options_Data {
 
         'PRODUCT_REVIEW' => array(
 
-            'fields' => array(
-                'section_slug'    => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_PRODUCT_REVIEW . '-toggle',
-                'section_title'   => 'Turn on the Event Schema',
-                'section_message' => 'Clicking this checkbox will trigger addition of Event Schema to Custom Post Types and categories listed below',
-                'section_box'     => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_PRODUCT_REVIEW . '-toggle-box', // <div> for section, used in display_options_page()
-                'tab'             => 'content-tab4',
+            'section_slug'    => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_PRODUCT_REVIEW . '-toggle',
+            'section_title'   => 'Turn on the Event Schema',
+            'section_message' => 'Clicking this checkbox will trigger addition of Event Schema to Custom Post Types and categories listed below',
+            'section_box'     => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_PRODUCT_REVIEW . '-toggle-box', // <div> for section, used in display_options_page()
+            'tab'             => 'content-tab4',
 
-
-                'fields' => array( // is being used (checkbox)
-                    'used' => array(
-                        'slug' => 'plse-' . PLSE_SCHEMA_PRODUCT_REVIEW . '-used',
-                        'description' => 'Check this to enable the ' . PLSE_SCHEMA_PRODUCT_REVIEW . ' Schema',
-                        'title' => 'Use this Schema',
-                        'label' => 'If checked, Schema are applied to the Custom Post Types and Categories selected below. Data from additional fields is available to every post or page using the Schema, but can be over-ridden by adding information in the post custom fields.',
-                        'type' => PLSE_INPUT_TYPES['CHECKBOX']
-                    )
-
+            'fields' => array( // is being used (checkbox)
+                'used' => array(
+                    'slug' => 'plse-' . PLSE_SCHEMA_PRODUCT_REVIEW . '-used',
+                    'description' => 'Check this to enable the ' . PLSE_SCHEMA_PRODUCT_REVIEW . ' Schema',
+                    'title' => 'Use this Schema',
+                    'label' => 'If checked, Schema are applied to the Custom Post Types and Categories selected below. Data from additional fields is available to every post or page using the Schema, but can be over-ridden by adding information in the post custom fields.',
+                    'type' => PLSE_INPUT_TYPES['CHECKBOX']
                 )
 
             )
+
 
         )
 
@@ -358,7 +355,7 @@ class PLSE_Options_Data {
                     'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . PLSE_CPT_SLUG,
                     'description'  => 'Custom Post Types using Service Schema',
                     'type'   => PLSE_INPUT_TYPES['CPT'],
-                    'label'  => 'Select Multiple ok',
+                    'label'  => 'Custom Post Types',
                     'title'  => 'Clicking a Custom Post Type will add the Schema to all posts under that CPT'
                 ),
 
@@ -367,7 +364,7 @@ class PLSE_Options_Data {
                     'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . PLSE_CAT_SLUG,
                     'description'  => 'Categories using Service Schema',
                     'type'   => PLSE_INPUT_TYPES['CAT'],
-                    'label'  => 'Select Multiple ok',
+                    'label'  => 'Categories',
                     'title'  => 'Clicking one of the listed categories will add the Schema to all posts using the category',
                 ),
 
@@ -382,17 +379,6 @@ class PLSE_Options_Data {
                     'title' => 'Enter a specific service type',
                 ),
 
-                'service_addtl_images' => array(
-                    'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_SERVICE . '-additional-images',
-                    'label' => 'Additional images of the service',
-                    'title' => 'Add one or more images of the service',
-                    'type' => PLSE_INPUT_TYPES['REPEATER'],
-                    'subtype' => PLSE_INPUT_TYPES['URL'],
-                    'description' => 'Additional images associated with the service',
-                    'required' => '',
-                    'is_image' => true // for repeater fields
-                ),
-
                 'service_description' => array(
                     'slug' => PLSE_OPTIONS_SLUG . '-' . PLSE_SCHEMA_SERVICE . '-description',
                     'label' => 'Service Description',
@@ -400,6 +386,19 @@ class PLSE_Options_Data {
                     'description' => 'Detailed Description of Service',
                     'title' => 'More detailed descritpion of the service',
                 ),
+
+                /*
+                'service_addtl_images' => array(
+                    'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_SERVICE . '-additional-images',
+                    'label' => 'Additional images of the service',
+                    'type' => PLSE_INPUT_TYPES['REPEATER'],
+                    'subtype' => PLSE_INPUT_TYPES['URL'],
+                    'description' => 'Additional images associated with the service',
+                    'title' => 'Add one or more images of the service',
+                    'required' => '',
+                    'is_image' => true // for repeater fields
+                ),
+                */
 
                 'start_date' => array(
                     'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_SERVICE . '-start-date',
@@ -419,6 +418,7 @@ class PLSE_Options_Data {
                     'required' => 'required',
                 ),
 
+
                 'service_number' => array(
                     'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_SERVICE . '-number',
                     'label' => 'Service Number',
@@ -428,6 +428,8 @@ class PLSE_Options_Data {
                     'required' => 'required',
                 ),
 
+
+/*
                 'service_quantity' => array(
                     'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_SERVICE . '-quantity',
                     'label' => 'Service Quantity',
@@ -436,6 +438,7 @@ class PLSE_Options_Data {
                     'description' => 'The quantity associated with the service',
                     'required' => 'required',
                 ),
+*/
 
                 'service_length' => array(
                     'slug' => PLSE_OPTIONS_SLUG . '-' . PLSE_SCHEMA_SERVICE . '-service-length',
@@ -468,7 +471,9 @@ class PLSE_Options_Data {
                     'label'  => 'Visual Brand or trademark',
                     'title'  => 'This should be the copyrighted or trademarked brand image'
                 ),
+        
 
+        /*
                 'image' => array(
                     'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-image',
                     'description'  => 'Default image of Service (distinct from brand logo)',
@@ -478,6 +483,8 @@ class PLSE_Options_Data {
                     'label'  => 'Image showing service',
                     'title'  => 'This should show a service being supplied or used'
                 )
+
+        */
 
             )
 
