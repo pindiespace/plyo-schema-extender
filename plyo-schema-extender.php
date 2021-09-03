@@ -372,8 +372,16 @@ add_action( 'plugins_loaded', function () {
                     // load admin options to add menu in WP_Admin (menu needed for options page and metabo)
                     $plse_options = PLSE_Options::getInstance();
 
-                    // decide whether to load options page (admin), or metabox custom fields (in post)
-                    if ( $pagenow == 'post.php' ) {
+                    /*
+                     * Decide whether to load options page (plugin settings), or metabox 
+                     * custom fields (in post). 
+                     * 
+                     * NOTE: $pagenow is 'post.php' when editing drafts or saved 
+                     * posts, but 'post-new.php' is used when the 'Add New' button is clicked 
+                     * BEFORE there is any page draft. So, check for both.
+                     * 
+                     */
+                     if ( $pagenow == 'post.php' || $pagenow == 'post-new.php' ) {
 
                         // load metabox class
                         require_once PLSE_SCHEMA_EXTENDER_PATH . '/includes/admin/plse-metabox.php';

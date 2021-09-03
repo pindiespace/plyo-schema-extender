@@ -338,8 +338,7 @@ class PLSE_Init {
             if ( is_archive() || is_category() || is_home() ) {
 
                 //get_all_cpt_names
-                $util = PLSE_Util::getInstance();
-                $my_cpt_names = $util->get_all_cpt_names();
+                $my_cpt_names = $this->get_all_cpt_names();
 
                 // Add CPT to the category
                 $wp_query->set( 'post_type', $my_cpt_names );
@@ -1057,6 +1056,97 @@ class PLSE_Init {
         );
         $cats = get_categories( $args );
         return $cats;
+    }
+
+    /**
+     * -----------------------------------------------------------------------
+     * DATA RETRIEVED FROM YOAST SEO
+     * -----------------------------------------------------------------------
+     */
+
+    /**
+     * Fetch organization social profiles from Yoast (must be present)
+     * {@link https://wordpress.org/support/topic/bad-code-implementation/}
+     */
+    function get_social_profiles () {
+
+        $profiles        = [];
+        $social_profiles = [
+            'facebook_site',
+            'instagram_url',
+            'linkedin_url',
+            'myspace_url',
+            'youtube_url',
+            'pinterest_url',
+            'wikipedia_url',
+            'twitter_site'
+        ];
+
+        // TODO: abstract out into main area
+        
+        foreach ( $social_profiles as $profile ) {
+            $social_profile = $this->helpers->options->get( $profile, '' );
+            if ( $social_profile !== '' ) {
+                    $prefix     = ($profile === 'twitter_site') ? 'https://twitter.com/'  : '';
+                $profiles[] = urldecode( $prefix . $social_profile );
+            }
+        }
+
+        /**
+         * Filter: 'wpseo_schema_organization_social_profiles'
+         * Allows filtering social profiles for the represented organization.
+         *
+         * @api string[] $profiles
+         */
+        $profiles = \apply_filters( 'wpseo_schema_organization_social_profiles', $profiles );
+
+        return $profiles;
+    }
+
+    /**
+     * Adds WP tags as keywords, if tags are assigned.
+     *
+     * @param array $data Article data.
+     * @return array $data Article data.
+     */
+    private function add_keywords( $data ) {
+        /**
+         * Filter: 'wpseo_schema_article_keywords_taxonomy'
+         * Allow changing the taxonomy used to assign keywords to a post type Article data.
+         *
+         * @api string $taxonomy The chosen taxonomy.
+         */
+        $taxonomy = apply_filters( 'wpseo_schema_article_keywords_taxonomy', 'post_tag' );
+
+        return $this->add_terms( $data, 'keywords', $taxonomy );
+    }
+
+    /**
+     * Adds a term or multiple terms, comma separated, to a field.
+     *
+     * @param array  $data     Article data.
+     * @param string $key      The key in data to save the terms in.
+     * @param string $taxonomy The taxonomy to retrieve the terms from.
+     *
+     * @return mixed array $data Article data.
+     */
+    private function add_terms( $data, $key, $taxonomy ) {
+
+        $terms = get_the_terms( $this->context->id, $taxonomy );
+
+        if ( is_array( $terms ) ) {
+            $keywords = array();
+            foreach ( $terms as $term ) {
+                // We are checking against the WordPress internal translation.
+                // @codingStandardsIgnoreLine
+                if ( $term->name !== __( 'Uncategorized' ) ) {
+                    $keywords[] = $term->name;
+                }
+            }
+            $data[ $key ] = implode( ',', $keywords );
+        }
+
+        return $data;
     }
 
     /**

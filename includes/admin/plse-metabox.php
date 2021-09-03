@@ -455,10 +455,6 @@ class PLSE_Metabox {
 
             // add the value to the field description (allows options and metabox to use same rendering functions)
             $field['value'] = $value;
-            //////////////////////////////////////////////
-            echo "V::";
-            print_r( $value );
-            //////////////////////////////////////////////
 
             if ( method_exists( $this, $render_method ) ) { 
                 $this->$render_method( $field, $value ); 

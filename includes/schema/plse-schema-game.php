@@ -50,6 +50,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
      * 
      * $field[]
      * |- slug            = the id used to access the field, store in metabox data
+     * |- settings_slug   = the id of a sitewide, global value in plugin settings
      * |- label           = the text in the <label>...</label> field
      * |- title           = appears when user mouses over the field
      * |- type            = type of control (PLSE_INPUT_TYPES[VALUE])
@@ -134,7 +135,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'type' => PLSE_INPUT_TYPES['IMAGE'],
                 'required' => 'required',
                 'wp_data' => 'post_meta',
-                'select_multiple' => false
+                'select_multiple' => false,
             ),
 
             'game_description' => array(
@@ -723,7 +724,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
 
                 // get the default image from plugin options
                 if (empty( $val ) ) {
-                    $val = get_option( 'plse-' . PLSE_SCHEMA_GAME . '-image' ); // from plugin options
+                    $val = get_option( $field['slug'] ); // from plugin options
 
                 }
 
@@ -754,8 +755,8 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
 
         if ( empty( $val ) ) {
 
-            // if entire site is about a game, use Yoast Organization and Person data
-            $is_game_site = get_option(PLSE_OPTIONS_SLUG . PLSE_SCHEMA_GAME . '-is-game-site-field');
+            // if entire site is about a game, use plugin settings data, if present
+            $is_game_site = get_option( $field['slug'] );
 
             if ( $is_game_site == $this->init->ON ) {
 
@@ -789,7 +790,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
         if ( empty( $val ) ) {
 
             // Access plugin options for the Game Schema, look for global assignment
-            $is_game_site = get_option(PLSE_OPTIONS_SLUG . PLSE_SCHEMA_GAME . '-is-game-site-field');
+            $is_game_site = get_option( $field['slug'] );
             if ( $is_game_site == $this->init->ON ) {
 
                 $val = $this->context->canonical . Schema_IDs::ORGANIZATION_HASH;

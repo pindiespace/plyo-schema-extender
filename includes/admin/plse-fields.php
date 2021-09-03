@@ -177,11 +177,12 @@ class PLSE_Fields {
      * @return   mixed    the value, removed from wrapper arrays, either an array, string, number
      */
     public function get_value ( $field ) {
+
         $val = $field['value'];
         if ( is_array( $val ) ) {
             if ( isset( $val[0] ) ) {
                 if ( isset( $val[0][ $field['slug'] ] ) ) { 
-                    echo '$val[0][ $field[\'slug\'] ]';
+                    ///////echo '$val[0][ $field[\'slug\'] ]';
                     return $val[0][ $field['slug'] ]; // indexed array under slug
                 } else {
                     /////echo '$val[0]';
@@ -190,11 +191,29 @@ class PLSE_Fields {
             } else if ( isset( $val[ $field['slug'] ] ) ) {
                 /////echo '$val[ $field[\'slug\'] ]';
                 /////print_r ($val[ $field['slug' ] ]);
-                return $val[ $field['slug' ] ]; 
+                return $val[ $field['slug' ] ];
             }
         }
+
+        // if the value is unavailable, check the plugin options (settings API)
+        if ( empty( $val ) ) $val = get_option( $field['slug'] );
+
         /////echo 'SIMPLE VALUE';
         return $val;
+    }
+
+    /**
+     * Get field value, checking plugin settings via Settings API for globals
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    array     $field    field descriptor
+     * @return   mixed     $value    value from plugin settings, if present
+     */
+    public function get_field_value ( $field ) {
+        $value = $this->get_value( $field );
+        if ( empty( $value ) ) $value = get_option( $field['slug'] );
+        return $value;
     }
 
     /**
@@ -624,9 +643,8 @@ class PLSE_Fields {
      */
     public function render_simple_field ( $field ) {
 
-        // if value is an array, return the first value only (can happen with post meta-data)
-        //////////if ( is_array( $field['value'] ) ) $value = $field['value'][0];
-        $value = $this->get_value( $field );
+        //////$value = $this->get_value( $field );
+        $value = $this->get_field_value( $field );
 
         // required fields
         $value = esc_html( sanitize_text_field( $field['value'] ) );
@@ -693,7 +711,7 @@ class PLSE_Fields {
     public function render_postal_field( $field ) {
         $value = $this->render_simple_field( $field );
         if ( $this->was_sanitized( $field, $value ) ) {
-            $err = $this->add_status_to_field( __( 'field was sanitized:'), $this->ERROR_CLASS );
+            $err = $this->add_status_to_field( __( 'field was sanitized'), $this->ERROR_CLASS );
         }
         if ( ! empty( $value ) && ! $this->is_postal( $value ) ) {
             $err = $this->add_status_to_field( __( 'this is not a valid postal code' ), $this->ERROR_CLASS );
@@ -712,7 +730,7 @@ class PLSE_Fields {
     public function render_phone_field ( $field ) {
         $value = $this->render_simple_field( $field );
         if ( $this->was_sanitized( $field, $value ) ) {
-            $err = $this->add_status_to_field( __( 'field was sanitized:'), $this->ERROR_CLASS );
+            $err = $this->add_status_to_field( __( 'field was sanitized'), $this->ERROR_CLASS );
         }
         if ( ! empty( $value ) && ! $this->is_phone( $value ) ) {
             $err = $this->add_status_to_field( __( 'Invalid phone'), $this->ERROR_CLASS );
@@ -731,7 +749,7 @@ class PLSE_Fields {
     public function render_email_field ( $field ) {
         $value = $this->render_simple_field( $field );
         if ( $this->was_sanitized( $field, $value ) ) {
-            $err = $this->add_status_to_field( __( 'field was sanitized:'), $this->ERROR_CLASS );
+            $err = $this->add_status_to_field( __( 'field was sanitized'), $this->ERROR_CLASS );
         }
         if ( ! empty( $value) && ! $this->is_email( $value ) ) {
             $err = $this->add_status_to_field( __( 'Invalid email' ), $this->ERROR_CLASS );
@@ -777,11 +795,11 @@ class PLSE_Fields {
     public function render_int_field ( $field ) {
         $err = '';
 
-        $value = $this->get_value( $field );
+        //////$value = $this->get_value( $field );
+        $value = $this->get_field_value( $field );
         $value = (int) $value;
 
-        // value is number
-       ///////// $value = (int) $field['value'];
+        // adjust field type
         $field['type'] = 'number'; // change since there is no type='int'
 
         // range attributes
@@ -819,11 +837,11 @@ class PLSE_Fields {
     public function render_float_field ( $field ) {
         $err = '';
 
-        $value = $this->get_value( $field );
+        //////$value = $this->get_value( $field );
+        $value = $this->get_field_value( $field );
         $value = (float) $value;
 
-        // value is number
-        ////////$value = (float) $field['value'];
+        // adjust field type
         $field['type'] = 'number';
 
         // range attributes
@@ -862,7 +880,8 @@ class PLSE_Fields {
      */
     public function render_textarea_field ( $field ) {
 
-        $value = $this->get_value( $field );
+        /////$value = $this->get_value( $field );
+        $value = $this->get_field_value( $field );
 
         // if value is an array, return the first value only (can happen with post meta-data)
         ////////if ( is_array( $field['value'] ) ) $value = $field['value'][0]; else $value = $field['value'];
@@ -883,7 +902,7 @@ class PLSE_Fields {
         echo '<textarea title="' . $title . '" class="' . $class . '" id="' . $slug . '" name="' . $slug .'" rows="' . $rows . '" cols="' . $cols . '">' . $value . '</textarea>';
 
         if ( $this->was_sanitized( $field, $value ) ) {
-            $err = $this->add_status_to_field( __( 'field was sanitized:'), $this->ERROR_CLASS );
+            $err = $this->add_status_to_field( __( 'field was sanitized'), $this->ERROR_CLASS );
         }
 
         // render error messages next to field
@@ -905,7 +924,8 @@ class PLSE_Fields {
      */
     public function render_date_field ( $field ) {
 
-        $value = $this->get_value( $field );
+        ///////$value = $this->get_value( $field );
+        $value = $this->get_field_value( $field );
 
         // if value is an array, return the first value only (can happen with post meta-data)
         ////if ( is_array( $field['value'] ) ) $value = $field['value'][0]; else $value = $field['value'];
@@ -942,7 +962,8 @@ class PLSE_Fields {
      */
     public function render_time_field ( $field ) {
 
-        $value = $this->get_value( $field );
+        $value = $this->get_field_value( $field );
+        //////$value = $this->get_value( $field );
 
         // if value is an array, return the first value only (can happen with post meta-data)
         /////if ( is_array( $field['value'] ) ) $value = $field['value'][0]; else $value = $field['value'];
@@ -979,7 +1000,8 @@ class PLSE_Fields {
      */
     public function render_duration_field ( $field ) {
 
-        $value = $this->get_value( $field );
+        /////$value = $this->get_value( $field );
+        $value = $this->get_field_value( $field );
 
         // if value is an array, return the first value only (can happen with post meta-data)
         //if ( is_array( $field['value'] ) ) {
@@ -1027,7 +1049,8 @@ class PLSE_Fields {
      */
     public function render_checkbox_field ( $field ) {
 
-        $value = $this->get_value( $field );
+        ///////////$value = $this->get_value( $field );
+        $value = $this->get_field_value( $field );
 
         // if value is an array, return the first value only (can happen with post meta-data)
         ////////if ( is_array( $field['value'] ) ) $value = $field['value'][0]; else $value = $field['value'];
@@ -1057,7 +1080,7 @@ class PLSE_Fields {
     }
 
     /**
-     * Create an input field similar to the old 'combox' - typing narrows the 
+     * Create an input field similar to the old 'comb box' - typing narrows the 
      * results of the list, but users can type in a value not on the list.
      * 
      * @since    1.0.0
@@ -1067,7 +1090,8 @@ class PLSE_Fields {
      */
     public function render_datalist_field ( $field ) {
 
-        $value = $this->get_value( $field );
+        /////////////$value = $this->get_value( $field );
+        $value = $this->get_field_value( $field );
 
         // if value is an array, return the first value only (can happen with post meta-data)
         //////////if ( is_array( $field['value'] ) ) $value = $field['value'][0];
@@ -1147,7 +1171,8 @@ class PLSE_Fields {
      */
     public function render_select_single_field ( $field ) {
 
-        $value = $this->get_value( $field );
+        //////////////////$value = $this->get_value( $field );
+        $value = $this->get_field_value( $field );
 
         // if value is an array, return the first value only (can happen with post meta-data)
         /////////if ( is_array( $field['value'] ) ) $value = $field['value'][0];
@@ -1216,9 +1241,8 @@ class PLSE_Fields {
          * multiple values present - get the actual option values out of their enclosing array
          * multiple values are stored as array( 'slug' => $value_array );
          */
-        $values = $this->get_value( $field );
-
-        if (isset($values['junk'])) echo "JUNK:" . $junk;
+        ///////////$values = $this->get_value( $field );
+        $values = $this->get_field_value( $field );
 
         // required fields
         $title = esc_html( $field['title'] );
@@ -1285,8 +1309,8 @@ class PLSE_Fields {
      */
     public function render_repeater_field ( $field ) {
 
-        $values = $this->get_value( $field );
-        ////$values = $field['value'];
+        ///////////$values = $this->get_value( $field );
+        $values = $this->get_field_value( $field );
 
         $slug = sanitize_key( $field['slug'] );
 
@@ -1367,11 +1391,13 @@ class PLSE_Fields {
         /*
          * begin rendering the table with repeater options
          */
+        echo $this->render_label( $field );
+
         ?>
         <div id="plse-repeater-<?php echo $slug; ?>" class="plse-repeater <?php echo $class; ?>">
             <div id="plse-repeater-max-warning" class="plse-repeater-max-warning" style="display:none;">You have reached the maximum number of values</div>
 
-            <?php $this->render_label( $field ); ?>
+
 
             <table class="plse-repeater-table" width="<?php echo $table_width; ?>" data-max="<?php echo $max; ?>">
                 <tbody>
@@ -1510,7 +1536,8 @@ class PLSE_Fields {
      */
     public function render_image_field ( $field ) {
 
-        $value = $this->get_value( $field );
+        ///////////$value = $this->get_value( $field );
+        $value = $this->get_field_value( $field );
 
         $slug  = sanitize_key( $field['slug'] );
         //////////////////$value = $field['value'];
@@ -1532,6 +1559,8 @@ class PLSE_Fields {
         if ( isset( $field['size'] ) ) $size = $field['size']; else $size = '24';
         if ( isset( $field['width'] ) ) $width = $field['width']; else $width = '128';
         if ( isset( $field['height'] ) ) $heigh = $field['height']; else $height = '128';
+
+        echo $this->render_label( $field );
 
         echo '<div class="' . $class . '">'; // highlights overall control
         echo '<table><tr>';
@@ -1569,9 +1598,10 @@ class PLSE_Fields {
      */
     public function render_audio_field ( $field ) {
 
-        $value = $this->get_value( $field );
+        //////////////$value = $this->get_value( $field );
+        $value = $this->field_value( $field );
+
         $slug = sanitize_key( $field['slug'] );
-        ///////////////////$value = $field['value'];
 
         // if value is an array, return the first value only (can happen with post meta-data)
         //////////////////////if ( is_array( $value ) ) $value = $field['value'][0];
@@ -1589,6 +1619,8 @@ class PLSE_Fields {
         // optional field values
         if ( isset( $field['state'] ) ) $state = esc_html( $field['state'] ); else $state = '';
         if ( isset( $field['class'] ) ) $class = $field['class']; else $class = "";
+
+        echo $this->render_label( $field );
 
         echo '<div class="plse-audio-metabox plse-meta-ctl-highlight">';
 
@@ -1616,7 +1648,9 @@ class PLSE_Fields {
      */
     public function render_video_field ( $field ) {
 
-        $value = $this->get_value( $field );
+        //////////$value = $this->get_value( $field );
+        $value = $this->get_field_value( $field );
+
         $slug = sanitize_key( $field['slug'] );
         ///////////////$value = $field['value'];
 
@@ -1628,11 +1662,15 @@ class PLSE_Fields {
 
         $title = esc_attr( $field['title'] );
 
+        echo $this->render_label( $field );
+
         /**
          * create the thumbnail URL
          * {@link https://ytimg.googleusercontent.com/vi/<insert-youtube-video-id-here>/default.jpg}
          */ 
         echo '<div class="plse-video-metabox plse-meta-ctl-highlight">';
+
+
         // add a special class for JS to the URL field for dynamic video embed
         $field['class'] = 'plse-embedded-video-url';
         $field['size'] = '72'; // same width as video + thumbnail takes up onscreen

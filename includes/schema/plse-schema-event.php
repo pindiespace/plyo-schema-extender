@@ -565,9 +565,9 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
                 // get the first image in the post
                 $val = $this->init->get_first_post_image_url( $post );
 
-                // get the default image from plugin options
+                // get the default image from plugin options, if present
                 if (empty( $val ) ) {
-                    $val = get_option( 'plse-' . PLSE_SCHEMA_EVENT . '-image' ); // from plugin options
+                    $val = get_option( $field['slug'] ); // from plugin options
 
                 }
 

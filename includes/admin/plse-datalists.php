@@ -552,6 +552,9 @@ class PLSE_Datalists {
         'windows 10' => 'Windows 10',
         'windows 8' => 'Windows 8',
         'linux' => 'Linux',
+        'orbisOS' => 'PlayStation 4',
+        'cellOS' => 'PlayStation 3',
+        'playstation 2 linux' => 'PlayStation 2',
         'freebsd' => 'Free BSD (Nintendo Switch)'
     );
 
