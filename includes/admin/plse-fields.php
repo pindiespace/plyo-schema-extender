@@ -176,7 +176,7 @@ class PLSE_Fields {
      * @param    mixed    $field the incoming value, which may be array, string, etc.
      * @return   mixed    the value, removed from wrapper arrays, either an array, string, number
      */
-    public function get_value ( $field ) {
+    public function parse_value ( $field ) {
 
         $val = $field['value'];
         if ( is_array( $val ) ) {
@@ -195,9 +195,6 @@ class PLSE_Fields {
             }
         }
 
-        // if the value is unavailable, check the plugin options (settings API)
-        if ( empty( $val ) ) $val = get_option( $field['slug'] );
-
         /////echo 'SIMPLE VALUE';
         return $val;
     }
@@ -210,9 +207,19 @@ class PLSE_Fields {
      * @param    array     $field    field descriptor
      * @return   mixed     $value    value from plugin settings, if present
      */
-    public function get_field_value ( $field ) {
-        $value = $this->get_value( $field );
-        if ( empty( $value ) ) $value = get_option( $field['slug'] );
+    public function get_field_value ( &$field ) {
+
+        // field is empty and there is a global settings equivalent, use it
+        if ( empty( $field['value'] ) ) {
+            $field['value'] =  get_option( $field['slug'] );
+
+            // if we were meta, and used settings, flag it
+            if ( ! empty( $field['value'] ) && $field['wp_data'] == PLSE_DATA_POST_META ) {
+                $field['err'] = $this->add_status_to_field( __( 'used global settings'), $this->CAUTION_CLASS );
+            }
+
+        }
+        $value = $this->parse_value( $field );
         return $value;
     }
 
@@ -238,18 +245,19 @@ class PLSE_Fields {
      * @param    array    $field
      */
     public function was_sanitized ( $field, $val2 ) {
-        $val1 = $field['value'];
+        $val1 = $field['value']; // space-stripping not sanitization
         if ( is_array( $val1 ) ) {
             foreach ( $val1 as $key => $v ) {
                 if ( ! isset( $val2[ $key ] ) ) return true;
                 if ( $v != $val2[$key] ) return true;
             }
         } else {
-            // if the field was not empty
+            // if the field is a string, and was not empty
             if ( ! empty( $field['value'] ) ) {
 
-                // if the field changed after processing
-                if ( $field['value'] != $value ) {
+                // if the field changed after processing (aside from whitespace stripping)
+                if ( is_string( $value ) && trim( $field['value'] ) != $value ) {
+                //if ( $field['value'] != $value ) {
                     return true;
                 }
             }
@@ -641,13 +649,12 @@ class PLSE_Fields {
      * @param    array $field name of field, state, additional properties
      * @return   string    $value    the stored option value, used to validate text field subtypes
      */
-    public function render_simple_field ( $field ) {
+    public function render_simple_field ( &$field ) {
 
-        //////$value = $this->get_value( $field );
         $value = $this->get_field_value( $field );
 
         // required fields
-        $value = esc_html( sanitize_text_field( $field['value'] ) );
+        $value = esc_html( sanitize_text_field( $value ) );
         $slug  = sanitize_key( $field['slug'] );
         $title = esc_html( $field['title'] );
         $type = esc_html( $field['type'] );
@@ -679,9 +686,9 @@ class PLSE_Fields {
     public function render_hidden_field ( $field ) {
         $value = $this->render_simple_field( $field );
         if ( $this->was_sanitized( $field, $value ) ) {
-            $err = $this->add_status_to_field( __( 'hidden field was sanitized:') . $field['slug'], $this->ERROR_CLASS );
+            $field['err'] = $this->add_status_to_field( __( 'hidden field was sanitized:') . $field['slug'], $this->ERROR_CLASS );
         }
-        if ( ! empty ( $err ) ) echo $err;
+        if ( ! empty ( $field['err'] ) ) echo $field['err'];
         return $value;
     }
 
@@ -695,9 +702,9 @@ class PLSE_Fields {
     public function render_text_field( $field ) {
         $value = $this->render_simple_field( $field );
         if ( $this->was_sanitized( $field, $value ) ) {
-            $err = $this->add_status_to_field( __( 'text field was sanitized'), $this->CAUTION_CLASS );
+            $field['err'] = $this->add_status_to_field( __( 'text field was sanitized'), $this->CAUTION_CLASS );
         }
-        if ( ! empty( $err ) ) echo $err;
+        if ( ! empty( $field['err'] ) ) echo $field['err'];
         return $value;
     }
 
@@ -711,13 +718,13 @@ class PLSE_Fields {
     public function render_postal_field( $field ) {
         $value = $this->render_simple_field( $field );
         if ( $this->was_sanitized( $field, $value ) ) {
-            $err = $this->add_status_to_field( __( 'field was sanitized'), $this->ERROR_CLASS );
+            $field['err'] = $this->add_status_to_field( __( 'field was sanitized' ), $this->ERROR_CLASS );
         }
         if ( ! empty( $value ) && ! $this->is_postal( $value ) ) {
-            $err = $this->add_status_to_field( __( 'this is not a valid postal code' ), $this->ERROR_CLASS );
+            $field['err'] = $this->add_status_to_field( __( 'this is not a valid postal code' ), $this->ERROR_CLASS );
         }
         // render error messages next to field, if present (errors also appear on top of page)
-        if ( ! empty( $err ) ) echo $err;
+        if ( ! empty( $field['err'] ) ) echo $field['err'];
         return $value;
     }
 
@@ -730,13 +737,13 @@ class PLSE_Fields {
     public function render_phone_field ( $field ) {
         $value = $this->render_simple_field( $field );
         if ( $this->was_sanitized( $field, $value ) ) {
-            $err = $this->add_status_to_field( __( 'field was sanitized'), $this->ERROR_CLASS );
+            $field['err'] = $this->add_status_to_field( __( 'field was sanitized'), $this->ERROR_CLASS );
         }
         if ( ! empty( $value ) && ! $this->is_phone( $value ) ) {
-            $err = $this->add_status_to_field( __( 'Invalid phone'), $this->ERROR_CLASS );
+            $field['err'] = $this->add_status_to_field( __( 'Invalid phone'), $this->ERROR_CLASS );
         }
         // render error messages next to field, if present (errors also appear on top of page)
-        if ( ! empty( $err ) ) echo $err;
+        if ( ! empty( $field['err'] ) ) echo $field['err'];
         return $value;
     }
 
@@ -749,13 +756,13 @@ class PLSE_Fields {
     public function render_email_field ( $field ) {
         $value = $this->render_simple_field( $field );
         if ( $this->was_sanitized( $field, $value ) ) {
-            $err = $this->add_status_to_field( __( 'field was sanitized'), $this->ERROR_CLASS );
+            $field['err'] = $this->add_status_to_field( __( 'field was sanitized'), $this->ERROR_CLASS );
         }
         if ( ! empty( $value) && ! $this->is_email( $value ) ) {
-            $err = $this->add_status_to_field( __( 'Invalid email' ), $this->ERROR_CLASS );
+            $field['err'] = $this->add_status_to_field( __( 'Invalid email' ), $this->ERROR_CLASS );
         }
         // render error messages next to field, if present (errors also appear on top of page)
-        if ( ! empty( $field['err'] ) ) echo $err;
+        if ( ! empty( $field['err'] ) ) echo $field['err'];
         return $value;
     }
 
@@ -768,18 +775,18 @@ class PLSE_Fields {
      * @param    string   $value    the field value
      */
     public function render_url_field ( $field ) {
-        $value = $this->render_simple_field( $field, $err );
+        $value = $this->render_simple_field( $field );
         if ( ! empty( $value ) && $this->check_urls ) { // no checks or message if field empty
             // check error, render status
             $result = $this->get_url_status( $value );
             if ( ! empty( $result['err'] ) ) {
-                $err = $this->add_status_to_field( $result['err'], $result['class'] );
+                $field['err'] = $this->add_status_to_field( $result['err'], $result['class'] );
             } else {
                 $value = $result['value']; // might be modified
             }
         }
          // render error messages next to field, if present (errors also appear on top of page)
-         if ( ! empty( $err ) ) echo $err;
+         if ( ! empty( $field['err'] ) ) echo $field['err'];
          return $value;
 
     }
@@ -793,9 +800,7 @@ class PLSE_Fields {
      * @param    array    $field name of field, state, additional properties
      */
     public function render_int_field ( $field ) {
-        $err = '';
 
-        //////$value = $this->get_value( $field );
         $value = $this->get_field_value( $field );
         $value = (int) $value;
 
@@ -809,13 +814,13 @@ class PLSE_Fields {
 
         if ( ! empty( $value ) ) {
             if ( ! $this->is_number( $value ) ) {
-                $err = $this->add_status_to_field( __( 'not a number' ), $this->ERROR_CLASS );
+                $field['err'] = $this->add_status_to_field( __( 'not a number' ), $this->ERROR_CLASS );
             }
             if (  $value > $field['max'] ) {
-                $err = $this->add_status_to_field( __( 'value greater than maximum' ), $this->ERROR_CLASS );
+                $field['err'] = $this->add_status_to_field( __( 'value greater than maximum' ), $this->ERROR_CLASS );
             }
             if ( $value < $field['min'] ) {
-                $err = $this->add_status_to_field( __( 'value less than minimum' ), $this->ERROR_CLASS );
+                $field['err'] = $this->add_status_to_field( __( 'value less than minimum' ), $this->ERROR_CLASS );
             }
         } else {
             $field['value'] = $value; // cleaned up
@@ -823,7 +828,7 @@ class PLSE_Fields {
 
         $value = $this->render_simple_field( $field );
 
-        if ( $err ) echo $err;
+        if ( $field['err'] ) echo $field['err'];
 
         return $value;
     }
@@ -835,9 +840,7 @@ class PLSE_Fields {
      * @param    array    $field name of field, state, additional properties
      */
     public function render_float_field ( $field ) {
-        $err = '';
 
-        //////$value = $this->get_value( $field );
         $value = $this->get_field_value( $field );
         $value = (float) $value;
 
@@ -851,13 +854,13 @@ class PLSE_Fields {
 
         if ( ! empty( $value ) ) {
             if ( ! $this->is_number( $value ) ) {
-                $err = $this->add_status_to_field( __( 'not a number' ), $this->ERROR_CLASS );
+                $field['err'] = $this->add_status_to_field( __( 'not a number' ), $this->ERROR_CLASS );
             }
             if (  $value > $field['max'] ) {
-                $err = $this->add_status_to_field( __( 'value greater than maximum' ), $this->ERROR_CLASS );
+                $field['err'] = $this->add_status_to_field( __( 'value greater than maximum' ), $this->ERROR_CLASS );
             }
             if ( $value < $field['min'] ) {
-                $err = $this->add_status_to_field( __( 'value less than minimum' ), $this->ERROR_CLASS );
+                $field['err'] = $this->add_status_to_field( __( 'value less than minimum' ), $this->ERROR_CLASS );
             }
         } else {
             $field['value'] = $value; // cleaned up
@@ -865,7 +868,7 @@ class PLSE_Fields {
 
         $value = $this->render_simple_field( $field );
 
-        if ( $err ) echo $err;
+        if ( $field['err'] ) echo $field['err'];
 
         return $value;
 
@@ -880,7 +883,6 @@ class PLSE_Fields {
      */
     public function render_textarea_field ( $field ) {
 
-        /////$value = $this->get_value( $field );
         $value = $this->get_field_value( $field );
 
         // if value is an array, return the first value only (can happen with post meta-data)
@@ -902,11 +904,11 @@ class PLSE_Fields {
         echo '<textarea title="' . $title . '" class="' . $class . '" id="' . $slug . '" name="' . $slug .'" rows="' . $rows . '" cols="' . $cols . '">' . $value . '</textarea>';
 
         if ( $this->was_sanitized( $field, $value ) ) {
-            $err = $this->add_status_to_field( __( 'field was sanitized'), $this->ERROR_CLASS );
+            $field['err'] = $this->add_status_to_field( __( 'field was sanitized'), $this->ERROR_CLASS );
         }
 
         // render error messages next to field
-        if ( ! empty( $err ) ) echo $err;
+        if ( ! empty( $field['err'] ) ) echo $field['err'];
 
         return $value;
 
@@ -924,7 +926,6 @@ class PLSE_Fields {
      */
     public function render_date_field ( $field ) {
 
-        ///////$value = $this->get_value( $field );
         $value = $this->get_field_value( $field );
 
         // if value is an array, return the first value only (can happen with post meta-data)
@@ -943,10 +944,10 @@ class PLSE_Fields {
         echo '<input title="' . $field['title'] . '" class="' . $class . '" id="' . $slug . '" type="date" name="' . $slug . '" value="' . $value . '">';
 
         if ( ! empty( $value ) && ! $this->is_date( $value ) ) { // no checks or message if field empty
-            $err = $this->add_status_to_field( __( 'invalid date' ), $this->ERROR_CLASS );
+            $field['err'] = $this->add_status_to_field( __( 'invalid date' ), $this->ERROR_CLASS );
         }
 
-        if ( ! empty( $err ) ) echo $err;
+        if ( ! empty( $field['err'] ) ) echo $field['err'];
 
         return $value;
 
@@ -963,7 +964,6 @@ class PLSE_Fields {
     public function render_time_field ( $field ) {
 
         $value = $this->get_field_value( $field );
-        //////$value = $this->get_value( $field );
 
         // if value is an array, return the first value only (can happen with post meta-data)
         /////if ( is_array( $field['value'] ) ) $value = $field['value'][0]; else $value = $field['value'];
@@ -1000,7 +1000,6 @@ class PLSE_Fields {
      */
     public function render_duration_field ( $field ) {
 
-        /////$value = $this->get_value( $field );
         $value = $this->get_field_value( $field );
 
         // if value is an array, return the first value only (can happen with post meta-data)
@@ -1049,7 +1048,6 @@ class PLSE_Fields {
      */
     public function render_checkbox_field ( $field ) {
 
-        ///////////$value = $this->get_value( $field );
         $value = $this->get_field_value( $field );
 
         // if value is an array, return the first value only (can happen with post meta-data)
@@ -1090,7 +1088,6 @@ class PLSE_Fields {
      */
     public function render_datalist_field ( $field ) {
 
-        /////////////$value = $this->get_value( $field );
         $value = $this->get_field_value( $field );
 
         // if value is an array, return the first value only (can happen with post meta-data)
@@ -1121,7 +1118,7 @@ class PLSE_Fields {
 
                 $list = $this->datalists->get_datalist( $option_list, $list_id );
                 if ( empty( $list ) ) {
-                    $err = $this->add_status_to_field( __( 'datalist not defined' ), $this->CAUTION_CLASS );
+                    $field['err'] = $this->add_status_to_field( __( 'datalist not defined' ), $this->CAUTION_CLASS );
                 } else {
                     echo $list;
                 }
@@ -1134,7 +1131,7 @@ class PLSE_Fields {
                 if ( method_exists( $this->datalists, $method ) ) { 
                     $list = $this->datalists->$method();
                     if ( empty( $list ) ) {
-                        $err = $this->add_status_to_field( __( 'datalist not defined' ), $this->CAUTION_CLASS );
+                        $field['err'] = $this->add_status_to_field( __( 'datalist not defined' ), $this->CAUTION_CLASS );
                     } else {
                         echo $list;
                     }    
@@ -1142,7 +1139,7 @@ class PLSE_Fields {
 
             } else {
 
-                $err = $this->add_status_to_field( __( 'datalist not defined' ), $this->CAUTION_CLASS );
+                $field['err'] = $this->add_status_to_field( __( 'datalist not defined' ), $this->CAUTION_CLASS );
 
             }
 
@@ -1152,7 +1149,7 @@ class PLSE_Fields {
         echo $this->render_label( $field );
         echo '<input type="' . $type .'" title="' . $title . '" id="' . $slug . '" name="' . $slug . '" autocomplete="on" class="plse-datalist" size="' . $size . '" value="' . $value . '" list="' . $list_id . '">';
         echo '</div>';
-        if ( ! empty( $err ) ) echo $err;
+        if ( ! empty( $field['err'] ) ) echo $field['err'];
         // message describing how to use a datalist
         echo '<p>' . __( 'Begin typing to find value, or type in your own value. Delete all text, click in the field, and re-type to search for a new value.' ) . '</p>';
 
@@ -1171,7 +1168,6 @@ class PLSE_Fields {
      */
     public function render_select_single_field ( $field ) {
 
-        //////////////////$value = $this->get_value( $field );
         $value = $this->get_field_value( $field );
 
         // if value is an array, return the first value only (can happen with post meta-data)
@@ -1197,7 +1193,7 @@ class PLSE_Fields {
                 $options = $this->datalists->get_select( $option_list, $value );
 
                 if ( empty( $options ) ) {
-                    $err = $this->add_status_to_field( __( 'options not defined' ), $this->ERROR_CLASS );
+                    $field['err'] = $this->add_status_to_field( __( 'options not defined' ), $this->ERROR_CLASS );
                 }
 
             } else if ( is_string( $option_list ) ) {
@@ -1218,7 +1214,7 @@ class PLSE_Fields {
         echo '<select title="' . $field['title'] . ' id="' . $slug . '" name="' . $slug . '" class="plse-option-select-dropdown">' . "\n";
         echo $options;
         echo '</select>';
-        if ( ! empty( $err ) ) echo $err;
+        if ( ! empty( $field['err'] ) ) echo $field['err'];
         echo '<p class="plse-option-select-description">' . __( 'Select one option from the list' ) . '</p></div>';
 
         return $value;
@@ -1241,7 +1237,6 @@ class PLSE_Fields {
          * multiple values present - get the actual option values out of their enclosing array
          * multiple values are stored as array( 'slug' => $value_array );
          */
-        ///////////$values = $this->get_value( $field );
         $values = $this->get_field_value( $field );
 
         // required fields
@@ -1261,7 +1256,7 @@ class PLSE_Fields {
                 $options = $this->datalists->get_select( $option_list, $values );
 
                 if ( empty( $options ) ) {
-                    $err = $this->add_status_to_field( __( 'options not defined' ), $this->ERROR_CLASS );
+                    $field['err'] = $this->add_status_to_field( __( 'options not defined' ), $this->ERROR_CLASS );
                 }
 
             } else {
@@ -1271,7 +1266,7 @@ class PLSE_Fields {
                 if ( method_exists( $this->datalists, $method ) ) { 
                     $options = $this->datalists->$method( $values );
                     if ( empty( $options ) ) {
-                        $err = $this->add_status_to_field( __( 'options not defined' ), $this->ERROR_CLASS );
+                        $field['err'] = $this->add_status_to_field( __( 'options not defined' ), $this->ERROR_CLASS );
                     }
                 }
 
@@ -1286,7 +1281,7 @@ class PLSE_Fields {
         echo '<select multiple name="' . $slug .'[' . $slug . '][]" class="plse-option-select-dropdown">' . "\n";
         echo $options;
         echo '</select>' . "\n";
-        if ( ! empty( $err ) ) echo $err;
+        if ( ! empty( $field['err'] ) ) echo $field['err'];
         echo '<span>' . 'Use Ctl-Click to select and deselect multiple options.'. '</span>';
 
         //echo '<label class="plse-option-select-description" for="' . $slug . '">' . $label . '<br>' . __( '(CTL-Click to deselect)') . '</label>';
@@ -1309,7 +1304,6 @@ class PLSE_Fields {
      */
     public function render_repeater_field ( $field ) {
 
-        ///////////$values = $this->get_value( $field );
         $values = $this->get_field_value( $field );
 
         $slug = sanitize_key( $field['slug'] );
@@ -1358,7 +1352,7 @@ class PLSE_Fields {
                 $max = count( $option_list ); // size of array
 
                 if ( empty( $datalist ) ) {
-                    $err = $this->add_status_to_field( __( 'datalist not defined' ), $this->ERROR_CLASS );
+                    $field['err'] = $this->add_status_to_field( __( 'datalist not defined' ), $this->ERROR_CLASS );
                 }
 
             } else { // option list specifies a standard list in PLSE_Datalists
@@ -1370,7 +1364,7 @@ class PLSE_Fields {
                     $datalist_id = $option_list;
                     $datalist_id = 'plse-' . $datalist_id . '-data'; // $option list is the id value 
                     if ( empty( $datalist ) ) {
-                        $err = $this->add_status_to_field( __( 'datalist not defined' ), $this->ERROR_CLASS );
+                        $field['err'] = $this->add_status_to_field( __( 'datalist not defined' ), $this->ERROR_CLASS );
                     }
                 }
 
@@ -1421,14 +1415,12 @@ class PLSE_Fields {
                             if ( ! empty( $repeater_value ) ) {
                                 $wroteflag = true; // field saved to DB was not empty
 
-                                $err = '';
-
                                 // if we are checking URLs, check them here
                                 if ( $field['subtype'] == PLSE_INPUT_TYPES['URL'] && $this->check_urls ) { // no checks or message if field empty
 
                                     // try connecting to the supplied URL
                                     $result = $this->get_url_status( $repeater_value );
-                                    $err   = $this->add_status_to_field( $result['err'], $result['class'] );
+                                    $field['err']   = $this->add_status_to_field( $result['err'], $result['class'] );
                                     $repeater_value = $result['value'];
 
                                 }
@@ -1448,7 +1440,7 @@ class PLSE_Fields {
                                     ?>
                                     <!-- remove button (children[1]) -->
                                     <a class="button plse-repeater-remove-row-btn" href="#1">Remove</a>
-                                    <?php if ( ! empty( $err ) ) echo $err; ?>
+                                    <?php if ( ! empty( $field['err'] ) ) echo $field['err']; ?>
                                 </td>
                             </tr>
                         <?php 
@@ -1469,7 +1461,7 @@ class PLSE_Fields {
                                         }
                                     ?>
                                     <a class="button plse-repeater-remove-row-btn" href="#1">Remove</a>
-                                    <?php if ( ! empty( $err ) ) echo $err; ?>
+                                    <?php if ( ! empty( $field['err'] ) ) echo $field['err']; ?>
                                 </td>
                             </tr>
                             <?php 
@@ -1487,7 +1479,7 @@ class PLSE_Fields {
                                 }
                             ?>
                             <a class="button plse-repeater-remove-row-btn button-disabled" href="#">Remove</a>
-                            <?php if ( ! empty( $err ) ) echo $err; ?>
+                            <?php if ( ! empty( $field['err'] ) ) echo $field['err']; ?>
                         </td>
                     </tr>
                     <?php endif;
@@ -1536,7 +1528,6 @@ class PLSE_Fields {
      */
     public function render_image_field ( $field ) {
 
-        ///////////$value = $this->get_value( $field );
         $value = $this->get_field_value( $field );
 
         $slug  = sanitize_key( $field['slug'] );
@@ -1548,7 +1539,7 @@ class PLSE_Fields {
         // required fields
         $value = esc_html( esc_url_raw( $value, ['http','https'] ) );
         if ( ! $this->is_url( $value ) ) {
-            $err = $this->add_status_to_field( __( 'not valid url' ), $this->ERROR_CLASS );
+            $field['err'] = $this->add_status_to_field( __( 'not valid url' ), $this->ERROR_CLASS );
         }
 
         $title = esc_html( $field['title'] );
@@ -1583,7 +1574,7 @@ class PLSE_Fields {
         // media library button (ajax call)
         echo '<input title="' . $title . '" type="button" class="button plse-media-button" data-media="'. $slug . '" value="Upload Image" />&nbsp;';
 
-        if ( ! empty( $err ) ) echo $err;
+        if ( ! empty( $field['err'] ) ) echo $field['err'];
 
         echo '</td></tr></table></div>';
 
@@ -1598,7 +1589,6 @@ class PLSE_Fields {
      */
     public function render_audio_field ( $field ) {
 
-        //////////////$value = $this->get_value( $field );
         $value = $this->field_value( $field );
 
         $slug = sanitize_key( $field['slug'] );
@@ -1609,7 +1599,7 @@ class PLSE_Fields {
         // required fields
         $value = esc_html( esc_url_raw( $value, ['http','https'] ) );
         if ( ! $this->is_url( $value ) ) {
-            $err = $this->add_status_to_field( __( 'not valid url' ), $this->ERROR_CLASS );
+            $field['err'] = $this->add_status_to_field( __( 'not valid url' ), $this->ERROR_CLASS );
         }
 
         // test URLs: https://www.soundhelix.com/audio-examples
@@ -1631,7 +1621,7 @@ class PLSE_Fields {
         else echo __( 'audio field not supported in this version' );
         echo '</audio>';
 
-        if ( ! empty( $err ) ) echo $err;
+        if ( ! empty( $field['err'] ) ) echo $field['err'];
 
         echo '</div>';
 
@@ -1648,16 +1638,14 @@ class PLSE_Fields {
      */
     public function render_video_field ( $field ) {
 
-        //////////$value = $this->get_value( $field );
         $value = $this->get_field_value( $field );
 
         $slug = sanitize_key( $field['slug'] );
-        ///////////////$value = $field['value'];
 
         // required fields
         $value = esc_html( esc_url_raw( $value, ['http','https'] ) );
         if ( ! $this->is_url( $value ) ) {
-            $err = $this->add_status_to_field( __( 'not valid url' ), $this->ERROR_CLASS );
+            $field['err'] = $this->add_status_to_field( __( 'not valid url' ), $this->ERROR_CLASS );
         }
 
         $title = esc_attr( $field['title'] );
@@ -1696,7 +1684,7 @@ class PLSE_Fields {
         echo '</td><td style="width:100%;text-align:center;">';
         echo __( 'Video Player' );
         echo '</td></tr></table>';
-        if ( ! empty( $err ) ) echo $err;
+        if ( ! empty( $field['err'] ) ) echo $field['err'];
         echo '<p>' . __( 'Supports YouTube and Vimeo. Enter the video url, the hit the "tab" key to check if the video embed and thumbnail are valid. Schema will use both the video url, and the default thumbnail defined by the video service.' ) . '</p>';
 
         echo '</div>';

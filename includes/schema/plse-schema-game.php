@@ -83,7 +83,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'title' => 'If checked, Schema will be output to the final page.',
                 'type' => PLSE_INPUT_TYPES['CHECKBOX'],
                 'required' => '',
-                'wp_data' => 'post_meta',
+                'wp_data' => PLSE_DATA_POST_META,
             ),
 
             // when checked by the user, the Schema will try to substitute URLs for text where possible
@@ -93,7 +93,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'title' => 'Values with URLs (e.g. Wikipedia link for a word) will be used in the Schema',
                 'type' => PLSE_INPUT_TYPES['CHECKBOX'],
                 'required' => '',
-                'wp_data' => 'post_meta',
+                'wp_data' => PLSE_DATA_POST_META,
             ),
 
             'game_name' => array(
@@ -102,7 +102,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'title' => 'Official name of the game',
                 'type' => PLSE_INPUT_TYPES['TEXT'],
                 'required' => 'required',
-                'wp_data' => 'post_meta',
+                'wp_data' => PLSE_DATA_POST_META,
                 'select_multiple' => false,
                 'start_of_block' => 'General Game Information'
             ),
@@ -113,7 +113,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'title' => 'Website, or page on website, that is home page for the game',
                 'type' => PLSE_INPUT_TYPES['URL'],
                 'required' => 'required',
-                'wp_data' => 'post_meta',
+                'wp_data' => PLSE_DATA_POST_META,
                 'select_multiple' => false
             ),
 
@@ -124,7 +124,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'type' => PLSE_INPUT_TYPES['REPEATER'],
                 'subtype' => PLSE_INPUT_TYPES['URL'],
                 'required' => '',
-                'wp_data' => 'post_meta',
+                'wp_data' => PLSE_DATA_POST_META,
                 'is_image' => false
             ),
 
@@ -134,7 +134,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'title' => 'Click button to upload image, or use one from Media Library',
                 'type' => PLSE_INPUT_TYPES['IMAGE'],
                 'required' => 'required',
-                'wp_data' => 'post_meta',
+                'wp_data' => PLSE_DATA_POST_META,
                 'select_multiple' => false,
             ),
 
@@ -144,7 +144,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'title' => 'One-paragraph description of game setting, genre, gameplay',
                 'type' => PLSE_INPUT_TYPES['TEXTAREA'],
                 'required' => 'required',
-                'wp_data' => 'post_meta',
+                'wp_data' => PLSE_DATA_POST_META,
                 'select_multiple' => false
             ),
 
@@ -155,7 +155,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'type' => PLSE_INPUT_TYPES['REPEATER'],
                 'subtype' => PLSE_INPUT_TYPES['TEXT'],
                 'required' => '',
-                'wp_data' => 'post_meta',
+                'wp_data' => PLSE_DATA_POST_META,
                 'is_image' => false
             ),
 
@@ -166,7 +166,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'type' => PLSE_INPUT_TYPES['REPEATER'],
                 'subtype' => PLSE_INPUT_TYPES['TEXT'],
                 'required' => '',
-                'wp_data' => 'post_meta',
+                'wp_data' => PLSE_DATA_POST_META,
                 'option_list' => 'languages',
                 'is_image' => false
             ),
@@ -177,7 +177,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'title' => 'Publication date for the game',
                 'type' => PLSE_INPUT_TYPES['DATE'],
                 'required' => '',
-                'wp_data' => 'post_meta',
+                'wp_data' => PLSE_DATA_POST_META,
                 'select_multiple' => false
             ),
 
@@ -187,7 +187,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'title' => 'Address where the game may be downloaded',
                 'type' => PLSE_INPUT_TYPES['URL'],
                 'required' => '',
-                'wp_data' => 'post_meta',
+                'wp_data' => PLSE_DATA_POST_META,
                 'select_multiple' => false
             ),
 
@@ -197,7 +197,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'title' => 'Pick a Rating Category',
                 'type' => PLSE_INPUT_TYPES['SELECT_SINGLE'],
                 'required' => '',
-                'wp_data' => 'post_meta',
+                'wp_data' => PLSE_DATA_POST_META,
                 'option_list' => array(
                     'Everyone' => 'ERSB E',
                     '10 and up' => 'ERSB 10+',
@@ -216,7 +216,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'type' => PLSE_INPUT_TYPES['REPEATER'],
                 'subtype' => PLSE_INPUT_TYPES['TEXT'],
                 'required' => '',
-                'wp_data' => 'post_meta',
+                'wp_data' => PLSE_DATA_POST_META,
                 'option_list' => array(
                     'Cooperative (CoOp)' => 'CoOp',
                     'Multi-Player' => 'MultiPlayer',
@@ -232,7 +232,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'title' => 'An image showing the game in action',
                 'type' => PLSE_INPUT_TYPES['IMAGE'],
                 'required' => '',
-                'wp_data' => 'post_meta',
+                'wp_data' => PLSE_DATA_POST_META,
                 'select_multiple' => false
             ),
 
@@ -242,7 +242,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'title' => 'The company that designed and programmed the game',
                 'type' => PLSE_INPUT_TYPES['TEXT'],
                 'required' => '',
-                'wp_data' => 'post_meta',
+                'wp_data' => PLSE_DATA_POST_META,
             ),
 
             'game_author_url' => array(
@@ -251,7 +251,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'title' => 'The URL for the company that created the game',
                 'type' => PLSE_INPUT_TYPES['URL'],
                 'required' => '',
-                'wp_data' => 'post_meta',
+                'wp_data' => PLSE_DATA_POST_META,
             ),
 
             'game_publisher_name' => array(
@@ -260,7 +260,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'title' => 'The company that distributed or publishes the game',
                 'type' => PLSE_INPUT_TYPES['TEXT'],
                 'required' => '',
-                'wp_data' => 'post_meta',
+                'wp_data' => PLSE_DATA_POST_META,
             ),
 
             'game_publisher_url' => array(
@@ -269,7 +269,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'title' => 'The URL for the company that publishes the game',
                 'type' => PLSE_INPUT_TYPES['URL'],
                 'required' => '',
-                'wp_data' => 'post_meta',
+                'wp_data' => PLSE_DATA_POST_META,
             ),
 
             'game_genre' => array(
@@ -279,7 +279,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'type' => PLSE_INPUT_TYPES['REPEATER'],
                 'subtype' => PLSE_INPUT_TYPES['TEXT'],
                 'required' => '',
-                'wp_data' => 'post_meta',
+                'wp_data' => PLSE_DATA_POST_META,
                 'option_list' => 'game_genres',
                 'is_image' => false
             ),
@@ -290,7 +290,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'title' => 'Desktops, mobiles, and game consoles compatible with the game',
                 'type' => PLSE_INPUT_TYPES['SELECT_MULTIPLE'],
                 'required' => '',
-                'wp_data' => 'post_meta',
+                'wp_data' => PLSE_DATA_POST_META,
                 'option_list' => array(
                     'PlayStation' => 'playstation',
                     'XBox' => 'xbox',
@@ -311,7 +311,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'title' => 'Operating Systems compatible with the game',
                 'type' => PLSE_INPUT_TYPES['SELECT_MULTIPLE'],
                 'required' => '',
-                'wp_data' => 'post_meta',
+                'wp_data' => PLSE_DATA_POST_META,
                 'option_list' => 'os',
                 'select_multiple' => true
             ),
@@ -322,7 +322,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'title' => 'Name of game promotional video',
                 'type' => PLSE_INPUT_TYPES['TEXT'],
                 'required' => '',
-                'wp_data' => 'post_meta',
+                'wp_data' => PLSE_DATA_POST_META,
                 'select_multiple' => false,
                 'start_of_block' => 'Trailer Video'
             ),
@@ -333,7 +333,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'title' => 'One-paragraph description of what the game trailer video shows',
                 'type' => PLSE_INPUT_TYPES['TEXTAREA'],
                 'required' => '',
-                'wp_data' => 'post_meta',
+                'wp_data' => PLSE_DATA_POST_META,
                 'select_multiple' => false
             ),
 
@@ -343,7 +343,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'title' => 'Link to video showing gameplay',
                 'type' => PLSE_INPUT_TYPES['VIDEO'],
                 'required' => '',
-                'wp_data' => 'post_meta',
+                'wp_data' => PLSE_DATA_POST_META,
                 'select_multiple' => false
             ),
 
@@ -353,7 +353,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'title' => 'video duration',
                 'type' => PLSE_INPUT_TYPES['DURATION'],
                 'required' => '',
-                'wp_data' => 'post_meta',
+                'wp_data' => PLSE_DATA_POST_META,
                 'max' => '10800', // 3 hours, in seconds
                 'select_multiple' => false
             ),
@@ -365,7 +365,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'type' => PLSE_INPUT_TYPES['REPEATER'],
                 'subtype' => PLSE_INPUT_TYPES['URL'],
                 'required' => '',
-                'wp_data' => 'post_meta',
+                'wp_data' => PLSE_DATA_POST_META,
                 'is_image' => true // for repeater fields
             ),
 
@@ -377,7 +377,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 //'subtype' => 'text',
                 'type' => PLSE_INPUT_TYPES['SELECT_SINGLE'],
                 'required' => '',
-                'wp_data' => 'post_meta',
+                'wp_data' => PLSE_DATA_POST_META,
                 'option_list' => 'languages', // datalist reference in PLSE_Datalist
                 'select_multiple' => false
             ),
@@ -388,7 +388,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'title' => 'Date that the video was uploaded to public server',
                 'type' => PLSE_INPUT_TYPES['DATE'],
                 'required' => '',
-                'wp_data' => 'post_meta',
+                'wp_data' => PLSE_DATA_POST_META,
                 'select_multiple' => false
             ),
 
@@ -399,7 +399,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'title' => 'Server where the game may be played',
                 'type' => PLSE_INPUT_TYPES['TEXT'],
                 'required' => '',
-                'wp_data' => 'post_meta',
+                'wp_data' => PLSE_DATA_POST_META,
                 'select_multiple' => false, // leaving this off causes validation to fail
                 'start_of_block' => 'Game Server'
             ),
@@ -410,7 +410,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
                 'title' => 'Server address where the game may be played, if online',
                 'type' => PLSE_INPUT_TYPES['URL'],
                 'required' => '',
-                'wp_data' => 'post_meta',
+                'wp_data' => PLSE_DATA_POST_META,
                 'select_multiple' => false // leaving this off causes validation to fail
             ),
 

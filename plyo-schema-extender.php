@@ -215,6 +215,18 @@ if ( ! defined( 'PLSE_SCHEMA_RENDER_KEY' ) ) {
     define( 'PLSE_SCHEMA_RENDER_KEY', 'render_schema' );
 }
 
+if ( ! defined( 'PLSE_DATA_POST_META') ) {
+    define( 'PLSE_DATA_POST_META', 'post_meta' );
+}
+
+if ( ! defined( 'PLSE_DATA_SETTINGS' ) ) {
+    define( 'PLSE_DATA_SETTINGS', 'plugin_settings');
+}
+
+if ( ! defined( 'PLSE_META_USED_SETTINGS') ) {
+    define( 'PLSE_META_USED_SETTINGS', 'meta_to_settings' );
+}
+
 /**
  * --------------------------------------------------------------------------
  * INTERNALLY USED IN FORM CONTROLS

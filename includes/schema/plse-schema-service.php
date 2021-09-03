@@ -82,7 +82,7 @@ class PLSE_SCHEMA_SERVICE extends Abstract_Schema_Piece {
                 'title' => 'If checked, Schema will be output to the final page.',
                 'type' => PLSE_INPUT_TYPES['CHECKBOX'],
                 'required' => '',
-                'wp_data' => 'post_meta',
+                'wp_data' => PLSE_DATA_POST_META,
             ),
 
             // when checked by the user, the Schema will try to substitute URLs for text where possible
@@ -92,16 +92,16 @@ class PLSE_SCHEMA_SERVICE extends Abstract_Schema_Piece {
                 'title' => 'Values with URLs (e.g. Wikipedia link for a word) will be used in the Schema',
                 'type' => PLSE_INPUT_TYPES['CHECKBOX'],
                 'required' => '',
-                'wp_data' => 'post_meta',
+                'wp_data' => PLSE_DATA_POST_META,
             ),
 
             'service_name' => array(
-                'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_SERVICE . '-name',
+                'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-name',
                 'label' => 'Name of Service',
                 'title' => 'Official name of the service',
                 'type' => PLSE_INPUT_TYPES['TEXT'],
                 'required' => 'required',
-                'wp_data' => 'post_meta',
+                'wp_data' => PLSE_DATA_POST_META,
                 'select_multiple' => false,
                 'start_of_block' => 'General Service Information'
             ),
@@ -110,14 +110,14 @@ class PLSE_SCHEMA_SERVICE extends Abstract_Schema_Piece {
             // detailed type of service
             'service_type' => array(
                 'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_SERVICE . '-type',
-                'label' => 'Type Service',
+                'label' => 'Type of Service',
                 'title' => 'Broad category for the service',
                 'type'   => PLSE_INPUT_TYPES['DATALIST'],
                 'subtype' => PLSE_INPUT_TYPES['TEXT'],
                 'description'  => 'Default Service Business Type',
                 'option_list' => 'service_genres', // slug for function name in PLSE_Datalist
                 'required' => 'required',
-                'wp_data' => 'post_meta',
+                'wp_data' => PLSE_DATA_POST_META,
                 'select_multiple' => false,
                 'start_of_block' => 'General Service Information',
             ),
@@ -128,7 +128,7 @@ class PLSE_SCHEMA_SERVICE extends Abstract_Schema_Piece {
                 'title' => 'Home page of website, or page describing the service',
                 'type' => PLSE_INPUT_TYPES['URL'],
                 'required' => 'required',
-                'wp_data' => 'post_meta',
+                'wp_data' => PLSE_DATA_POST_META,
                 'select_multiple' => false
             ),
 
@@ -139,7 +139,7 @@ class PLSE_SCHEMA_SERVICE extends Abstract_Schema_Piece {
                 'type' => PLSE_INPUT_TYPES['REPEATER'],
                 'subtype' => PLSE_INPUT_TYPES['URL'],
                 'required' => '',
-                'wp_data' => 'post_meta',
+                'wp_data' => PLSE_DATA_POST_META,
                 'is_image' => false
             ),
 
@@ -149,7 +149,7 @@ class PLSE_SCHEMA_SERVICE extends Abstract_Schema_Piece {
                 'title' => 'use the service brand, or the company brand',
                 'type' => PLSE_INPUT_TYPES['IMAGE'],
                 'required' => 'required',
-                'wp_data' => 'post_meta',
+                'wp_data' => PLSE_DATA_POST_META,
                 'select_multiple' => false
             ),
 
@@ -159,7 +159,7 @@ class PLSE_SCHEMA_SERVICE extends Abstract_Schema_Piece {
                 'title' => 'Click button to upload image, or use one from Media Library',
                 'type' => PLSE_INPUT_TYPES['IMAGE'],
                 'required' => 'required',
-                'wp_data' => 'post_meta',
+                'wp_data' => PLSE_DATA_POST_META,
                 'select_multiple' => false
             ),
 
@@ -169,7 +169,7 @@ class PLSE_SCHEMA_SERVICE extends Abstract_Schema_Piece {
                 'title' => 'One-paragraph description the service, and value to consumers',
                 'type' => PLSE_INPUT_TYPES['TEXTAREA'],
                 'required' => 'required',
-                'wp_data' => 'post_meta',
+                'wp_data' => PLSE_DATA_POST_META,
                 'select_multiple' => false
             ),
 
@@ -179,7 +179,7 @@ class PLSE_SCHEMA_SERVICE extends Abstract_Schema_Piece {
                 'title' => 'list the slogan, tagline, or value proposition',
                 'type' => PLSE_INPUT_TYPES['TEXT'],
                 'required' => '',
-                'wp_data' => 'post_meta',
+                'wp_data' => PLSE_DATA_POST_META,
             ),
 
         )

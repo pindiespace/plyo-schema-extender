@@ -422,13 +422,16 @@ class PLSE_Metabox {
              * if we store Schema data using the Options API, access the option directly.
              * Normally this is not the case, and Schema data is stored in each $post meta-data
              */
-            if( $field[ 'wp_data' ] == 'option' ) {
+            if( $field[ 'wp_data' ] == PLSE_DATA_SETTINGS ) {
 
                 $value = get_option( $field['slug'] );
 
-            } else if ( $field[ 'wp_data' ] == 'post_meta' ) {
+            } else if ( $field[ 'wp_data' ] == PLSE_DATA_POST_META ) {
 
-                // get the string associated with this field in this post (if no slug, get all the CPTs for this post)
+                /*
+                 * get the string associated with this field in this post (if no slug,
+                 * get all the CPTs for this post)
+                 */
                 if ( $field['select_multiple'] ) {
                     $value = get_post_meta( $post->ID, $field['slug'] ); // multi-select control, returns array
                 } else {

@@ -368,9 +368,18 @@ class PLSE_Options_Data {
                     'title'  => 'Clicking one of the listed categories will add the Schema to all posts using the category',
                 ),
 
+                'service_name' => array(
+                    'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-name',
+                    'label' => 'Name of Service',
+                    'type' => PLSE_INPUT_TYPES['TEXT'],
+                    'description' => 'Name of the Service',
+                    'select_multiple' => false,
+                    'title' => 'Official name of the service',
+                ),
+
                 // service type
                 'service_type' => array(
-                    'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-type-field',
+                    'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-type',
                     'label' => 'Descriptive type',
                     'type'   => PLSE_INPUT_TYPES['DATALIST'],
                     'subtype' => PLSE_INPUT_TYPES['TEXT'],
