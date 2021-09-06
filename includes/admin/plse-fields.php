@@ -215,7 +215,7 @@ class PLSE_Fields {
 
             // if we were meta, and used settings, flag it
             if ( ! empty( $field['value'] ) && $field['wp_data'] == PLSE_DATA_POST_META ) {
-                $field['err'] = $this->add_status_to_field( __( 'used global settings'), $this->CAUTION_CLASS );
+                $field['err'] = $this->add_status_to_field( __( 'used default settings'), $this->CAUTION_CLASS );
             }
 
         }
@@ -1148,8 +1148,9 @@ class PLSE_Fields {
         echo '<div class="' . $class . '">';
         echo $this->render_label( $field );
         echo '<input type="' . $type .'" title="' . $title . '" id="' . $slug . '" name="' . $slug . '" autocomplete="on" class="plse-datalist" size="' . $size . '" value="' . $value . '" list="' . $list_id . '">';
-        echo '</div>';
         if ( ! empty( $field['err'] ) ) echo $field['err'];
+        echo '</div>';
+
         // message describing how to use a datalist
         echo '<p>' . __( 'Begin typing to find value, or type in your own value. Delete all text, click in the field, and re-type to search for a new value.' ) . '</p>';
 
@@ -1391,9 +1392,7 @@ class PLSE_Fields {
         <div id="plse-repeater-<?php echo $slug; ?>" class="plse-repeater <?php echo $class; ?>">
             <div id="plse-repeater-max-warning" class="plse-repeater-max-warning" style="display:none;">You have reached the maximum number of values</div>
 
-
-
-            <table class="plse-repeater-table" width="<?php echo $table_width; ?>" data-max="<?php echo $max; ?>">
+            <table class="plse-repeater-table <?php if ( $is_image ) echo 'plse-input-repeater-is-image'; else echo 'plse-input-repeater'; ?>" width="<?php echo $table_width; ?>" data-max="<?php echo $max; ?>">
                 <tbody>
                     <!--default row, or rows from datatbase-->
                     <?php 
@@ -1403,9 +1402,6 @@ class PLSE_Fields {
                      */
                     $count = 0;
                     if( is_array( $values ) ):
-
-                        // set width of first <td> based on whether a small icon of the image will be drawn
-                        if ( $is_image ) $tdstyle = 'width:328px; white-space: nowrap;'; else $tdstyle = 'width:300px';
 
                         // create fields already in the database
                         foreach( $values as $repeater_value ) {
@@ -1428,7 +1424,7 @@ class PLSE_Fields {
                             ?>
 
                             <tr>
-                                <td style="<?php echo $tdstyle; ?>">
+                                <td>
                                     <input id="<?php echo $slug . $count; ?>" name="<?php echo $slug; ?>[]" type="<?php echo $type; ?>" <?php echo $list_attr; ?> class="plse-repeater-input<?php echo $img_thumb_class; ?>" value="<?php if( $repeater_value != '' ) echo $repeater_value; ?>" size="<?php echo $size; ?>" placeholder="type in value" />
                                 </td>
                                 <td>

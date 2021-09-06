@@ -19,7 +19,24 @@
     overflow-y: hidden;
 }
 
-/* for box that surrounds video in the UI */
+/* for the table surrounding non-image repeater URLs and text repeaters */
+.plse-input-repeater td:nth-child(1) {
+    width: 3000px;
+}
+.plse-input-repeater td:nth-child(2) {
+    min-width: 330px;
+}
+
+/* for the table surrounding repeater image URLs */
+.plse-input-repeater-is-image td:nth-child(1) {
+      width: 328px;
+      white-space: nowrap;
+}
+.plse-input-repeater-is-image td:nth-child(2) {
+    /* no special style */
+}
+
+/* for video control, thumbnail image */
 .plse-upload-repeater-img-box {
     line-height:0;
     font-size:0;

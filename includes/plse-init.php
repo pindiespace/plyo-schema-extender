@@ -391,28 +391,36 @@ class PLSE_Init {
 
         if ( is_a( $post, 'WP_Post' ) ) {
 
-            // position of first occurrence of a string within another, case insensitive
-            $more_pos = mb_stripos( $post->post_content, '<!--more-->' );
+            // try getting the excerpt itself
+            $excerpt = get_the_excerpt( $this->post );
 
-            if ( $more_pos != false ) {
-                $excerpt = mb_substr( $post->post_content, 0, $more_pos );
-            } else {
-                $excerpt = empty( $post->post_excerpt ) ? $post->post_content : $post->post_excerpt;
+            // if there's no excerpt, grab content from the post
+            if ( empty( $excerpt ) ) {
+
+                // position of first occurrence of a string within another, case insensitive
+                $more_pos = mb_stripos( $post->post_content, '<!--more-->' );
+
+                if ( $more_pos != false ) {
+                    $excerpt = mb_substr( $post->post_content, 0, $more_pos );
+                } else {
+                    $excerpt = empty( $post->post_excerpt ) ? $post->post_content : $post->post_excerpt;
+                }
+
+                // strip shortcodes and blocks
+                global $wp_version;
+                if ( version_compare( $wp_version, '5.0', '>=' ) ) {
+                    $excerpt = excerpt_remove_blocks( strip_shortcodes( $excerpt ) );
+                } else {
+                    $excerpt = strip_shortcodes( $excerpt );
+                }
+
+                // strip all NULL bytes, HTML and PHP tags
+                $excerpt = trim( strip_tags( $excerpt ) );
+
+                // add the 'more' entity
+                if ( ! empty( $excerpt ) ) $excerpt = mb_substr( $excerpt, 0, $trim_chars, 'UTF-8' ) . $more;
+
             }
-
-            // strip shortcodes and blocks
-            global $wp_version;
-            if ( version_compare( $wp_version, '5.0', '>=' ) ) {
-                $excerpt = excerpt_remove_blocks( strip_shortcodes( $excerpt ) );
-            } else {
-                $excerpt = strip_shortcodes( $excerpt );
-            }
-
-            // strip all NULL bytes, HTML and PHP tags
-            $excerpt = trim( strip_tags( $excerpt ) );
-
-            // add the 'more' entity
-            if ( $excerpt ) $excerpt = mb_substr( $excerpt, 0, $trim_chars, 'UTF-8' ) . $more;
 
         }
 
@@ -1068,7 +1076,7 @@ class PLSE_Init {
      * Fetch organization social profiles from Yoast (must be present)
      * {@link https://wordpress.org/support/topic/bad-code-implementation/}
      */
-    function get_social_profiles () {
+    function get_social_profiles ( $helpers ) {
 
         $profiles        = [];
         $social_profiles = [
@@ -1085,7 +1093,7 @@ class PLSE_Init {
         // TODO: abstract out into main area
         
         foreach ( $social_profiles as $profile ) {
-            $social_profile = $this->helpers->options->get( $profile, '' );
+            $social_profile = $helpers->options->get( $profile, '' );
             if ( $social_profile !== '' ) {
                     $prefix     = ($profile === 'twitter_site') ? 'https://twitter.com/'  : '';
                 $profiles[] = urldecode( $prefix . $social_profile );
@@ -1104,24 +1112,6 @@ class PLSE_Init {
     }
 
     /**
-     * Adds WP tags as keywords, if tags are assigned.
-     *
-     * @param array $data Article data.
-     * @return array $data Article data.
-     */
-    private function add_keywords( $data ) {
-        /**
-         * Filter: 'wpseo_schema_article_keywords_taxonomy'
-         * Allow changing the taxonomy used to assign keywords to a post type Article data.
-         *
-         * @api string $taxonomy The chosen taxonomy.
-         */
-        $taxonomy = apply_filters( 'wpseo_schema_article_keywords_taxonomy', 'post_tag' );
-
-        return $this->add_terms( $data, 'keywords', $taxonomy );
-    }
-
-    /**
      * Adds a term or multiple terms, comma separated, to a field.
      *
      * @param array  $data     Article data.
@@ -1130,7 +1120,7 @@ class PLSE_Init {
      *
      * @return mixed array $data Article data.
      */
-    private function add_terms( $data, $key, $taxonomy ) {
+    private function add_keywords( $data, $key, $taxonomy ) {
 
         $terms = get_the_terms( $this->context->id, $taxonomy );
 
@@ -1148,6 +1138,7 @@ class PLSE_Init {
 
         return $data;
     }
+
 
     /**
      * -----------------------------------------------------------------------

@@ -589,6 +589,136 @@ class PLSE_Datalists {
         'ReferenceApplication' => 'Reference',
     );
 
+    /**
+     * actions to take, check Schema.org full hierarchy
+     * {@link https://schema.org/docs/full.html}
+     */
+    private $actions = array(
+        'AchieveAction' => 'Achieve (general)',
+        'LoseAction' => 'Lose (game, bet)',
+        'TieAction' => 'Tie (game, bet)',
+        'WinAction' => 'Win (game, bet)',
+
+        'AssessAction' => 'Assess (general)',
+        'ChooseAction' => 'Choose',
+        'IgnoreAction' => 'Ignore',
+        'VoteAction' => 'Vote',
+        'ReactAction' => 'React to Something',
+        'AgreeAction' => 'Agree With',
+        'DisagreeAction' => 'Disagree With',
+        'DislikeAction' => 'Dislike Something',
+        'EndorseAction' => 'Endorse Something',
+        'LikeAction' => 'Like Something',
+        'WantAction' => 'Want Something',
+
+        'ConsumeAction' => 'Consume (general)',
+        'WearAction' => 'Wear',
+        'DrinkAction' => 'Drink',
+        'EatAction' => 'Eat',
+        'InstallAction' => 'Install',
+        'ListenAction' => 'Listen',
+        'ReadAction' => 'Read',
+        'UseAction' => 'Use',
+        'ViewAction' => 'View',
+        'WatchAction' => 'Watch',
+
+        'ControlAction' => 'Control (General)',
+        'ActivateAction' => 'Activate',
+        'DeactivateAction' => 'Deactivate',
+        'ResumeAction' => 'Resume',
+        'SuspendAction' => 'Suspend',
+
+        'CreateAction' => 'Create',
+        'CookAction' => 'Cook',
+        'DrawAction' => 'Draw',
+        'FilmAction' => 'Film',
+        'PaintAction' => 'Paint',
+        'PhotographAction' => 'Photograph',
+        'WriteAction' => 'Write',
+
+        'FindAction' => 'Find (not search)',
+        'CheckAction' => 'Check',
+        'DiscoverAction' => 'Discover',
+        'TrackAction' => 'Track',
+
+        'InteractAction' => 'Interact (general)',
+        'BefriendAction' => 'Befriend',
+        'CommunicateAction' => 'Communicate',
+        'AskAction' => 'Ask',
+        'CheckInAction' => 'Check In',
+        'CheckOutAction' => 'Check Out',
+        'CommentAction' => 'Comment',
+        'InformAction' => 'Inform',
+        'InviteAction' => 'Invite',
+        'ReplyAction' => 'Reply',
+        'ShareAction ' => 'Share',
+
+        'FollowAction' => 'Follow',
+        'JoinAction' => 'Join',
+        'LeaveAction' => 'Leave',
+        'MarryAction' => 'Marry',
+        'RegisterAction' => 'Register',
+        'SubscribeAction' => 'Subscribe',
+        'UnRegisterAction' => 'Unregister',
+    
+        'MoveAction' => 'Move (general)',
+        'ArriveAction' => 'Arrive',
+        'DepartAction' => 'Depart',
+        'TravelAction' => 'Travel',
+
+        'OrganizeAction' => 'Organize (general)',
+        'AllocateAction' => 'Allocate',
+        'AcceptAction' => 'Accept',
+        'AssignAction' => 'Assign',
+        'AuthorizeAction' => 'Authorize',
+        'RejectAction' => 'Reject',
+        'ApplyAction' => 'Apply',
+        'BookmarkAction' => 'Bookmark',
+        'PlanAction' => 'Plan',
+        'CancelAction' => 'Cancel',
+        'ReserveAction' => 'Reserve',
+        'ScheduleAction' => 'Schedule',
+
+        'PlayAction' => 'Play',
+        'ExerciseAction' => 'Exercise',
+        'PerformAction ' => 'Perform',
+
+        'SearchAction' => 'Search',
+        'SeekToAction' => 'Seek',
+        'SolveMathAction' => 'Solve',
+        'TradeAction' => 'Trade',
+        'BuyAction' => 'Buy',
+        'DonateAction' => 'Donate',
+        'OrderAction' => 'Order',
+        'PayAction' => 'Pay',
+        'PreOrderAction' => 'Pre-Order',
+        'QuoteAction' => 'Quote (a price)',
+        'RentAction' => 'Rent',
+        'SellAction' => 'Sell',
+        'TipAction' => 'Tip (for service)',
+    
+        'TransferAction' => 'Transfer (general)',
+        'BorrowAction' => 'Borrow Something',
+        'DownloadAction' => 'Download',
+        'GiveAction' => 'Give Something',
+        'LendAction' => 'Lend Something',
+        'MoneyTransfer' => 'Transfer Money',
+        'ReceiveAction' => 'Receive Something',
+        'ReturnAction' => 'Return Item',
+        'SendAction' => 'Send Something',
+        'TakeAction' => 'Take Something',
+
+        'UpdateAction' => 'Update (general)',
+        'AddAction' => 'Add',
+        'InsertAction' => 'Insert',
+        'AppendAction' => 'Append',
+        'PrependAction' => 'Prepend',
+        'DeleteAction' => 'Delete',
+        'ReplaceAction' => 'Replace'
+
+
+    );
+
     // google doesn't list any Schema.org lists a few, others created
     private $service_genres = array(
         'KnowledgeService' => 'Knowledge',
@@ -950,6 +1080,26 @@ class PLSE_Datalists {
 
     public function get_application_category_size () {
         return count( $this->application_category );
+    }
+
+    /**
+     * Action Schema list
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @return   string    HTML for a <datalist>
+     */
+    public function get_actions_datalist ( $id = '' ) {
+        if ( ! $id ) $id = 'plse-actions-data';
+        return $this->get_datalist( $this->actions, $id );
+    }
+
+    public function get_actions_select ( $value = '' ) {
+        return $this->get_select( $this->actions, $value, true );
+    }
+
+    public function get_actions_size () {
+        return count( $this->actions );
     }
 
     /**

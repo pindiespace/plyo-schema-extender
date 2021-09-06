@@ -181,10 +181,10 @@ class PLSE_Options_Data {
 
                 'import_yoast_local' => array(
                     'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_CONFIG . '-import-yoast-local',
-                    'description'  => 'Click to load Yoast Local SEO values into these fields. Changing the values here won\'t affect the values you entered into Yoast.',
-                    'type'   => PLSE_INPUT_TYPES['BUTTON'],
                     'label' => 'Copy SEO values',
                     'title' => 'Copy Yoast Local SEO Data',
+                    'type'   => PLSE_INPUT_TYPES['BUTTON'],
+                    'description'  => 'Click to load Yoast Local SEO values into these fields. Changing the values here won\'t affect the values you entered into Yoast.',
                     'slug_dependent' => YOAST_LOCAL_SEO_SLUG, // Yoast Local SEO slug, if installed
                     'msg_enabled' => 'Click to copy',
                     'msg_disabled' => 'Yoast Local SEO plugin not present'
@@ -193,10 +193,10 @@ class PLSE_Options_Data {
                 'use_yoast_metadata' => array(
                     //'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_CONFIG . '-import-yoast-metadata',
                     'slug' => PLSE_USE_YOAST_METADATA_SLUG,
-                    'description'  => 'If this is selected, the plugin will use Yoast SEO Meta descriptions and Yoast Local SEO values, where they make sense for the Schema. Overriden by excerpts added to pages and posts.',
-                    'type'   => PLSE_INPUT_TYPES['CHECKBOX'],
                     'label' => 'Check to use Yoast meta data descriptions in the new Schema, if an excerpt isn\'t available.',
                     'title' => 'Yoast Local SEO values',
+                    'type'   => PLSE_INPUT_TYPES['CHECKBOX'],
+                    'description'  => 'If this is selected, the plugin will use Yoast SEO Meta descriptions and Yoast Local SEO values, where they make sense for the Schema. Overriden by excerpts added to pages and posts.',
                     'slug_dependent' => WPSEO_VERSION, // Yoast is present, a constant
                     'msg_enabled' => 'Check to use',
                     'msg_disabled' => 'Yoast plugin not present'
@@ -206,19 +206,18 @@ class PLSE_Options_Data {
                 'local_post_control' => array(
                     //'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_CONFIG . '-local-post-control',
                     'slug'  => PLSE_LOCAL_POST_CONTROL_SLUG,
-                    'description'  => 'If this is selected, posts don\'t automatically render schema to Yoast, even if they match the Custom Post Type or Category. Each post must be activated individually.',
-                    'type'   => PLSE_INPUT_TYPES['CHECKBOX'],
                     'label' => 'Check to enable local post control of Schema rendering to Yoast.',
                     'title' => 'Control Schema in individual posts',
+                    'type'   => PLSE_INPUT_TYPES['CHECKBOX'],
+                    'description'  => 'If this is selected, posts don\'t automatically render schema to Yoast, even if they match the Custom Post Type or Category. Each post must be activated individually.',
                 ),
 
                 'check_urls' => array(
-                    //'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_CONFIG . '-check-urls',
                     'slug' => PLSE_CHECK_URLS_SLUG,
-                    'description'  => 'If this is selected, URLs typed into custom Schema fields in posts will be checked online. It may result in slow loading.',
-                    'type'   => PLSE_INPUT_TYPES['CHECKBOX'],
                     'label' => 'Check to have plugin actively check if URLs can be reached on the Internet.',
                     'title' => 'Check to actively test typed-in URLs',
+                    'type'   => PLSE_INPUT_TYPES['CHECKBOX'],
+                    'description'  => 'If this is selected, URLs typed into custom Schema fields in posts will be checked online. It may result in slow loading.',
                 )
 
             )
@@ -237,30 +236,40 @@ class PLSE_Options_Data {
             'fields' => array(
 
                 'phone' => array(
-                    'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_GENERAL . '-phone-field',
-                    'description'  => 'Organization Phone (if different from Wordpress Admin)',
-                    'type'   => PLSE_INPUT_TYPES['PHONE'],
+                    'slug'   => PLSE_LOCAL_CONTACT_PHONE_SLUG,
                     'label' => 'Phone format: xxx-xxx-xxxx',
                     'title' => 'US and international phone numbers may be entered',
+                    'type'   => PLSE_INPUT_TYPES['PHONE'],
+                    'description'  => 'Organization Phone (if different from Wordpress Admin)',
                     'yoast_slug' => 'location_phone' // check for Yoast Local SEO value when initialized
                 ),
 
                 'email' => array(
-                    'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_GENERAL . '-email-field',
-                    'description'  => 'Organization Email contact (if different from Wordpress Admin)',
-                    'type'   => PLSE_INPUT_TYPES['EMAIL'],
+                    'slug'   => PLSE_LOCAL_CONTACT_EMAIL_SLUG,
                     'label'  => 'Email format: xxxx@domainname.com',
                     'title'  => 'Provide a valid contact email for your organization',
+                    'type'   => PLSE_INPUT_TYPES['EMAIL'],
+                    'description'  => 'Organization Email contact (if different from Wordpress Admin)',
                     'yoast_slug'  => 'location_email'
                 ),
     
                 'contact_url' => array(
-                    'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_GENERAL . '-contact-url-field',
-                    'description'  => 'Contact URL for organization on website',
-                    'type'   => PLSE_INPUT_TYPES['URL'],
-                    'label'  => 'URL format: https://domain/page',
+                    'slug'   => PLSE_LOCAL_CONTACT_URL_SLUG,
+                    'label'  => 'URL format: http(s)://domain/page',
                     'title'  => 'Provide the web address of the contact page for your organization',
+                    'type'   => PLSE_INPUT_TYPES['URL'],
+                    'description'  => 'Contact URL for organization on website',
                     'yoast_slug'  => 'location_url'
+                    ),
+
+                'contact_languages' => array(
+                    'slug'   => PLSE_LOCAL_CONTACT_LANGUAGES_SLUG,
+                    'label'  => 'Languages supported for communication',
+                    'title'  => 'Provide one or more languages for communicating',
+                    'type'   => PLSE_INPUT_TYPES['REPEATER'],
+                    'subtype' => PLSE_INPUT_TYPES['TEXT'],
+                    'description'  => 'Supported Languages for Contact',
+                    'option_list' => 'languages',
                 )
 
             )
@@ -279,59 +288,60 @@ class PLSE_Options_Data {
 
             'fields' => array(
 
+                // street address
                 'street' => array(
-                    'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_ADDRESS . '-street-field',
-                    'description'  => 'Organization Street Number (uses Yoast Local SEO if present)',
-                    'type'   => PLSE_INPUT_TYPES['TEXT'],
+                    'slug'   => PLSE_LOCAL_STREET_ADDRESS_SLUG,
                     'label'  => 'Address (apartment or office number)',
                     'title'  => 'US and international street addresses are ok',
+                    'type'   => PLSE_INPUT_TYPES['TEXT'],
+                    'description'  => 'Organization Street Number (uses Yoast Local SEO if present)',
                     'yoast_slug'  => 'location_address'
                 ),
 
+                // street name
                 'street2' => array(
-                    'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_ADDRESS . '-street2-field',
-                    'description'  => 'Street Name (uses Yoast Local SEO if present)',
-                    'type'   => PLSE_INPUT_TYPES['TEXT'],
+                    'slug'   => PLSE_LOCAL_STREET_NAME_SLUG,
                     'label'  => 'Address (street name)',
                     'title'  => 'US and international street addresses are ok',
+                    'type'   => PLSE_INPUT_TYPES['TEXT'],
+                    'description'  => 'Street Name (uses Yoast Local SEO if present)',
                     'yoast_slug'  => 'location_address_2'
                 ),
 
                 'city' => array(
-                    'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_ADDRESS . '-city-field',
-                    'description'  => 'Organization City (uses Yoast Local SEO if present)',
-                    'type'   => PLSE_INPUT_TYPES['TEXT'],
+                    'slug'   => PLSE_LOCAL_CITY_SLUG,
                     'label'  => 'Full name of city',
                     'title'  => 'Use the full name of the city (not an abbreviation)',
+                    'type'   => PLSE_INPUT_TYPES['TEXT'],
+                    'description'  => 'Organization City (uses Yoast Local SEO if present)',
                     'yoast_slug'  => 'location_city'
                 ),
 
                 'state' => array(
-                    'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_ADDRESS . '-state-field',
-                    'description'  => 'Organization State or region (uses Yoast Local SEO if present)',
-                    'type'   => PLSE_INPUT_TYPES['TEXT'],
+                    'slug'   => PLSE_LOCAL_STATE_SLUG . '-state-field',
                     'label'  => 'Full name or abbreviation',
                     'title'  => 'supply the state, province, regional location',
+                    'type'   => PLSE_INPUT_TYPES['TEXT'],
+                    'description'  => 'Organization State or region (uses Yoast Local SEO if present)',
                     'yoast_slug'  => 'location_state'
                 ),
 
                 'country' => array(
-                    'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_ADDRESS . '-country-field',
-                    'description'  => 'Organization Country (uses Yoast Local SEO if present)',
-                    //'type'   => PLSE_INPUT_TYPES['TEXT'],
-                    'type'   => PLSE_INPUT_TYPES['SELECT_SINGLE'],
-                    'option_list' => 'countries',
+                    'slug'   => PLSE_LOCAL_COUNTRY_SLUG,
                     'label'  => 'Full name or abbreviation',
                     'title'  => 'Full name of country is best for Schema',
+                    'type'   => PLSE_INPUT_TYPES['SELECT_SINGLE'],
+                    'description'  => 'Organization Country (uses Yoast Local SEO if present)',
+                    'option_list' => 'countries',
                     'yoast_slug'  => 'location_country'
                 ),
 
                 'postal' => array(
-                    'slug'  =>  PLSE_OPTIONS_SLUG . PLSE_SCHEMA_ADDRESS . '-postal-field',
-                    'description' =>  'Organization Postal Code (uses Yoast Local SEO if present)',
-                    'type'  =>  PLSE_INPUT_TYPES['POSTAL'],
+                    'slug'  =>  PLSE_LOCAL_POSTAL_SLUG,
                     'label' => 'Complete postal code',
                     'title' => 'US or international postal codes ok, but should be alphanumeric',
+                    'type'  =>  PLSE_INPUT_TYPES['POSTAL'],
+                    'description' =>  'Organization Postal Code (uses Yoast Local SEO if present)',
                     'yoast_slug' => 'location_zipcode'
                 )
 
@@ -353,94 +363,116 @@ class PLSE_Options_Data {
                 // cpt dropdown
                 'cpt' => array(
                     'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . PLSE_CPT_SLUG,
-                    'description'  => 'Custom Post Types using Service Schema',
-                    'type'   => PLSE_INPUT_TYPES['CPT'],
                     'label'  => 'Custom Post Types',
-                    'title'  => 'Clicking a Custom Post Type will add the Schema to all posts under that CPT'
+                    'title'  => 'Clicking a Custom Post Type will add the Schema to all posts under that CPT',
+                    'type'   => PLSE_INPUT_TYPES['CPT'],
+                    'description'  => 'Custom Post Types using Service Schema',
                 ),
 
                 // cat dropdown
                 'cat' => array(
                     'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . PLSE_CAT_SLUG,
-                    'description'  => 'Categories using Service Schema',
-                    'type'   => PLSE_INPUT_TYPES['CAT'],
                     'label'  => 'Categories',
                     'title'  => 'Clicking one of the listed categories will add the Schema to all posts using the category',
+                    'type'   => PLSE_INPUT_TYPES['CAT'],
+                    'description'  => 'Categories using Service Schema',
                 ),
 
                 'service_name' => array(
                     'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-name',
                     'label' => 'Name of Service',
+                    'title' => 'Official name of the service',
                     'type' => PLSE_INPUT_TYPES['TEXT'],
                     'description' => 'Name of the Service',
                     'select_multiple' => false,
-                    'title' => 'Official name of the service',
                 ),
 
                 // service type
                 'service_type' => array(
                     'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-type',
                     'label' => 'Descriptive type',
+                    'title' => 'Enter a specific service type',
                     'type'   => PLSE_INPUT_TYPES['DATALIST'],
                     'subtype' => PLSE_INPUT_TYPES['TEXT'],
                     'description'  => 'Default Service Business Type',
                     'option_list' => 'service_genres', // kernel of function name in PLSE_Datalist
-                    'title' => 'Enter a specific service type',
+                ),
+
+                'service_url' => array(
+                    'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-url',
+                    'label' => 'Service URL',
+                    'title' => 'Home page of website, or page describing the service',
+                    'type' => PLSE_INPUT_TYPES['URL'],
+                    'description' => 'The home page for the service',
+                    'required' => 'required',
                 ),
 
                 'service_description' => array(
-                    'slug' => PLSE_OPTIONS_SLUG . '-' . PLSE_SCHEMA_SERVICE . '-description',
+                    'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-description',
                     'label' => 'Service Description',
+                    'title' => 'More detailed descritpion of the service',
                     'type' => PLSE_INPUT_TYPES['TEXTAREA'],
                     'description' => 'Detailed Description of Service',
-                    'title' => 'More detailed descritpion of the service',
                 ),
 
-                /*
-                'service_addtl_images' => array(
-                    'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_SERVICE . '-additional-images',
-                    'label' => 'Additional images of the service',
-                    'type' => PLSE_INPUT_TYPES['REPEATER'],
-                    'subtype' => PLSE_INPUT_TYPES['URL'],
-                    'description' => 'Additional images associated with the service',
-                    'title' => 'Add one or more images of the service',
-                    'required' => '',
-                    'is_image' => true // for repeater fields
+                'service_logo' => array(
+                    'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-logo',
+                    'label'  => 'Visual Brand or trademark',
+                    'title'  => 'This should be the copyrighted or trademarked brand image',
+                    'type'   => PLSE_INPUT_TYPES['IMAGE'],
+                    'description' => 'Brand or symbol associated with the service',
+                    'width'  => '128',
+                    'height' => '128',
                 ),
-                */
+
+                'service_image' => array(
+                    'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-image',
+                    'label'  => 'Image showing service',
+                    'title'  => 'This should show a service being supplied or used',
+                    'type'   => PLSE_INPUT_TYPES['IMAGE'],
+                    'description'  => 'Default image of Service (distinct from brand logo)',
+                    'width'  => '240',
+                    'height' => '120',
+                ),
+
+                'service_slogan' => array(
+                    'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-slogan',
+                    'label' => 'Service Slogan or Tagline',
+                    'title' => 'list the slogan, tagline, or value proposition',
+                    'type' => PLSE_INPUT_TYPES['TEXT'],
+                    'description' => 'Tagline or motto associated with the service',
+                    'wp_data' => PLSE_DATA_POST_META,
+                ),
+
+                // NOTE: BELOW FIELDS ARE FOR TESTING ONLY
 
                 'start_date' => array(
-                    'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_SERVICE . '-start-date',
+                    'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-start-date',
                     'label' => 'Start Date',
                     'title' => 'Day when the event starts',
                     'type'  => PLSE_INPUT_TYPES['DATE'],
                     'description' => 'When the Service first started',
-                    'required' => 'required',
                 ),
 
                 'start_time' => array(
-                    'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_SERVICE . '-start-time',
+                    'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-start-time',
                     'label' => 'Start Time',
                     'title' => 'Day when the event starts',
                     'type'  => PLSE_INPUT_TYPES['TIME'],
                     'description' => 'The time the Service first started',
-                    'required' => 'required',
                 ),
 
-
                 'service_number' => array(
-                    'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_SERVICE . '-number',
+                    'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-number',
                     'label' => 'Service Number',
                     'title' => 'The Number of the Service',
                     'type'  => PLSE_INPUT_TYPES['INT'],
                     'description' => 'The number associated with the service',
-                    'required' => 'required',
                 ),
-
 
 /*
                 'service_quantity' => array(
-                    'slug' => PLSE_SCHEMA_EXTENDER_SLUG . '-' . PLSE_SCHEMA_SERVICE . '-quantity',
+                    'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-quantity',
                     'label' => 'Service Quantity',
                     'title' => 'The Quantity of the Service',
                     'type'  => PLSE_INPUT_TYPES['FLOAT'],
@@ -450,7 +482,7 @@ class PLSE_Options_Data {
 */
 
                 'service_length' => array(
-                    'slug' => PLSE_OPTIONS_SLUG . '-' . PLSE_SCHEMA_SERVICE . '-service-length',
+                    'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-service-length',
                     'label' => 'Length of Service',
                     'type'  => PLSE_INPUT_TYPES['DURATION'],
                     'description' => 'The length the service typically runs',
@@ -461,39 +493,15 @@ class PLSE_Options_Data {
                 'service_focus' => array(
                     'slug' => PLSE_OPTIONS_SLUG . '-' . PLSE_SCHEMA_SERVICE . '-service_focus',
                     'label' => 'Service Focus',
+                    'title' => 'Service Focus',
                     'type' => PLSE_INPUT_TYPES['SELECT_SINGLE'],
                     'description' => 'Most important of the services',
-                    'title' => 'Service Focus',
                     'option_list' => array(
                         'PHILKEY' => 'phil', // stores 'phil', displays 'PHIL'
                         'BOBKEY' => 'bob',
                         'KRESLKEY' => 'kresl'
                     ),
                 ),
-
-                'logo' => array(
-                    'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-logo',
-                    'description'  => 'Default Service brand logo or icon',
-                    'type'   => PLSE_INPUT_TYPES['IMAGE'],
-                    'width'  => '128',
-                    'height' => '128',
-                    'label'  => 'Visual Brand or trademark',
-                    'title'  => 'This should be the copyrighted or trademarked brand image'
-                ),
-        
-
-        /*
-                'image' => array(
-                    'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-image',
-                    'description'  => 'Default image of Service (distinct from brand logo)',
-                    'type'   => PLSE_INPUT_TYPES['IMAGE'],
-                    'width'  => '240',
-                    'height' => '120',
-                    'label'  => 'Image showing service',
-                    'title'  => 'This should show a service being supplied or used'
-                )
-
-        */
 
             )
 
@@ -513,30 +521,55 @@ class PLSE_Options_Data {
                 // cpt
                 'cpt' => array(
                     'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_GAME . PLSE_CPT_SLUG,
-                    'description'  => 'Custom Post Types using Game Schema',
-                    'type'   => PLSE_INPUT_TYPES['CPT'],
                     'label'  => 'Select Multiple ok',
-                    'title'  => 'Clicking a Custom Post Type will add the Schema to all posts under that CPT'
+                    'title'  => 'Clicking a Custom Post Type will add the Schema to all posts under that CPT',
+                    'type'   => PLSE_INPUT_TYPES['CPT'],
+                    'description'  => 'Custom Post Types using Game Schema',
                 ),
 
                 // cat
                 'cat' => array(
                     'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_GAME . PLSE_CAT_SLUG,
-                    'description'  => 'Categories using Game Schema',
-                    'type'   => PLSE_INPUT_TYPES['CAT'],
                     'label'  => 'Select Multiple ok',
-                    'title'  => 'Clicking one of the listed categories will add the Schema to all posts using the category'
+                    'title'  => 'Clicking one of the listed categories will add the Schema to all posts using the category',
+                    'type'   => PLSE_INPUT_TYPES['CAT'],
+                    'description'  => 'Categories using Game Schema',
+                ),
 
+                'game_name' => array(
+                    'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_GAME . '-name',
+                    'label' => 'Game Name',
+                    'title' => 'Official name of the game',
+                    'type' => PLSE_INPUT_TYPES['TEXT'],
+                    'description' => 'Name of the Game',
+                ),
+
+                'game_url' => array(
+                    'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_GAME . '-url',
+                    'label' => 'Game Website URL',
+                    'title' => 'Website, or page on website, that is home page for the game',
+                    'type' => PLSE_INPUT_TYPES['URL'],
+                    'description' => 'Home page for the game site',
+                ),
+    
+                'game_description' => array(
+                    'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_GAME . '-description',
+                    'label' => 'Game Description',
+                    'title' => 'One-paragraph description of game setting, genre, gameplay',
+                    'type' => PLSE_INPUT_TYPES['TEXTAREA'],
+                    'description' => 'a paragraph summarizing the game',
+                    'select_multiple' => false
                 ),
 
                 'image' => array(
                     'slug'   => 'plse-' . PLSE_SCHEMA_GAME . '-image',
-                    'description'  => 'Default image of Game',
+                    'label'  => 'Image of Game',
+                    'title'  => 'Show a screenshot from the game',
                     'type'   => PLSE_INPUT_TYPES['IMAGE'],
+                    'description'  => 'Default image of Game',
                     'width'  => '240',
                     'height' => '120',
-                    'label'  => 'Image of Game',
-                    'title'  => 'Show a screenshot from the game'
+
                 )
 
             )
@@ -556,19 +589,19 @@ class PLSE_Options_Data {
                 // cpt
                 'cpt' => array(
                     'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_EVENT . PLSE_CPT_SLUG,
-                    'description'  => 'Custom Post Types using Event Schema',
-                    'type'   => PLSE_INPUT_TYPES['CPT'],
                     'label' => 'Select Multiple',
-                    'title' => 'Select CPT that should use this Schema'
+                    'title' => 'Select CPT that should use this Schema',
+                    'type'   => PLSE_INPUT_TYPES['CPT'],
+                    'description'  => 'Custom Post Types using Event Schema',
                 ),
 
                 // cat
                 'cat' => array(
                     'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_EVENT . PLSE_CAT_SLUG,
-                    'description'  => 'Categories using Event Schema',
-                    'type'   => PLSE_INPUT_TYPES['CAT'],
                     'label' => 'Select Multiple',
-                    'title' => 'Select Categories that shold use this Schema'
+                    'title' => 'Select Categories that shold use this Schema',
+                    'type'   => PLSE_INPUT_TYPES['CAT'],
+                    'description'  => 'Categories using Event Schema',
                 )
 
             )

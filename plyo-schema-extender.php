@@ -122,24 +122,6 @@ if ( ! defined( 'YOAST_LOCAL_SEO_SLUG' ) ) {
 
 /**
  * --------------------------------------------------------------------------
- * SLUG CONSTANTS
- * --------------------------------------------------------------------------
- */
-
-if ( ! defined( 'PLSE_CSS_SLUG' ) ) {
-    define( 'PLSE_CSS_SLUG', 'plse-css-' );
-}
-
-if ( ! defined( 'PLSE_OPTIONS_SLUG' ) ) {
-    define ( 'PLSE_OPTIONS_SLUG', 'plse-settings-' );
-}
-
-if ( ! defined( 'PLSE_METABOX_SLUG' ) ) {
-    define( 'PLSE_METABOX_SLUG', 'plse-metabox-' );
-}
-
-/**
- * --------------------------------------------------------------------------
  * SUPPORTED SCHEMA
  * --------------------------------------------------------------------------
  */
@@ -157,6 +139,17 @@ if ( ! defined( 'PLSE_SCHEMA_SERVICE ') ) {
 
 if ( ! defined( 'PLSE_SCHEMA_PRODUCT_REVIEW' ) ) {
     define( 'PLSE_SCHEMA_PRODUCT_REVIEW', 'product-review' );
+}
+
+/**
+ * --------------------------------------------------------------------------
+ * SLUG CONSTANTS
+ * --------------------------------------------------------------------------
+ */
+
+// prefix for all database keys (Settings API, and in metabox data)
+if ( ! defined( 'PLSE_OPTIONS_SLUG' ) ) {
+    define( 'PLSE_OPTIONS_SLUG', 'plse-settings-' );
 }
 
 /**
@@ -179,6 +172,67 @@ if ( ! defined( 'PLSE_SCHEMA_ADDRESS' ) ) {
 
 if ( ! defined( 'PLSE_SCHEMA_HIDDEN' ) ) {
     define( 'PLSE_SCHEMA_HIDDEN', 'hidden' );
+}
+
+// local phone slug (used by several Schema)
+if ( ! defined( 'PLSE_LOCAL_PHONE_SLUG' ) ) {
+    define( 'PLSE_LOCAL_PHONE_SLUG', PLSE_OPTIONS_SLUG . PLSE_SCHEMA_GENERAL . '-phone-field' );
+}
+
+// local email slug (used by several Schema)
+if  ( ! defined( 'PLSE_LOCAL_EMAIL_SLUG' ) ) {
+    define( 'PLSE_LOCAL_EMAIL_SLUG', PLSE_OPTIONS_SLUG . PLSE_SCHEMA_GENERAL . '-email-field' );
+}
+
+// local 'contact us' URL (used by several Schema)
+if ( ! defined( 'PLSE_LOCAL_CONTACT_URL_SLUG' ) ) {
+    define( 'PLSE_LOCAL_CONTACT_URL_SLUG', PLSE_OPTIONS_SLUG . PLSE_SCHEMA_GENERAL . '-contact-url-field' );
+}
+
+// street address of local business
+if ( ! defined( 'PLSE_LOCAL_STREET_ADDRESS_SLUG' ) ) {
+    define( 'PLSE_LOCAL_STREET_ADDRESS_SLUG', PLSE_OPTIONS_SLUG . PLSE_SCHEMA_ADDRESS . '-street-field' );
+}
+
+// street name of local business
+if ( ! defined( 'PLSE_LOCAL_STREET_NAME_SLUG' ) ) {
+    define( 'PLSE_LOCAL_STREET_NAME_SLUG', PLSE_OPTIONS_SLUG . PLSE_SCHEMA_ADDRESS . '-street2-field' );
+}
+
+// city of local business
+if ( ! defined( 'PLSE_LOCAL_CITY_SLUG' ) ) {
+    define( 'PLSE_LOCAL_CITY_SLUG', PLSE_OPTIONS_SLUG . PLSE_SCHEMA_ADDRESS . '-city-field' );
+}
+
+// state of local business
+if ( ! defined( 'PLSE_LOCAL_STATE_SLUG' ) ) {
+    define( 'PLSE_LOCAL_STATE_SLUG', PLSE_OPTIONS_SLUG . PLSE_SCHEMA_ADDRESS . '-state-field' );
+}
+
+// country of local business
+if ( ! defined( 'PLSE_LOCAL_COUNTRY_SLUG' ) ) {
+    define( 'PLSE_LOCAL_COUNTRY_SLUG', PLSE_OPTIONS_SLUG . PLSE_SCHEMA_ADDRESS . '-country-field' );
+}
+
+// postal code of local business
+if ( ! defined( 'PLSE_LOCAL_POSTAL_SLUG' ) ) {
+    define( 'PLSE_LOCAL_POSTAL_SLUG', PLSE_OPTIONS_SLUG . PLSE_SCHEMA_ADDRESS . '-postal-field' );
+}
+
+if ( ! defined( 'PLSE_LOCAL_CONTACT_PHONE_SLUG' ) ) {
+    define( 'PLSE_LOCAL_CONTACT_PHONE_SLUG', PLSE_OPTIONS_SLUG . PLSE_SCHEMA_GENERAL . '-phone-field' );
+}
+
+if ( ! defined( 'PLSE_LOCAL_CONTACT_EMAIL_SLUG' ) ) {
+    define( 'PLSE_LOCAL_CONTACT_EMAIL_SLUG', PLSE_OPTIONS_SLUG . PLSE_SCHEMA_GENERAL . '-email-field' );
+}
+
+if ( ! defined( 'PLSE_LOCAL_CONTACT_URL_SLUG' ) ) {
+    define( 'PLSE_LOCAL_CONTACT_URL_SLUG', PLSE_OPTIONS_SLUG . PLSE_SCHEMA_GENERAL . '-contact-url-field' );
+}
+
+if ( ! defined( 'PLSE_LOCAL_CONTACT_LANGUAGES_SLUG' ) ) {
+    define( 'PLSE_LOCAL_CONTACT_LANGUAGES_SLUG', PLSE_OPTIONS_SLUG . PLSE_SCHEMA_GENERAL . '-contact-url-languages' );
 }
 
 /**
