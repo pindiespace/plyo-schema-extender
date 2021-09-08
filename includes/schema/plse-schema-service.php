@@ -48,6 +48,13 @@ class PLSE_SCHEMA_SERVICE extends Abstract_Schema_Piece {
      * Note: a partial description may cause a 500 error reported to the JS console. Look
      * in the web server error_log.
      * 
+     * $fields
+     * |- slug            = used to access the collection of all fields in post meta-data
+     * |- title           = name for metabox in post editing
+     * |- message         = short description of metabox
+     * |- nonce           = field for nonce (one for each metabox)
+     * |- dashicon        = icon to display in metabox title
+     * 
      * $field[]
      * |- slug            = the id used to access the field, store in metabox data
      * |- label           = the text in the <label>...</label> field
@@ -68,7 +75,7 @@ class PLSE_SCHEMA_SERVICE extends Abstract_Schema_Piece {
     public static $schema_fields = array(
         'slug'  => 'plse-meta-service',
         'title' => 'Plyo Schema Extender - Service',
-        'message' => 'Use this box to add fields to create a Service Schema. It should be used when the primary focus of content is a business service.',
+        'message' => 'Use this box to add fields to create a Service Schema. It should be used when the primary focus of content is a business Service.',
         'nonce' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE .'-metabox-nonce',
         'dashicon' => 'dashicons-businessperson',
 
@@ -106,7 +113,6 @@ class PLSE_SCHEMA_SERVICE extends Abstract_Schema_Piece {
                 'start_of_block' => 'General Service Information'
             ),
 
-
             // detailed type of service
             'service_type' => array(
                 'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-type',
@@ -125,7 +131,7 @@ class PLSE_SCHEMA_SERVICE extends Abstract_Schema_Piece {
             'service_url' => array(
                 'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-url',
                 'label' => 'Service URL',
-                'title' => 'Home page of website, or page describing the service',
+                'title' => 'Home page of website, or page describing the Service',
                 'type' => PLSE_INPUT_TYPES['URL'],
                 'required' => 'required',
                 'wp_data' => PLSE_DATA_POST_META,
@@ -135,7 +141,7 @@ class PLSE_SCHEMA_SERVICE extends Abstract_Schema_Piece {
             'service_description' => array(
                 'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-description',
                 'label' => 'Service Description',
-                'title' => 'One-paragraph description the service, and value to consumers',
+                'title' => 'One-paragraph description the Service, and value to consumers',
                 'type' => PLSE_INPUT_TYPES['TEXTAREA'],
                 'required' => 'required',
                 'wp_data' => PLSE_DATA_POST_META,
@@ -144,8 +150,8 @@ class PLSE_SCHEMA_SERVICE extends Abstract_Schema_Piece {
 
             'service_same_as' => array(
                 'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-sameas',
-                'label' => 'Other URLs directly related to the service',
-                'title' => 'Additional URLs related to the service',
+                'label' => 'Other URLs directly related to the Service',
+                'title' => 'Additional URLs related to the Service',
                 'type' => PLSE_INPUT_TYPES['REPEATER'],
                 'subtype' => PLSE_INPUT_TYPES['URL'],
                 'required' => '',
@@ -156,7 +162,7 @@ class PLSE_SCHEMA_SERVICE extends Abstract_Schema_Piece {
             'service_logo' => array(
                 'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-logo',
                 'label' => 'Brand Logo for Service',
-                'title' => 'use the service brand, or the company brand',
+                'title' => 'use the Service brand, or the company brand',
                 'type' => PLSE_INPUT_TYPES['IMAGE'],
                 'required' => 'required',
                 'wp_data' => PLSE_DATA_POST_META,
@@ -166,7 +172,7 @@ class PLSE_SCHEMA_SERVICE extends Abstract_Schema_Piece {
             'service_image' => array(
                 'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-image',
                 'label' => 'Service Image',
-                'title' => 'Click button to upload image, or use one from Media Library',
+                'title' => 'Click button to upload image related to the Service, or use one from Media Library',
                 'type' => PLSE_INPUT_TYPES['IMAGE'],
                 'required' => 'required',
                 'wp_data' => PLSE_DATA_POST_META,
@@ -196,7 +202,7 @@ class PLSE_SCHEMA_SERVICE extends Abstract_Schema_Piece {
             'service_output_description' => array(
                 'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-output-description',
                 'label' => 'Detailed description Service benefits',
-                'title' => 'product, another service, business goals, money, satisfaction.',
+                'title' => 'product, another Service, business goals, money, satisfaction.',
                 'type' => PLSE_INPUT_TYPES['TEXTARES'],
                 'required' => '',
                 'wp_data' => PLSE_DATA_POST_META,
@@ -206,8 +212,8 @@ class PLSE_SCHEMA_SERVICE extends Abstract_Schema_Piece {
 
             'service_audience' => array(
                 'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-audience',
-                'label' => 'General Audience Type',
-                'title' => 'the general audience segment.',
+                'label' => 'General Audience type or market segment',
+                'title' => 'the general Audience segment.',
                 'type' => PLSE_INPUT_TYPES['SELECT_SINGLE'],
                 'option_list' => array(
                     'Business' => 'BusinessAudience',
@@ -218,12 +224,12 @@ class PLSE_SCHEMA_SERVICE extends Abstract_Schema_Piece {
                 ),
                 'required' => '',
                 'wp_data' => PLSE_DATA_POST_META,
-                'start_of_block' => 'Audience for Service',
+                'start_of_block' => 'Audience that uses the Service',
             ),
 
             'service_audience_type' => array(
                 'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-audience_type',
-                'label' => 'Longer description of audience type (veterans, car owners, musicians, etc.)',
+                'label' => 'Longer description of Audience type (veterans, car owners, musicians, etc.)',
                 'title' => 'consumers, skateboarders, web designers',
                 'type' => PLSE_INPUT_TYPES['TEXT'],
                 'required' => '',
@@ -232,9 +238,10 @@ class PLSE_SCHEMA_SERVICE extends Abstract_Schema_Piece {
 
             // Actions
 
+            // General Action taken, uses Schema.org list
             'service_action_type' => array(
                 'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-action-type',
-                'label' => 'Type of Action Taken',
+                'label' => 'Type of Action Taken when using the Service (e.g. join, buy, sell)',
                 'title' => 'action taken',
                 'type' => PLSE_INPUT_TYPES['SELECT_SINGLE'],
                 'option_list' => 'actions',
@@ -245,8 +252,8 @@ class PLSE_SCHEMA_SERVICE extends Abstract_Schema_Piece {
 
             'service_action_name' => array(
                 'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-action-name',
-                'label' => 'What the Audience does (short phrase)',
-                'title' => 'buy a service, get better profits, play a game',
+                'label' => 'What the user of the Service gets or does by using the Service (short phrase)',
+                'title' => 'become relaxed, get better profits, play a game',
                 'type' => PLSE_INPUT_TYPES['TEXT'],
                 'required' => '',
                 'wp_data' => PLSE_DATA_POST_META,
@@ -254,25 +261,13 @@ class PLSE_SCHEMA_SERVICE extends Abstract_Schema_Piece {
 
             'service_action_target' => array(
                 'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-action-target',
-                'label' => 'URLs linking to Action Target (purchase -> store URL)',
+                'label' => 'URLs linking to Action Target (for a purchase, the store product page URL)',
                 'title' => 'for a purchase, a link to the online store',
                 'type' => PLSE_INPUT_TYPES['REPEATER'],
                 'subtype' => PLSE_INPUT_TYPES['URL'],
                 'required' => '',
                 'wp_data' => PLSE_DATA_POST_META,
                 'is_image' => false
-            ),
-
-
-            'service_offers_url' => array(
-                'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-offer-url',
-                'label' => 'Link to pricing',
-                'title' => 'type in URL going to price of service',
-                'type' => PLSE_INPUT_TYPES['REPEATER'],
-                'subtype' => PLSE_INPUT_TYPES['URL'],
-                'required' => '',
-                'wp_data' => PLSE_DATA_POST_META,
-                'start_of_block' => 'Offers (links to pricing pages)',
             ),
 
         )
@@ -366,11 +361,15 @@ class PLSE_SCHEMA_SERVICE extends Abstract_Schema_Piece {
      * @return   boolean    if local post control over adding Schema enabled, return true, else false
      */
     public function is_rendered ( $val ) {
+
         $option = get_option( PLSE_LOCAL_POST_CONTROL_SLUG );
+
         if ( $option == $this->init->get_checkbox_on() ) {
-            if ( $val == $this->init->get_checkbox_on() ) return true; 
-            else return false;
+
+            if ( $val == $this->init->get_checkbox_on() ) return true; else return false;
+
         }
+
         return true;
     }
 
@@ -415,6 +414,7 @@ class PLSE_SCHEMA_SERVICE extends Abstract_Schema_Piece {
             '@id' => $this->context->canonical . Schema_IDs::WEBPAGE_HASH,
             'name' => $this->get_service_name( $fields['service_name'], $values, $post ), 
             'url' => $this->get_service_url( $fields['service_url'], $values, $post ),
+            'sameAs' => $this->init->get_array_from_serialized( $values[ $fields['service_same_as']['slug'] ]), // text list of locations
             'logo' => $this->get_service_image( $fields['service_image'], $values, $post ),
             'image' => $this->get_service_image( $fields['service_image'], $values, $post ),
             'description' => $this->get_service_description( $fields['service_description'], $values, $post ),
@@ -426,9 +426,13 @@ class PLSE_SCHEMA_SERVICE extends Abstract_Schema_Piece {
             'serviceOutput' => $this->get_service_output( $fields, $values, $post ),
             'audience' => $this->get_service_audience( $fields, $values, $post ),
             'potentialAction' => $this->get_potential_action( $fields, $values, $post ),
-            'availableChannel' => $this->get_available_channel( $fields['available_channels'], $values, $post )
-            // 'offers' => $this->get_offers( $fields['offers'] $values, $post ),
-            //'reviews' => $this->get_reviews( $fields, $values, $post ),
+            'availableChannel' => $this->get_available_channel( $fields['available_channels'], $values, $post ),
+
+            // we don't use offers, since it requires a discrete price and availability for each offer on the page
+            //'offers' => $this->get_offers( $fields['service_offers_url'], $values, $post ),
+
+            // we don't use reviews, since this requires sync with remote review url of score
+            //'reviews' => $this->get_review( $fields, $values, $post ),
         );
 
         return $data;
@@ -441,7 +445,21 @@ class PLSE_SCHEMA_SERVICE extends Abstract_Schema_Piece {
      * Handles logic for specific fields
      * ---------------------------------------------------------------------
      */
+
+    /**
+     * Service type. A few types are in Google, other types added with 
+     * similar syntax. 
+     * Note: additionalType was not added
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    array    $field    a field descriptor
+     * @param    array    $values   all the values from the metabox, organized by field slug
+     * @param    WP_Post  the current $post
+     * @return   string   the type of Service, as a string
+     */
     public function get_service_type ( $field, $values, $post ) {
+
         $val = $values[ $field['slug'] ][0];
 
         if ( empty( $val ) ) $this->valid = false;
@@ -449,7 +467,19 @@ class PLSE_SCHEMA_SERVICE extends Abstract_Schema_Piece {
         return $val;
     }
 
-
+    /**
+     * Service name. The name declared for the service on the web page
+     * 
+     * - try to use the metabox field
+     * - if that fails, use the webpage <title>
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    array    $field    a field descriptor
+     * @param    array    $values   all the values from the metabox, organized by field slug
+     * @param    WP_Post  the current $post
+     * @return   string   the Service name, as a string
+     */
     public function get_service_name ( $field, $values, $post ) {
 
         $val = $values[ $field['slug'] ][0];
@@ -474,11 +504,20 @@ class PLSE_SCHEMA_SERVICE extends Abstract_Schema_Piece {
         return $val;
     }
 
+
     /**
-     * Get a description.
-     * 1. Try to use the meta field example.
-     * 2. If that fails, look for $post excerpt
-     * 3. If that fails, extract text content
+     * Service description.
+     * 
+     * - Try to use the meta field example.
+     * - If that fails, look for $post excerpt
+     * - If that fails, extract text content
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    array    $field    a field descriptor
+     * @param    array    $values   all the values from the metabox, organized by field slug
+     * @param    WP_Post  the current $post
+     * @return   string   the Service description, as a string
      */
     public function get_service_description ( $field, $values, $post ) {
 
@@ -511,8 +550,11 @@ class PLSE_SCHEMA_SERVICE extends Abstract_Schema_Piece {
      * Get the primary URL for the Service (e.g. home page of website).
      * 
      * @since    1.0.0
-     * @access   private
-     * @return   string    $val    if present the URL for the Service
+     * @access   public
+     * @param    array    $field    a field descriptor
+     * @param    array    $values   all the values from the metabox, organized by field slug
+     * @param    WP_Post  the current $post
+     * @return   string   the home page URL for the Service
      */
     private function get_service_url( $field, $values, $post ) {
 
@@ -531,9 +573,16 @@ class PLSE_SCHEMA_SERVICE extends Abstract_Schema_Piece {
     /**
      * Get image of the Service, or the Service brand logo.
      * 
+     * - try the service image field
+     * - if that fails, use the featured image for the $post
+     * - if that fails, grab the first image in $post content
+     * 
      * @since    1.0.0
      * @access   public
-     * @return   string    URL of primary Service image
+     * @param    array    $field    a field descriptor
+     * @param    array    $values   all the values from the metabox, organized by field slug
+     * @param    WP_Post  the current $post
+     * @return   string   an image URL representing the Service
      */
     public function get_service_image ( $field, $values, $post ) {
 
@@ -565,6 +614,16 @@ class PLSE_SCHEMA_SERVICE extends Abstract_Schema_Piece {
 
     }
 
+    /**
+     * Get the motto, tagline, slogan for the Service.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    array    $field    a field descriptor
+     * @param    array    $values   all the values from the metabox, organized by field slug
+     * @param    WP_Post  the current $post
+     * @return   string   the service slogan, as a string
+     */
     public function get_service_slogan ( $field, $values, $post ) {
 
         $val = $values[ $field['slug'] ][0];
@@ -583,8 +642,16 @@ class PLSE_SCHEMA_SERVICE extends Abstract_Schema_Piece {
      * ---------------------------------------------------------------------
      */
 
+
     /**
      * Gets the output of a service, just name and description.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    array    $fields   all the fields in the metabox
+     * @param    array    $values   all the values from the metabox, organized by field slug
+     * @param    WP_Post  the current $post
+     * @return   string   Output Schema object
      * 
      */
     public function get_service_output( $fields, $values, $post ) {
@@ -600,6 +667,12 @@ class PLSE_SCHEMA_SERVICE extends Abstract_Schema_Piece {
     /**
      * Features of the audience target for the service.
      * 
+     * @since    1.0.0
+     * @access   public
+     * @param    array    $fields   all the fields in the metabox
+     * @param    array    $values   all the values from the metabox, organized by field slug
+     * @param    WP_Post  the current $post
+     * @return   string   Audience Schema object
      */
     public function get_service_audience ( $fields, $values, $post ) {
         return array(
@@ -618,7 +691,7 @@ class PLSE_SCHEMA_SERVICE extends Abstract_Schema_Piece {
      * @param    array    $fields    the list of metabox fields
      * @param    array    $values    the array of returned values
      * @param    WP_POST  $post      current post
-     * @return   array    array to build sub-object in schema
+     * @return   array    Organization Schema object
      */
     public function get_service_provider (  $fields, $values, $post ) {
 
@@ -639,28 +712,36 @@ class PLSE_SCHEMA_SERVICE extends Abstract_Schema_Piece {
 
     /**
      * Potential taken due to service, e.g. 'request a quote, market indie game'
+     * Action targets are an array of URLs, rather than more complex EntryPoints
+     * {@link https://schema.org/EntryPoint}
      * 
+     * @since    1.0.0
+     * @access   public
+     * @param    array    $fields   all the fields in the metabox
+     * @param    array    $values   all the values from the metabox, organized by field slug
+     * @param    WP_Post  the current $post
+     * @return   string   PotentialAction Schema object
      */
     public function get_potential_action ( $fields, $values, $post ) {
 
         return array(
             '@type' => $values[ $fields['service_action_type']['slug'] ][0],
             'name' => $values[ $fields['service_action_name']['slug'] ][0],
-            'target' => array(
-                '@type' => 'EntryPoint',
-                // video game player might be the target
-                // https://www.wikidata.org/wiki/Q5276395
-                'target' => $values[ $fields['service_action_target']['slug'] ][0],
-            )
-
+            'target' => $this->init->get_array_from_serialized( $values[ $fields['service_action_target']['slug'] ] ), // NOTE: no [0]
         );
 
     }
 
     /**
-     * Some of the information here comes from the plugin settings address.
+     * Some of the information here comes from the plugin settings address. It defines
+     * contact channels for the Service (e.g. a 'contact us' page)
      * 
-     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    array    $fields   all the fields in the metabox
+     * @param    array    $values   all the values from the metabox, organized by field slug
+     * @param    WP_Post  the current $post
+     * @return   string   ServiceChannel Schema object
      */
     public function get_available_channel ( $fields, $values, $post ) {
 
@@ -683,89 +764,6 @@ class PLSE_SCHEMA_SERVICE extends Abstract_Schema_Piece {
 
         );
 
-    }
-
-    public function get_review ( $fields, $values, $post ) {
-
-        // TODO: Google search console doesn't like this
-        return array(
-            '@type' => 'Review',
-            'url' => 'https://www.facebook.com/novyunlimited/reviews/',
-
-            'author' => array(
-                    '@type' => 'Person',
-                    'name' => 'Adam Solo'
-            ),
-
-            //'itemReviewed' => $this->context->site_url . Schema_IDs::ORGANIZATION_HASH, // not necessary for nested review
-            'reviewRating' => array(
-                '@type' => 'Rating',
-                'ratingValue' => '4',
-                'bestRating' => '5',
-                'worstRating' => '1',
-            ),
-
-            'reviewBody' => "Working with Novy Unlimited was very easy and an absolute joy. Our interactions were always very productive too. They will take care of the PR and marketing activities for you and relieve you from the burden of having to handle social media, or to send press releases, as decided and agreed with them. 
-            They are flexible and don't require much time and effort from you. They adapt to your working methods, deliver good documentation and keep you updated of results.
-            These kind of services can be expensive, especially for indies. However, they have many packages so even if you go with just the basic PR package, which isn't that costly, they can send press releases and handle influencers. Their press releases are great, by the way.",
-            'datePublished' => '2021-02-19'
-        );
-
-    }
-
-    /**
-     * Offers
-     * We use a limited version here, since pricing is required on the page. 
-     * AggregrateOffers just link to the pricing page(s)
-     * 
-     * @since    1.0.0
-     * @access   public
-     */
-    public function get_offers ( $fields, $values, $post ) {
-
-
-
-        return array(
-            '@type' => 'AggregrateOffer',
-            'offers' => array(
-
-            )
-            //'url' => 'https://example.com/anvil',
-            //'priceCurrency' => "USD",
-            //'price' => '119.99',
-            //'priceValidUntil' => '2020-11-20',
-            //'itemCondition' => 'https://schema.org/UsedCondition',
-            //'availability' => 'https://schema.org/InStock'
-        );
-
-        /*
-        "offers": {
-            "@type": "AggregateOffer",
-            "highPrice": "$1495",
-            "lowPrice": "$1250",
-            "offerCount": "8",
-            "offers": [
-            {
-                "@type": "Offer",
-                "url": "save-a-lot-monitors.com/dell-30.html"
-            },
-            {
-                "@type": "Offer",
-                "url": "jondoe-gadgets.com/dell-30.html"
-            }
-            ]
-        }
-        */
-
-    }
-
-    /**
-     * Get a review
-     */
-    public function get_reviews ( $fields, $values, $post ) {
-        return array(
-
-        );
     }
 
 } // end of class

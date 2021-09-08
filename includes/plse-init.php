@@ -879,16 +879,19 @@ class PLSE_Init {
      * 
      * @since    1.0.0
      * @access   public
-     * @param    mixed    $value    a serialized array
+     * @param    mixed    $value    a serialized array, 
+     *           e.g. $values[ $fields['service_action_target']['slug'] ] NOTE: NO ZERO [0]
      * @param    array    $value    standard array, suitable for JSON
      */
     public function get_array_from_serialized ( $value ) {
         $value = maybe_unserialize( $value );
         if ( is_array( $value ) ) {
-            $value = unserialize($value[0]);
-            $value = array_filter( $value, function ( $var ) {
-                return ($var !== NULL && $var !== FALSE && $var !== "");
-            });
+            $value = unserialize( $value[0] );
+            if ( is_array( $value ) ) {
+                $value = array_filter( $value, function ( $var ) {
+                    return ($var !== NULL && $var !== FALSE && $var !== "");
+                });
+            }
         }
         return $value;
     }
@@ -1076,7 +1079,7 @@ class PLSE_Init {
      * Fetch organization social profiles from Yoast (must be present)
      * {@link https://wordpress.org/support/topic/bad-code-implementation/}
      */
-    function get_social_profiles ( $helpers ) {
+    public function get_social_profiles ( $helpers ) {
 
         $profiles        = [];
         $social_profiles = [

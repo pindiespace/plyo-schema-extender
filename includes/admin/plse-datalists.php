@@ -719,7 +719,85 @@ class PLSE_Datalists {
 
     );
 
-    // google doesn't list any Schema.org lists a few, others created
+    private $creative_works = array(
+        'AmpStory' => 'AMP Mobile Page',
+        'ArchiveComponent' => 'Data Archive',
+        'Article' => 'Article',
+        'Atlas' => 'Atlas',
+        'Blog' => 'Blog',
+        'Book' => 'Book',
+        'Chapter' => 'Book Chapter',
+        'Claim' => 'Fact Claimed',
+        'Clip' => 'Segment of movie, TV, song',
+        'Collection' => 'A collection of works',
+        'ComicStory' => 'Part of Comic Book',
+        'Comment' => 'Comment on something',
+        'Conversation' => 'Conversation',
+        'Course' => 'Course',
+        'CreativeWorkSeason' => 'Episodes (one season)',
+        'CreativeWorkSeries' => 'Episodes (complete)',
+        'DataCatalog' => 'Data, multiple sets',
+        'Dataset' => 'One set of data',
+        'DefinedTermSet' => 'Dictionary, glossary',
+        'Diet' => 'Diet (food)',
+        'DigitalDocument' => 'Electronic file, document',
+        'Drawing' => 'Drawing',
+        'EducationalOccupationalCredential' => 'Education Degree, Credential',
+        'Episode' => 'Episode (single)',
+        'ExercisePlan' => 'Exercise Plan',
+        'Game' => 'Game',
+        'Guide' => 'Guide',
+        'HowTo' => 'HowTo article',
+        'HowToDirection' => 'HowTo (one direction)',
+        'HowToSection' => 'HowTo (sub-section)',
+        'HowToStep' => 'HowTo (one step)',
+        'HowToTip' => 'HowTo (tip)',
+        'HyperToc' => 'Content List (rich media)',
+        'HyperTocEntry' => 'Content Item (rich media)',
+        'LearningResource' => 'Learning Resource',
+        'Legislation' => 'Legislation',
+        'Manuscript' => 'Manuscript',
+        'Map' => 'Map',
+        'MathSolver' => 'Math Solver Page',
+        'MediaObject' => 'Media Object',
+        'MediaReviewItem' => 'Review of Media',
+        'Menu' => 'Menu',
+        'MenuSection' => 'Section of Menu',
+        'Message' => 'Message',
+        'Movie' => 'Movie',
+        'MusicComposition' => 'Musical Composition',
+        'MusicPlaylist' => 'Music Playlist',
+        'MusicRecording' => 'Music Recording',
+        'Painting' => 'Painting',
+        'Photograph' => 'Photograph',
+        'Play' => 'Play in Theater',
+        'Poster' => 'Poster',
+        'PublicationIssue' => 'Publication (one issue)',
+        'PublicationVolume' => 'Publication (entire volume)',
+        'Quotation' => 'Quote',
+        'Review' => 'Review',
+        'Sculpture' => 'Sculpture',
+        'SheetMusic' => 'Sheet Music',
+        'ShortStory' => 'Short Story',
+        'SoftwareApplication' => 'Software Application',
+        'SoftwareSourceCode' => 'Source Code',
+        'SpecialAnnouncement' => 'Special Announcement',
+        'Statement' => 'Interesting Fact',
+        'TVSeason' => 'Televsion Season',
+        'TVSeries' => 'Television Series',
+        'Thesis' => 'Thesis',
+        'VisualArtwork' => 'Visual Art',
+        'WebContent' => 'Web Content',
+        'WebPage' => 'Web Page',
+        'WebPageElement' => 'Web Page Element',
+        'WebSite' => 'Web Site',
+    );
+
+    /*
+     * Google doesn't list any service types 
+     * Schema.org lists a few {@link https://schema.org/serviceType} 
+     * Others created using similar syntax from common lists of business services
+     */
     private $service_genres = array(
         'KnowledgeService' => 'Knowledge',
         'DesignService' => 'Design',
@@ -1100,6 +1178,26 @@ class PLSE_Datalists {
 
     public function get_actions_size () {
         return count( $this->actions );
+    }
+
+    /**
+     * CreativeWorks
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @return   string    HTML for a <datalist>
+     */
+    public function get_creative_works_datalist ( $id = '' ) {
+        if ( ! $id ) $id = 'plse-creative-works-data';
+        return $this->get_datalist( $this->creative_works, $id );
+    }
+
+    public function get_creative_works_select ( $value = '' ) {
+        return $this->get_select( $this->creative_works, $value, true );
+    }
+
+    public function get_creative_works_size () {
+        return count( $this->creative_works );
     }
 
     /**

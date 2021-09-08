@@ -62,6 +62,17 @@ A: If you have Yoast Local SEO installed, just go to the home screen of the plug
 #### User documentation
 TBD
 
+#### What the Schema supported
+
+Some things that are not supported include:
+- offers
+- reviews
+These sub-objects require that the information be on the page, or on a remote page. If the values in the Schema aren't the same, it could generate an error.
+
+The Service Schema is a particula problem for pricing, since pricing might be bulk, by the hour, or made of of multiple priced sub-services.
+https://www.schemaapp.com/schema-markup/services-schema-markup-schema-org-services/
+
+
 #### Ecosystem
 
  * Note: If you are using the AMP plugin, make sure you are set to "Standard" and you enable Advanced Settings -> Content Types -> Your Custom Post Type. Otherwise, 
