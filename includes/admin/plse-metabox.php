@@ -693,7 +693,7 @@ class PLSE_Metabox {
         }
         // CPTs are dynamically loaded, so they should *always* be ok
         $field['option_list'] = $this->init->get_option_list_from_cpts( $cpts );
-        $this->render_select_multiple_field( $field );
+        $this->fields->render_select_multiple_field( $field );
     }
 
     /**
@@ -712,7 +712,7 @@ class PLSE_Metabox {
         }
         // Categories are dynamically loaded, so they *always* should be ok
         $field['option_list'] = $this->init->get_option_list_from_cats( $cats );
-        $this->render_select_multiple_field( $field );
+        $this->fields->render_select_multiple_field( $field );
     }
 
     /**
@@ -758,44 +758,9 @@ class PLSE_Metabox {
      * @param    string    $value    the URL of the video (YouTube or Vimeo supported)
      */
     public function render_video_field ( $field ) {
-        $value = $field['value'];
-        $slug = sanitize_key( $field['slug'] );
-        $title = $field['title'];
 
-        /**
-         * create the thumbnail URL
-         * {@link https://ytimg.googleusercontent.com/vi/<insert-youtube-video-id-here>/default.jpg}
-         */ 
-        echo '<div class="plse-video-metabox plse-meta-ctl-highlight">';
-        // add a special class for JS to the URL field for dynamic video embed
         $field['class'] = 'plse-embedded-video-url';
-        $field['size'] = '72'; // same width as video + thumbnail takes up onscreen
-        $field['type'] = 'URL';
-        if ( is_array( $value ) ) $value = $value[0];
-        $value = esc_url( $value );
-
-        echo '<table style="width:100%"><tr>';
-        // create the input field for the url
-        echo '<td colspan="2" style="padding-bottom:4px;">' . $this->render_url_field( $field, $value ) . '</td>';
-        echo '</td></tr><tr><td style="width:50%; text-align:center;position:relative">';
-        if ( $value ) {
-            // get a thumbnail image from the video URL
-            $thumbnail_url = esc_url( $this->init->get_video_thumb( $value ) );
-            // clunky inline style removes offending hyperlink border see with onblur event
-            echo '<a href="' . $value . '" style="display:inline-block;height:0px;"><img title="' . $title . '" class="plse-upload-repeater-img-box" id="' . $slug . '-img-id" src="' . $thumbnail_url . '" width="128" height="128"></a>';
-        } else {
-            echo '<img title="' . $title . '" class="plse-upload-repeater-img-box" id="'. $slug . '-img-id" src="' . $this->init->get_default_placeholder_icon_url() . '" width="128" height="128">';
-        }
-        echo '</td><td class="plse-auto-resizable-iframe" style="text-align:center;">';
-        echo '<div class="plse-embed-video"></div></td><tr><td style="width:50%;text-align:center">';
-        echo __( 'Thumbnail' ) . '</span>';
-        echo '</td><td style="width:100%;text-align:center;">';
-        echo __( 'Video Player' );
-        echo '</td></tr></table>';
-        echo '<p>' . __( 'Supports YouTube and Vimeo. Enter the video url, the hit the "tab" key to check if the video embed and thumbnail are valid. Schema will use both the video url, and the default thumbnail defined by the video service.' ) . '</p>';
-
-        echo '</div>';
-
+        $value = $this->fields->render_video_field( $field );
     }
 
 
@@ -808,10 +773,7 @@ class PLSE_Metabox {
      * @param    string    $value    an integer value
      */
     public function render_int_field ( $field ) {
-        if ( isset( $field['min'] ) ) $field['min'] = (int) $field['min'];
-        if ( isset( $field['max'] ) ) $field['max'] = (int) $field['max'];
-        if ( isset( $field['step'] ) ) $field['step'] = (int) $field['step'];
-        $this->render_simple_field( $field );
+        $this->fields->render_int_field( $field );
     }
 
     /**
@@ -823,10 +785,7 @@ class PLSE_Metabox {
      * @param    string    $value    an floating-point value, optionally decimal places
      */
     public function render_float_field ( $field ) {
-        if ( isset( $field['min'] ) ) $field['min'] = (float) $field['min'];
-        if ( isset( $field['max'] ) ) $field['max'] = (float) $field['max'];
-        if ( isset( $field['step'] ) ) $field['step'] = (float) $field['step'];
-        $this->render_simple_field( $field );
+        $this->fields->render_float_field( $field );
     }
 
     /**
@@ -931,12 +890,14 @@ class PLSE_Metabox {
 
                             case PLSE_INPUT_TYPES['DATE']:
                                 // format: '2015-11-26'
+                                $value = date( 'Y-m-d', strtotime( $value ) );
                                 break;
 
                             //case PLSE_INPUT_TYPES['SELECT_MULTIPLE']:
                             //    $value = $value;
                             //    break;
 
+                            case PLSE_INPUT_TYPES['SELECT_MULTIPLE']:
                             case PLSE_INPUT_TYPES['REPEATER']:
                                 $count = count( $value );
                                 for ( $i = 0; $i < $count; $i++ ) {

@@ -67,9 +67,11 @@ TBD
 Some things that are not supported include:
 - offers
 - reviews
+- subjectOf
+
 These sub-objects require that the information be on the page, or on a remote page. If the values in the Schema aren't the same, it could generate an error.
 
-The Service Schema is a particula problem for pricing, since pricing might be bulk, by the hour, or made of of multiple priced sub-services.
+The Service Schema is a particular problem for pricing, since pricing might be bulk, by the hour, or made of of multiple priced sub-services.
 https://www.schemaapp.com/schema-markup/services-schema-markup-schema-org-services/
 
 

@@ -776,6 +776,7 @@ class PLSE_Fields {
      */
     public function render_url_field ( $field ) {
         $value = $this->render_simple_field( $field );
+
         if ( ! empty( $value ) && $this->check_urls ) { // no checks or message if field empty
             // check error, render status
             $result = $this->get_url_status( $value );
@@ -1001,14 +1002,6 @@ class PLSE_Fields {
     public function render_duration_field ( $field ) {
 
         $value = $this->get_field_value( $field );
-
-        // if value is an array, return the first value only (can happen with post meta-data)
-        //if ( is_array( $field['value'] ) ) {
-        //    echo "ITS AN ARRAY!!!!!!";
-        //    $value = $field['value'][0];
-        //} else {
-        //    $value = $field['value'];
-        //}
 
         // required fields
         $value = esc_attr( sanitize_text_field( $value ) );
@@ -1589,9 +1582,6 @@ class PLSE_Fields {
 
         $slug = sanitize_key( $field['slug'] );
 
-        // if value is an array, return the first value only (can happen with post meta-data)
-        //////////////////////if ( is_array( $value ) ) $value = $field['value'][0];
-
         // required fields
         $value = esc_html( esc_url_raw( $value, ['http','https'] ) );
         if ( ! $this->is_url( $value ) ) {
@@ -1646,14 +1636,13 @@ class PLSE_Fields {
 
         $title = esc_attr( $field['title'] );
 
-        echo $this->render_label( $field );
+        ///////echo $this->render_label( $field );
 
         /**
          * create the thumbnail URL
          * {@link https://ytimg.googleusercontent.com/vi/<insert-youtube-video-id-here>/default.jpg}
          */ 
         echo '<div class="plse-video-metabox plse-meta-ctl-highlight">';
-
 
         // add a special class for JS to the URL field for dynamic video embed
         $field['class'] = 'plse-embedded-video-url';
@@ -1664,7 +1653,9 @@ class PLSE_Fields {
 
         echo '<table style="width:100%"><tr>';
         // create the input field for the url
-        echo '<td colspan="2" style="padding-bottom:4px;">' . $this->render_url_field( $field, $value ) . '</td>';
+        echo '<td colspan="2" style="padding-bottom:4px;">';
+        $this->render_url_field( $field, $value );
+        echo '</td>';
         echo '</td></tr><tr><td style="width:50%; text-align:center;position:relative">';
         if ( $value ) {
             // get a thumbnail image from the video URL

@@ -642,7 +642,6 @@ class PLSE_SCHEMA_SERVICE extends Abstract_Schema_Piece {
      * ---------------------------------------------------------------------
      */
 
-
     /**
      * Gets the output of a service, just name and description.
      * 

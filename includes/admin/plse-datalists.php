@@ -558,6 +558,166 @@ class PLSE_Datalists {
         'freebsd' => 'Free BSD (Nintendo Switch)'
     );
 
+    // ISO currency codes https://en.wikipedia.org/wiki/ISO_4217
+    private $currency = array(
+        'AED' => 'United Arab Emirates dirham',
+        'AFN' => 'Afghanistan afghani',
+        'ALL' => 'Albanian lek',
+        'AMD' => 'Armenian dram',
+        'ANG' => 'Netherlands guilder',
+        'AOA' => 'Angolan kwanza',
+        'ARS' => 'Argentine peso',
+        'AUD' => 'Australian dollar',
+        'AWG' => 'Aruban florin',
+        'AZN' => 'Azerbaijani manat',
+        'BAM' => 'Bosnia and Herzegovina mark',
+        'BBD' => 'Barbados dollar',
+        'BDT' => 'Bangladeshi taka',
+        'BGN' => 'Bulgarian lev',
+        'BHD' => 'Bahraini dinar',
+        'BIF' => 'Burundian franc',
+        'BMD' => 'Bermudian dollar',
+        'BND' => 'Brunei dollar',
+        'BOB' => 'Bolivia Boliviano',
+        'BRL' => 'Brazilian real',
+        'BSD' => 'Bahamian dollar',
+        'BTN' => 'Bhutanese ngultrum',
+        'BWP' => 'Botswana pula',
+        'BYN' => 'Belarusian ruble',
+        'BZD' => 'Belize dollar',
+        'CAD' => 'Canadian dollar',
+        'CDF' => 'Congolese franc',
+        'CHF' => 'Swiss franc',
+        'CLP' => 'Chilean peso',
+        'CNY' => 'Chinese yuan',
+        'COP' => 'Colombian peso',
+        'CRC' => 'Costa Rican colon',
+        'CUP' => 'Cuban peso ',
+        'CVE' => 'Cape Verdean escudo',
+        'CZK' => 'Czech koruna',
+        'DJF' => 'Djiboutian franc',
+        'DKK' => 'Danish krone',
+        'DOP' => 'Dominican peso',
+        'DZD' => 'Algerian dinar',
+        'EGP' => 'Egyptian pound',
+        'ERN' => 'Eritrean nakfa',
+        'ETB' => 'Ethiopian birr',
+        'EUR' => 'Euro',
+        'FJD' => 'Fiji dollar',
+        'FKP' => 'Falkland Islands pound',
+        'GBP' => 'Pound sterling',
+        'GEL' => 'Georgian lari',
+        'GHS' => 'Ghanaian cedi',
+        'GIP' => 'Gibraltar pound',
+        'GMD' => 'Gambian dalasi',
+        'GNF' => 'Guinean franc',
+        'GTQ' => 'Guatemalan quetzal',
+        'GYD' => 'Guyanese dollar',
+        'HKD' => 'Hong Kong dollar',
+        'HNL' => 'Honduran lempira',
+        'HRK' => 'Croatian kuna',
+        'HTG' => 'Haitian gourde',
+        'HUF' => 'Hungarian forint',
+        'IDR' => 'Indonesian rupiah',
+        'ILS' => 'Israeli new shekel',
+        'INR' => 'Indian rupee',
+        'IQD' => 'Iraqi dinar',
+        'IRR' => 'Iranian rial',
+        'ISK' => 'Icelandic króna',
+        'JMD' => 'Jamaican dollar',
+        'JOD' => 'Jordanian dinar',
+        'JPY' => 'Japanese yen',
+        'KES' => 'Kenyan shilling',
+        'KGS' => 'Kyrgyzstani som',
+        'KHR' => 'Cambodian riel',
+        'KMF' => 'Comoro franc',
+        'KPW' => 'North Korean',
+        'KRW' => 'South Korean',
+        'KWD' => 'Kuwaiti dinar',
+        'KYD' => 'Cayman Islands dollar',
+        'KZT' => 'Kazakhstani tenge',
+        'LAK' => 'Lao kip',
+        'LBP' => 'Lebanese pound',
+        'LKR' => 'Sri Lankan rupee',
+        'LRD' => 'Liberian dollar',
+        'LSL' => 'Lesotho loti',
+        'LYD' => 'Libyan dinar',
+        'MAD' => 'Moroccan dirham',
+        'MDL' => 'Moldovan leu',
+        'MGA' => 'Malagasy ariary',
+        'MKD' => 'Macedonian denar',
+        'MMK' => 'Myanmar kyat',
+        'MNT' => 'Mongolian tögrög',
+        'MOP' => 'Macanese pataca',
+        'MRU' => 'Mauritanian ouguiya',
+        'MUR' => 'Mauritian rupee',
+        'MVR' => 'Maldivian rufiyaa',
+        'MWK' => 'Malawian kwacha',
+        'MXN' => 'Mexican peso',
+        'MYR' => 'Malaysian ringgit',
+        'MZN' => 'Mozambican metical',
+        'NAD' => 'Namibian dollar',
+        'NGN' => 'Nigerian naira',
+        'NIO' => 'Nicaraguan córdoba',
+        'NOK' => 'Norwegian krone',
+        'NPR' => 'Nepalese rupee',
+        'NZD' => 'New Zealand dollar',
+        'OMR' => 'Omani rial',
+        'PAB' => 'Panamanian balboa',
+        'PEN' => 'Peruvian sol',
+        'PGK' => 'Papua New Guinean kina',
+        'PHP' => 'Philippine peso',
+        'PKR' => 'Pakistani rupee',
+        'PLN' => 'Polish złoty',
+        'PYG' => 'Paraguayan guaraní',
+        'QAR' => 'Qatari riyal',
+        'RON' => 'Romanian leu',
+        'RSD' => 'Serbian dinar',
+        'RUB' => 'Russian ruble',
+        'RWF' => 'Rwandan franc',
+        'SAR' => 'Saudi riyal',
+        'SBD' => 'Solomon Islands dollar',
+        'SCR' => 'Seychelles rupee',
+        'SDG' => 'Sudanese pound',
+        'SEK' => 'Swedish krona',
+        'SGD' => 'Singapore dollar',
+        'SHP' => 'Saint Helena pound',
+        'SLL' => 'Sierra Leonean leone',
+        'SOS' => 'Somali shilling',
+        'SRD' => 'Surinamese dollar',
+        'SSP' => 'South Sudanese pound',
+        'STN' => 'São Tomé and Príncipe dobra',
+        'SVC' => 'Salvadoran colón',
+        'SYP' => 'Syrian pound',
+        'SZL' => 'Swazi lilangeni',
+        'THB' => 'Thai baht',
+        'TJS' => 'Tajikistani somoni',
+        'TMT' => 'Turkmenistan manat',
+        'TND' => 'Tunisian dinar',
+        'TOP' => 'Tongan paʻanga',
+        'TRY' => 'Turkish lira',
+        'TTD' => 'Trinidad and Tobago dollar',
+        'TWD' => 'New Taiwan dollar',
+        'TZS' => 'Tanzanian shilling',
+        'UAH' => 'Ukrainian hryvnia',
+        'UGX' => 'Ugandan shilling',
+        'USD' => 'United States dollar',
+        'UYU' => 'Uruguayan peso',
+        'UZS' => 'Uzbekistan som',
+        'VES' => 'Venezuelan bolívar soberano',
+        'VND' => 'Vietnamese đồng',
+        'VUV' => 'Vanuatu vatu',
+        'WST' => 'Samoan tala',
+        'XAF' => 'CFA franc',
+        'XCD' => 'East Caribbean dollar',
+        'XOF' => 'CFA franc BCEAO',
+        'XPF' => 'CFP franc (franc Pacifique)',
+        'YER' => 'Yemeni rial',
+        'ZAR' => 'South African rand',
+        'ZMW' => 'Zambian kwacha',
+        'ZWL' => 'Zimbabwean dollar',
+    );
+
     /**
      * Based on Google's list for softwareApplication
      * {@link https://developers.google.com/search/docs/advanced/structured-data/software-app}
@@ -793,10 +953,42 @@ class PLSE_Datalists {
         'WebSite' => 'Web Site',
     );
 
+    // https://schema.org/Event
+    private $event_types = array(
+        'Event' => 'Event', // super-type
+        'BusinessEvent' => 'Business',
+        'ChildrensEvent' => 'Childrens',
+        'ComedyEvent' => 'Comedy',
+        'CourseInstance' => 'Course',
+        'DanceEvent' => 'Dance',
+        'DeliveryEvent' => 'Delivery',
+        'EducationEvent' => 'Education',
+        'EventSeries' => 'Event Series',
+        'ExhibitionEvent' => 'Exhibition',
+        'Festival' => 'Festival',
+        'FoodEvent' => 'Food',
+        'Hackathon' => 'Hackathon',
+        'LiteraryEvent' => 'Literary',
+        'MusicEvent' => 'Music',
+        'PublicationEvent' => 'Publication',
+        'SaleEvent' => 'Sale',
+        'ScreeningEvent' => 'Screening',
+        'SocialEvent' => 'Social',
+        'SportsEvent' => 'Sports',
+        'TheaterEvent' => 'Theater',
+        'VisualArtsEvent' => 'Visual Arts'
+    );
+
+    private $offer_types = array(
+        'https://schema.org/InStock' => 'In Stock',
+        'https://schema.org/SoldOut' => 'Sold Out',
+        'https://schema.org/PreOrder' => 'Pre-Order',
+    );
+
     /*
-     * Google doesn't list any service types 
+     * Google doesn't list any Service types 
      * Schema.org lists a few {@link https://schema.org/serviceType} 
-     * Others created using similar syntax from common lists of business services
+     * Others created using similar syntax from common lists of business Services
      */
     private $service_genres = array(
         'KnowledgeService' => 'Knowledge',
@@ -1081,6 +1273,26 @@ class PLSE_Datalists {
     }
 
     /**
+     * Currency Codes
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @return   string    HTML for a <datalist>
+     */
+    public function get_currency_datalist ( $id = '' ) {
+        if ( ! $id ) $id = 'plse-currency-data';
+        return $this->get_datalist( $this->currency, $id );
+    }
+
+    public function get_currency_select ( $value = '' ) {
+        return $this->get_select( $this->currency, $value, true );
+    }
+
+    public function get_currency_size () {
+        return count( $this->currency );
+    }
+
+    /**
      * Provide a list of common videogame and related game genres.
      * 
      * @since    1.0.0
@@ -1199,6 +1411,46 @@ class PLSE_Datalists {
     public function get_creative_works_size () {
         return count( $this->creative_works );
     }
+
+    /**
+     * Provide a list of event types
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @return   string    HTML for a <datalist>
+     */
+    public function get_event_types_datalist ( $id = '' ) {
+        if ( ! $id ) $id = 'plse_event_types-data';
+        return $this->get_datalist( $this->event_types, $id );
+    }
+
+    public function get_event_types_select ( $value = '' ) {
+        return $this->get_select( $this->event_types, $value, true );
+    }
+
+    public function get_event_types_size () {
+        return count( $this->event_types );
+    }
+
+    /**
+     * Provide a list of Offer types
+     * @since    1.0.0
+     * @access   public
+     * @return   string    HTML for a <datalist>
+     */
+    public function get_offer_types_datalist ( $id = '' ) {
+        if ( ! $id ) $id = 'plse_offer_types-data';
+        return $this->get_datalist( $this->offer_types, $id );
+    }
+
+    public function get_offer_types_select ( $value = '' ) {
+        return $this->get_select( $this->offer_types, $value, true );
+    }
+
+    public function get_offer_types_size () {
+        return count( $this->offer_types );
+    }
+
 
     /**
      * Provide a list of common business service models.

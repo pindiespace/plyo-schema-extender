@@ -62,6 +62,17 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
                 'wp_data' => PLSE_DATA_POST_META,
             ),
 
+            'event_type' => array(
+                'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_EVENT . '-type',
+                'label' => 'Event Type (defaults to "Event") if left blank',
+                'title' => 'Sub-Type of event',
+                'type'  => PLSE_INPUT_TYPES['DATALIST'],
+                'option_list' => 'event_types',
+                'required' => 'required',
+                'wp_data' => PLSE_DATA_POST_META,
+                'start_of_block' => 'Primary Event Information'
+            ),
+
             'event_name' => array(
                 'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_EVENT . '-name',
                 'label' => 'Event Name',
@@ -169,12 +180,19 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
                 'wp_data' => PLSE_DATA_POST_META,
             ),
 
+            'event_performing_group' => array(
+                'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_EVENT . '-performing-group',
+                'label' => 'Perfoming Group, or describe who the event perfomers are (e.g. accountants)',
+                'title' => 'Describe a specific group, or a class of performers',
+                'type'  => PLSE_INPUT_TYPES['TEXT'],
+                'required' => 'required',
+                'wp_data' => PLSE_DATA_POST_META,
+            ),
 
             'event_attendance_mode' => array(
                 'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_EVENT . '-event_attendance_mode',
                 'label' => 'Online and Offline Attendance',
                 'title' => 'Specify one or more attendance modes',
-                //'type' => PLSE_INPUT_TYPES['REPEATER'],
                 'type' => PLSE_INPUT_TYPES['SELECT_SINGLE'],
                 'subtype' => PLSE_INPUT_TYPES['TEXT'],
                 'required' => '',
@@ -249,6 +267,67 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
                 'wp_data' => PLSE_DATA_POST_META,
                 'start_of_block' => 'Online Location (if present)'
             ),
+
+            // fields to specify a separate organizer
+            'event_organizer_name' => array(
+                'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_EVENT . '-organizer-name',
+                'label' => 'The name of the organization putting on the event (if not this site)',
+                'title' => 'Organizer name, company name',
+                'type'  => PLSE_INPUT_TYPES['TEXT'],
+                'required' => '',
+                'wp_data' => PLSE_DATA_POST_META,
+                'start_of_block' => 'Organizer (if different from Yoast Organization Data)'
+            ),
+
+            'event_organizer_url' => array(
+                'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_EVENT . '-organizer-url',
+                'label' => 'The address of the Organizer (if not this site)',
+                'title' => 'URL leading to a third-party organizer, not this site\'s organization',
+                'type'  => PLSE_INPUT_TYPES['URL'],
+                'required' => '',
+                'wp_data' => PLSE_DATA_POST_META,
+            ),
+
+            // event price (just the lowest-priced ticket)
+
+            'event_price' => array(
+                'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_EVENT . '-price',
+                'label' => 'The (lowest) price to attend the event',
+                'title' => 'lowest price, URL directs to other prices',
+                'type'  => PLSE_INPUT_TYPES['FLOAT'],
+                'required' => '',
+                'wp_data' => PLSE_DATA_POST_META,
+                'start_of_block' => 'Event Price (lowest-cost ticket)',
+            ),
+
+            'event_price_currency' => array(
+                'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_EVENT . '-price-currency',
+                'label' => 'Web URL of the Organizer home page (if not this site)',
+                'title' => 'URL leading to a third-party organizer, not this site\'s organization',
+                'type'  => PLSE_INPUT_TYPES['SELECT_SINGLE'],
+                'option_list' => 'currency',
+                'required' => '',
+                'wp_data' => PLSE_DATA_POST_META,
+            ),
+            'event_price_url' => array(
+                'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_EVENT . '-price-url',
+                'label' => 'Web URL to buy tickets online for the event',
+                'title' => 'URL leading ticket purchase page',
+                'type'  => PLSE_INPUT_TYPES['URL'],
+                'required' => '',
+                'wp_data' => PLSE_DATA_POST_META,
+            ),
+
+            'event_price_availability' => array(
+                'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_EVENT . '-price-availability',
+                'label' => 'Ticket Availability',
+                'title' => 'Status of ticket availability',
+                'type'  => PLSE_INPUT_TYPES['SELECT_SINGLE'],
+                'option_list' => 'offer_types',
+                'required' => '',
+                'wp_data' => PLSE_DATA_POST_META,
+            ),
+
 
         )
 
@@ -394,76 +473,35 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
 
         // data must be at least an empty array
         $data = array(
-            '@type'            => 'Event',
+            '@type'            => $this->get_event_type( $fields['event_type'], $values, $post ),
             '@id'              => $this->context->canonical . '#event',
             'mainEntityOfPage' => array( '@id' => $this->context->canonical . Schema_IDs::WEBPAGE_HASH ),
             'name' => $this->get_event_name( $fields['event_name'], $values, $post ),
             'description' => $this->get_event_description( $fields['event_description'], $values, $post ),
+
+            // NOTE: Google requires that this be a unique page, not just the home page of a larger site
             'url' => $this->get_event_url( $fields['event_url'], $values, $post ),
-            'image' => $this->get_event_image( $fields['event_image'], $values, $post ),
+
+            // multiple Event images in an array
+            'image' => $this->get_event_images( $fields['event_images'], $values, $post ),
 
             'startDate' => $values[ $fields['event_start_date']['slug'] ][0],
             'endDate' => $values[ $fields['event_end_date']['slug'] ][0],
+
+            // startTime and endTime are used to create the ISO date for Google
             'startTime' => $values[ $fields['event_start_time']['slug'] ][0],
             'endTime' => $values[ $fields['event_end_time']['slug'] ][0],
 
-            // status of event
+            // status of event (ongoing, cancelled...)
             'eventStatus' => $values[ $fields['event_status']['slug'] ][0],
 
-            // attendance mode
+            // attendance mode (offline, online, mixed...)
             'eventAttendanceMode' => $values[ $fields['event_attendance_mode']['slug'] ][0],
 
-            'location'  => array(
-                array(
-                    '@type' => 'VirtualLocation',
-                    'url' => $values[ $fields['event_virtual_location']['slug'] ][0],
-                ),
-
-                array( 
-                    '@type'   => 'Place',
-                    'name'    => $values[ $fields['event_location_name']['slug'] ][0],
-                    'address' => array(
-                        '@type'           => 'PostalAddress',
-                        "streetAddress"   => $values[ $fields['event_street_address']['slug'] ][0],
-                        "addressLocality" => $values[ $fields['event_address_locality']['slug'] ][0],
-                        "postalCode"      => $values[ $fields['event_postal_code']['slug'] ][0],
-                        "addressRegion"   => $values[ $fields['event_address_region']['slug'] ][0],
-                        "addressCountry"  => $values[ $fields['event_address_country']['slug'] ][0]
-                    ),
-                ),
-
-            ),
-
-            'performer'=> array(
-                "@type" => "PerformingGroup",
-                "name" => "Kira and Morrison",
-            ),
-
-            'organizer' => array(
-                "@type" => "Organization",
-                "name" => "Kira and Morrison Music",
-                "url" => "https://kiraandmorrisonmusic.com",
-            ),
-/*
-            'offers' => array(
-                array(
-                    '@type' => 'Offer',
-                    'price' => $PLSE_Base_price,
-                    'priceCurrency' => $plse_currency,
-                    'url' => $plse_offer_url,
-                    //'availability => $plse_offer_full_availability,
-                    //'validFrom => $plse_offer_full_validFrom,
-                ),
-
-                array(
-                    '@type' => 'Offer',
-                    'price' => $plse_full_price,
-                    'priceCurrency' => $plse_currency,
-                    'url' => $plse_offer_url,
-                    //'availability => $plse_offer_full_availability,
-                    //'validFrom => $plse_offer_full_validFrom,
-                )
-*/
+            'location' => $this->get_event_location( $fields, $values, $post ),
+            'performer'=> $this->get_event_performers( $fields, $values, $post ),
+            'organizer' => $this->get_event_organizer( $fields, $values, $post ),
+            'offers' => $this->get_event_offers( $fields, $values, $post ),
 
         );
 
@@ -477,6 +515,22 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
      * Handles logic for specific fields
      * ---------------------------------------------------------------------
      */
+
+    /**
+     * Specify 'Event' or an Event subtype
+     */
+    public function get_event_type ( $field, $values, $post ) {
+
+        $val = $values[ $field['slug'] ][0];
+
+        if ( empty( $val ) ) {
+            $val = 'Event';
+        }
+
+        return $val;
+
+    }
+
     public function get_event_name ( $field, $values, $post ) {
 
         $val = $values[ $field['slug'] ][0];
@@ -562,9 +616,11 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
      * @access   public
      * @return   string    URL of event image
      */
-    public function get_event_image ( $field, $values, $post ) {
+    public function get_event_images ( $field, $values, $post ) {
 
-        $val = $values[ $field['slug'] ][0];
+        //$val = $values[ $field['slug'] ][0];
+
+        $val = $this->init->get_array_from_serialized( $values[ $field['slug'] ] ); // NOTE: no [0]
 
         if ( empty( $val ) ) {
 
@@ -578,6 +634,7 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
 
                 // get the default image from plugin options, if present
                 if (empty( $val ) ) {
+
                     $val = get_option( $field['slug'] ); // from plugin options
 
                 }
@@ -600,47 +657,113 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
     }
 
     /**
-     * Use to get location of the event.
+     * ---------------------------------------------------------------------
+     * GETTERS - SCHEMA-SPECIFIC, MULTIPLE FIELDS
+     * Handles logic for specific blocks (e.g. VideoObject, ImageObject, Organization) 
+     * that are not explicit Schemas in the plugin
+     * ---------------------------------------------------------------------
      */
-    public function get_event_location () {
 
-        return array(
+    /**
+     * Use to get location of the event. 
+     */
+    public function get_event_location ( $fields, $values, $post ) {
+
+       return array(
 
             array(
                 '@type' => 'VirtualLocation',
-                'url' => 'https://operaonline.stream5.com/'
+                'url' => $values[ $fields['event_virtual_location']['slug'] ][0],
             ),
 
-            array(
-                '@type' => 'Place',
-                'name' => 'Snickerpark Stadium',
+            array( 
+                '@type'   => 'Place',
+                'name'    => $values[ $fields['event_location_name']['slug'] ][0],
                 'address' => array(
-                    '@type' => 'PostalAddress',
-                    'streetAddress' => '100 West Snickerpark Dr',
-                    'addressLocality' => 'Snickertown',
-                    'postalCode' => '19019',
-                    'addressRegion' => 'PA',
-                    'addressCountry' => 'US'
-                )
-
-            )
+                    '@type'           => 'PostalAddress',
+                    "streetAddress"   => $values[ $fields['event_street_address']['slug'] ][0],
+                    "addressLocality" => $values[ $fields['event_address_locality']['slug'] ][0],
+                    "postalCode"      => $values[ $fields['event_postal_code']['slug'] ][0],
+                    "addressRegion"   => $values[ $fields['event_address_region']['slug'] ][0],
+                    "addressCountry"  => $values[ $fields['event_address_country']['slug'] ][0]
+                ),
+            ),
 
         );
-    
+
     }
 
     /**
-     * Use to get event offers.
+     * Get Event performer(s). This could be a musical group, or a more general description 
+     * of the 'performers,' e.g. 'game marketing experts'
+     * 
      */
-    public function get_event_offers (  $fields, $values, $post ) {
+    public function get_event_performers ( $fields, $values, $post ) {
 
         return array(
-            '@type' => 'Offer',
-            'price' => $PLSE_Base_price,
-            'priceCurrency' => $plse_currency,
-            'url' => $plse_offer_url,
-            //'availability => $plse_offer_full_availability,
-            //'validFrom => $plse_offer_full_validFrom,
+            '@type' => 'PerformingGroup',
+            'name' => $values[ $fields['event_performing_group']['slug'] ][0],
+        );
+
+    }
+
+    /**
+     * Get Event organizer
+     * 
+     * 
+     */
+    public function get_event_organizer( $fields, $values, $post ) {
+
+        $organizer_name = $values[ $fields['event_organizer_name']['slug'] ][0];
+
+        if ( ! empty( $organizer_name ) ) {
+
+            return array(
+                '@type' => 'Organization',
+                'name' => $organizer_name,
+                'url' => $values[ $fields['event_organizer_url']['slug'] ][0],
+            );
+
+        } else {
+
+            // return the Yoast site-wide organization data
+            $logo_schema_id = $this->context->site_url . Schema_IDs::ORGANIZATION_LOGO_HASH;
+
+            return array(
+                '@type'  => 'Organization',
+                '@id'    => $this->context->site_url . Schema_IDs::ORGANIZATION_HASH,
+                'name'   => $this->helpers->schema->html->smart_strip_tags( $this->context->company_name ),
+                'url'    => $this->context->site_url,
+                'sameAs' => $this->init->get_social_profiles( $this->helpers ),
+                'logo'   => $this->helpers->schema->image->generate_from_attachment_meta( $logo_schema_id, $this->context->company_logo_meta, $this->context->company_name ),
+                'image'  => [ '@id' => $logo_schema_id ],
+                'description' => $this->init->get_excerpt_from_content( $this->post ),
+            );
+
+        }
+
+    }
+
+    /**
+     * Use to get Event offers. Google wants the lowest price ticket.
+     */
+    public function get_event_offers ( $fields, $values, $post ) {
+
+        return array(
+
+            'offers' => array(
+
+                array(
+                    '@type' => 'Offer',
+                    'price' => $PLSE_Base_price,
+                    'priceCurrency' => $plse_currency,
+                    'url' => $plse_offer_url,
+                    'availability' => $plse_offer_full_availability,
+                    'validFrom' => $plse_offer_full_validFrom,
+                ),
+
+            )
+
         );
 
     }
