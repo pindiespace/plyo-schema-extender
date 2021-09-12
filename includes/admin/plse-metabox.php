@@ -397,6 +397,9 @@ class PLSE_Metabox {
         // loop through each Schema field
         foreach ( $fields as $key => $field ) {
 
+            // save the post ID for error reporting
+            $field['post_id'] = $post->ID;
+
             /*
              * Conditionally draw the local rendering checkbox:
              * - don't draw if plugin options disabled local control of Schema rendering

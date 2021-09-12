@@ -892,6 +892,51 @@ class PLSE_Options {
         $value = $this->fields->render_video_field( $field );
     }
 
+    /**
+     * render a plugin warning message field (just one, on first tab of 
+     * plugin options). It writes some additional $field data to help 
+     * debugging posts with Schema data problems.
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    array    $field name of field, state, additional properties
+     * 
+     * TODO:
+     * TODO: CONVERT THIS TO AN ARRAY
+     * TODO:
+     */
+    public function render_post_warning_field ( $field ) {
+
+        echo '<div class="plse-label-description" style="border-radius: 6px;">';
+        echo '<table><thead><tr><td><b>Link to Post</b></td><td><b>Warning Message</b></td><td><b>Time</b></td></tr></thead><tbody><tr>';
+        
+        if ( current_user_can( 'administrator' ) ) {
+
+            if ( is_array( $field['value'] ) && count( $field['value'] ) > 0 ) {
+
+                foreach( $field['value'] as $key => $err ) {
+
+                    echo '<tr><td><a href="' . get_edit_post_link( $err[1] ) . '">' . get_the_title( $err[1] ) . '</a></td>';
+                    echo '<td>' . $err[0] . '</td>';
+                    echo '<td>' . $err[2] . '</td></tr>';
+                }
+    
+            } else {
+
+                echo '<tr><td colspan="3">' . __( 'No schema errors at present' ) . '</td></tr>';
+
+            }
+
+        } else {
+
+            echo '<tr><td colspan="3">' . __( 'your user account doesn\'t have permissions to edit Schemas' ) . '</td></tr>'; // TODO: determine permissions relative to post
+
+        }
+
+        echo '</tbody></table></div>';
+
+    }
+
     /*
      * ------------------------------------------------------------------------
      * DATA VALIDATION (AND SANITIZE) METHODS
@@ -921,8 +966,8 @@ class PLSE_Options {
      * 
      * @since    1.0.0
      * @access   public
-     * @param    $string    $in    data input into the field.
-     * @return   mixed      use apply_filters to return $in and $out
+     * @param    string    $in    data input into the field.
+     * @return   mixed     $out   validated input data
      */
     public function validate_button_field ( $in ) {
         $out = $in;
@@ -934,8 +979,8 @@ class PLSE_Options {
      * 
      * @since    1.0.0
      * @access   public
-     * @param    $string    $in    data input into the field.
-     * @return   mixed      use apply_filters to return $in and $out
+     * @param    string    $in    data input into the field.
+     * @return   mixed     $out   validated input data
      */
     public function validate_hidden_field ( $in ) {
         $out = $in = sanitize_text_field( trim( $in ) );
@@ -955,8 +1000,8 @@ class PLSE_Options {
      * 
      * @since    1.0.0
      * @access   public
-     * @param    $string    $in    data input into the field.
-     * @return   mixed      use apply_filters to return $in and $out
+     * @param    string    $in    data input into the field.
+     * @return   mixed     $out   validated input data
      */
     public function validate_text_field ( $in ) {
         $out = $in = trim( sanitize_text_field( $in ) );
@@ -968,8 +1013,8 @@ class PLSE_Options {
      * 
      * @since    1.0.0
      * @access   public
-     * @param    $string    $in    data input into the field.
-     * @return   mixed      use apply_filters to return $in and $out
+     * @param    string    $in    data input into the field.
+     * @return   mixed     $out   validated input data
      */
     public function validate_tel_field ( $in ) {
         $out = $in = trim( sanitize_text_field( $in ) );
@@ -989,8 +1034,8 @@ class PLSE_Options {
      * 
      * @since    1.0.0
      * @access   public
-     * @param    $string    $in    data input into the field.
-     * @return   mixed      use apply_filters to return $in and $out
+     * @param    string    $in    data input into the field.
+     * @return   mixed     $out   validated input data
      */
     public function validate_postal_field ( $in ) {
 
@@ -1011,8 +1056,8 @@ class PLSE_Options {
      * 
      * @since    1.0.0
      * @access   public
-     * @param    $string    $in    data input into the field.
-     * @return   mixed      use apply_filters to return $in and $out
+     * @param    string    $in    data input into the field.
+     * @return   mixed     $out   validated input data
      */
     public function validate_email_field ( $in ) {
         $out = $in = sanitize_email( trim( $in ) );
@@ -1032,8 +1077,8 @@ class PLSE_Options {
      * 
      * @since    1.0.0
      * @access   public
-     * @param    $string    $in    data input into the field.
-     * @return   mixed      use apply_filters to return $in and $out
+     * @param    string     $in    data input into the field.
+     * @return   mixed      $out   validated input data
      */
     public function validate_url_field ( $in ) {
         $in = sanitize_text_field( trim( $in ) );
@@ -1055,8 +1100,8 @@ class PLSE_Options {
      * 
      * @since    1.0.0
      * @access   public
-     * @param    $string    $in    data input into the field.
-     * @return   mixed      use apply_filters to return $in and $out
+     * @param    string     $in    data input into the field.
+     * @return   mixed      $out   validated input data
      */
     public function validate_int_field ( $in ) {
         $out = sanitize_text_field( trim( $in ) );
@@ -1076,8 +1121,8 @@ class PLSE_Options {
      * 
      * @since    1.0.0
      * @access   public
-     * @param    $string    $in    data input into the field.
-     * @return   mixed      use apply_filters to return $in and $out
+     * @param    string     $in    data input into the field.
+     * @return   mixed      $out   validated input data
      */
     public function validate_float_field ( $in ) {
         $out = sanitize_text_field( trim( $in ) );
@@ -1097,8 +1142,8 @@ class PLSE_Options {
      * 
      * @since    1.0.0
      * @access   public
-     * @param    $string    $in    data input into the field.
-     * @return   mixed      use apply_filters to return $in and $out
+     * @param    string     $in    data input into the field.
+     * @return   mixed      $out   validated input data
      */
     public function validate_textarea_field ( $in ) {
         $out = $in = sanitize_text_field( trim( $in ) );
@@ -1110,8 +1155,8 @@ class PLSE_Options {
      * 
      * @since    1.0.0
      * @access   public
-     * @param    $string    $in    data input into the field.
-     * @return   mixed      use apply_filters to return $in and $out
+     * @param    string     $in    data input into the field.
+     * @return   mixed      $out   validate input data
      */
     public function validate_checkbox_field ( $in ) {
         $out = $in = sanitize_text_field( trim( $in ) );
@@ -1123,8 +1168,8 @@ class PLSE_Options {
      * 
      * @since    1.0.0
      * @access   public
-     * @param    $string    $in    data input into the field.
-     * @return   mixed      use apply_filters to return $in and $out
+     * @param    string     $in    data input into the field.
+     * @return   mixed      $out   validated input data
      */
     public function validate_date_field ( $in ) {
 
@@ -1145,8 +1190,8 @@ class PLSE_Options {
      * 
      * @since    1.0.0
      * @access   public
-     * @param    $string    $in    data input into the field.
-     * @return   mixed      use apply_filters to return $in and $out
+     * @param    string     $in    data input into the field.
+     * @return   mixed      $out   validated input data
      */
     public function validate_time_field ( $in ) {
 
@@ -1167,8 +1212,8 @@ class PLSE_Options {
      * 
      * @since    1.0.0
      * @access   public
-     * @param    $string    $in    data input into the field.
-     * @return   mixed      use apply_filters to return $in and $out
+     * @param    string     $in    data input into the field.
+     * @return   mixed      $out   validated input data
      */
     public function validate_duration_field ( $in ) {
         $out = $in = sanitize_text_field( trim( $in ) );
@@ -1188,8 +1233,8 @@ class PLSE_Options {
      * 
      * @since    1.0.0
      * @access   public
-     * @param    $string    $in    data input into the field.
-     * @return   mixed      use apply_filters to return $in and $out
+     * @param    string     $in    data input into the field.
+     * @return   mixed      $out   validated input data
      */
     public function validate_datalist_field ( $in ) {
         $out = $in = sanitize_text_field( trim( $in ) );
@@ -1201,8 +1246,8 @@ class PLSE_Options {
      * 
      * @since    1.0.0
      * @access   public
-     * @param    $string    $in    data input into the field.
-     * @return   mixed      use apply_filters to return $in and $out
+     * @param    string    $in    data input into the field.
+     * @return   mixed     $out   validated input data
      */
     public function validate_select_single_field ( $in ) {
         $out = $in = sanitize_text_field( trim( $in ) );
@@ -1214,8 +1259,8 @@ class PLSE_Options {
      * 
      * @since    1.0.0
      * @access   public
-     * @param    mixed    $input value
-     * @return   array    $out    sanitized output
+     * @param    mixed    $input  value
+     * @return   array    $out    validated input data
      */
     public function validate_select_multiple_field ( $in ) {
         $out = $in;
@@ -1238,8 +1283,8 @@ class PLSE_Options {
      * 
      * @since    1.0.0
      * @access   public
-     * @param    $string    $in    data input into the field.
-     * @return   mixed      use apply_filters to return $in and $out
+     * @param    string     $in    data input into the field.
+     * @return   mixed      $out   validated input data
      */
     public function validate_cpt_field ( $in ) {
         return $this->validate_select_multiple_field( $in );
@@ -1249,8 +1294,8 @@ class PLSE_Options {
      * Validate multi-select dropdown for available Categories.
      * @since    1.0.0
      * @access   public
-     * @param    $string    $in    data input into the field.
-     * @return   mixed      use apply_filters to return $in and $out
+     * @param    string    $in    data input into the field.
+     * @return   mixed     $out   validated input data
      */
     public function validate_cat_field ( $in ) {
         return $this->validate_select_multiple_field( $in );
@@ -1260,8 +1305,8 @@ class PLSE_Options {
      * Validate repeater field.
      * @since    1.0.0
      * @access   public
-     * @param    $string    $in    data input into the field.
-     * @return   mixed      use apply_filters to return $in and $out
+     * @param    string    $in    data input into the field.
+     * @return   mixed     $out   validated input data
      */
     public function validate_repeater_field ( $in ) {
         return $this->validate_select_multiple_field( $in );
@@ -1272,8 +1317,8 @@ class PLSE_Options {
      * 
      * @since    1.0.0
      * @access   public
-     * @param    $string    $in    data input into the field.
-     * @return   mixed      use apply_filters to return $in and $out
+     * @param    string    $in    data input into the field.
+     * @return   mixed     $out   validated input data
      */
     public function validate_image_field ( $in ) {
         return $this->validate_url_field( $in );
@@ -1284,8 +1329,8 @@ class PLSE_Options {
      * 
      * @since    1.0.0
      * @access   public
-     * @param    $string    $in    data input into the field.
-     * @return   mixed      use apply_filters to return $in and $out
+     * @param    string    $in    data input into the field.
+     * @return   mixed     $out   validated input data
      */
     public function validate_audio_field ( $in ) {
         return $this->validate_url_field( $in );
@@ -1296,11 +1341,25 @@ class PLSE_Options {
      * 
      * @since    1.0.0
      * @access   public
-     * @param    $string    $in    data input into the field.
-     * @return   mixed      use apply_filters to return $in and $out
+     * @param    string    $in    data input into the field.
+     * @return   mixed     $out   validated input data
      */
     public function validate_video_field ( $in ) {
         return $this->validate_url_field( $in );
+    }
+
+    /**
+     * Validate post warning field. Appears in plugin options, 
+     * is filled is a metabox edit or rendering of Schema resulted in 
+     * a problem in a field, e.g. an Event expiration date is in the past
+     * 
+     * @since    1.0.0
+     * @access   public
+     * $param    string     $in   data input into the field
+     * @return   mixed      $in   no validation
+     */
+    public function validate_post_warning_field ( $in ) {
+        return $in;
     }
 
 } // end of class

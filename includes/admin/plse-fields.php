@@ -397,6 +397,60 @@ class PLSE_Fields {
     }
 
     /**
+     * Check if a date is valid. Dates may be invalid due to:
+     * - date for an expiration is in the past, e.g. Event Schema expired
+     * 
+     */
+    public function is_expired_date ( &$field ) {
+        $expired = $field['validate_date'];
+        if ( ! empty( $expired ) ) {
+            if( $expired == PLSE_OPTIONS_CURRENT_DATE ) {
+                $current =  $value = date( 'Y-m-d' );
+                $datetime1 = strtotime( $current );
+                $datetime2 = strtotime( $field['value'] );
+                // subtract from current date to see if expired
+                if ( is_numeric( $datetime1 ) && is_numeric( $datetime2 ) ) {
+                    $diff = ( $datetime2 - $datetime1 ) / PLSE_OPTIONS_DATE_FLAG;
+                    if ( $diff < -1 ) {
+                        $field['err'] = $this->add_status_to_field( __( 'invalid (expired) date (' . -$diff . ') days, must be in the future' ) );
+                        // report in plugin warnings
+                        $this->init->plugin_options_field_warning( $field );
+                    } else {
+                        $this->init->plugin_options_field_warning( $field, PLSE_ERASE ); // ERASE
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Check if date is valid.
+     */
+    public function is_valid_date ( &$field ) {
+        $validate = $field['validate_date'];
+        if ( ! empty( $valid ) ) {
+            if ( ! $valid != PLSE_OPTIONS_CURRENT_DATE )  {
+                $option = get_option( $valid );
+                // compare other option date to current one, see if end > start
+                if ( $option ) {
+                    $datetime1 = strtotime( $option );
+                    $datetime2 = strtotime( $field['value'] );
+                    if ( is_numeric( $datetime1 ) && is_numeric( $datetime2 ) ) {
+                        $diff = ( $datetime2 - $datetime1 ) / PLSE_OPTIONS_DATE_FLAG;
+                        if ( $diff < -1 ) { // more than one day in the past
+                            $field['err'] = $this->add_status_to_field( __( 'invalid date, must be earlier than ' ) . $field['label'] );
+                            // report in plugin warnings.
+                            $this->init->plugin_options_field_warning( $field );
+                        } else {
+                            $this->init->plugin_options_field_warning( $field, PLSE_ERASE );
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * Check if we have a valid time string
      * 
      * @since    1.0.0
@@ -941,11 +995,20 @@ class PLSE_Fields {
         if ( isset( $field['state'] ) ) $state = esc_html( $field['state'] ); else $state = '';
         if ( isset( $field['class'] ) ) $class = $field['class']; else $class = "";
 
+        // render the date field
         echo $this->render_label( $field );
         echo '<input title="' . $field['title'] . '" class="' . $class . '" id="' . $slug . '" type="date" name="' . $slug . '" value="' . $value . '">';
 
+        // confirm date is in date format
         if ( ! empty( $value ) && ! $this->is_date( $value ) ) { // no checks or message if field empty
             $field['err'] = $this->add_status_to_field( __( 'invalid date' ), $this->ERROR_CLASS );
+        }
+
+        // check if dates are (1) expired, (2) invalid relative to another date
+        if ( $field['validate_date'] == PLSE_OPTIONS_CURRENT_DATE ) {
+            $this->is_expired_date( $field );
+        } else if ( !empty( $field['validate_date'] ) ) {
+            $this->is_valid_date( $field );
         }
 
         if ( ! empty( $field['err'] ) ) echo $field['err'];
@@ -1567,6 +1630,8 @@ class PLSE_Fields {
 
         echo '</td></tr></table></div>';
 
+        return $value;
+
     }
 
     /**
@@ -1610,6 +1675,8 @@ class PLSE_Fields {
         if ( ! empty( $field['err'] ) ) echo $field['err'];
 
         echo '</div>';
+
+        return $value;
 
     }
 
@@ -1676,6 +1743,37 @@ class PLSE_Fields {
 
         echo '</div>';
 
+        return $value;
+
+    }
+
+    /**
+     * Render a post warning in the plugin options page. Warnings are generated 
+     * when a metabox field has invalid values (e.g. expiration date is in the past)
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    array    $field    field parameters
+     * @return   mixed    $value
+     */
+    public function render_post_warning_field ( $field ) {
+
+        $value = $this->get_field_value( $field );
+
+        // required fields
+        $value = esc_attr( sanitize_text_field( $value ) );
+        $slug  = sanitize_key( $field['slug'] );
+        $title = esc_html( $field['title'] );
+        echo '<div class="' . $class . '">';
+        // split the data (message, post_id)
+
+        // render the text field
+        $value = $this->render_text_field( $field );
+
+        // render post_ID into a hyperlink to the problem post
+
+        echo '</div>';
+        return $value;
     }
 
     /**

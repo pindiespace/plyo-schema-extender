@@ -179,6 +179,15 @@ class PLSE_Options_Data {
 
             'fields' => array(
 
+                // a special field in plugin options, reporting last error in metaboxes or Schema rendering
+                PLSE_OPTIONS_FIELD_WARNING => array(
+                    'slug'   => PLSE_OPTIONS_FIELD_WARNING,
+                    'label' => 'Warning messages from posts, pages with Schema',
+                    'title' => 'Follow the link to check the post or page',
+                    'type'   => PLSE_INPUT_TYPES['POST_WARNING'],
+                    'description'  => 'Last Schema Warning in site pages or posts (edit page or post to clear)',
+                ),
+
                 'import_yoast_local' => array(
                     'slug'   => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_CONFIG . '-import-yoast-local',
                     'label' => 'Copy SEO values',

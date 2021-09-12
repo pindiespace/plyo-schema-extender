@@ -168,6 +168,7 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
                 'type'  => PLSE_INPUT_TYPES['DATE'],
                 'required' => 'required',
                 'wp_data' => PLSE_DATA_POST_META,
+                'validate_date' => 'event_start_date' // slug, validate against start time field
             ),
 
             // FORMAT: 'HH:MM:SS'
@@ -292,7 +293,7 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
 
             'event_price' => array(
                 'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_EVENT . '-price',
-                'label' => 'The (lowest) price to attend the event',
+                'label' => 'The (lowest) price to attend the event (using the Currency listed below)',
                 'title' => 'lowest price, URL directs to other prices',
                 'type'  => PLSE_INPUT_TYPES['FLOAT'],
                 'required' => '',
@@ -326,6 +327,17 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
                 'option_list' => 'offer_types',
                 'required' => '',
                 'wp_data' => PLSE_DATA_POST_META,
+            ),
+
+            // once this date passes, Google won't display the snippet
+            'event_price_valid_until' => array(
+                'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_EVENT . '-price-valid-until',
+                'label' => 'Ticket price is valid until',
+                'title' => 'Last day the listed price applies',
+                'type'  => PLSE_INPUT_TYPES['DATE'],
+                'required' => 'required',
+                'wp_data' => PLSE_DATA_POST_META,
+                'validate_date' => PLSE_OPTIONS_CURRENT_DATE, // validate against current date
             ),
 
 
@@ -650,13 +662,6 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
     }
 
     /**
-     * Use to get starting and ending dates.
-     */
-    public function get_event_datetime () {
-
-    }
-
-    /**
      * ---------------------------------------------------------------------
      * GETTERS - SCHEMA-SPECIFIC, MULTIPLE FIELDS
      * Handles logic for specific blocks (e.g. VideoObject, ImageObject, Organization) 
@@ -726,7 +731,7 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
 
         } else {
 
-            // return the Yoast site-wide organization data
+            // return the Yoast site-wide Organization data
             $logo_schema_id = $this->context->site_url . Schema_IDs::ORGANIZATION_LOGO_HASH;
 
             return array(
@@ -745,7 +750,8 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
     }
 
     /**
-     * Use to get Event offers. Google wants the lowest price ticket.
+     * Use to get Event offers. Google wants the lowest price ticket, so just collect 
+     * one Offer, and link to a page with additional offers.
      */
     public function get_event_offers ( $fields, $values, $post ) {
 
@@ -755,11 +761,11 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
 
                 array(
                     '@type' => 'Offer',
-                    'price' => $PLSE_Base_price,
-                    'priceCurrency' => $plse_currency,
-                    'url' => $plse_offer_url,
-                    'availability' => $plse_offer_full_availability,
-                    'validFrom' => $plse_offer_full_validFrom,
+                    'price' => $values[ $fields['event_price']['slug'] ][0],
+                    'priceCurrency' => $values[ $fields['event_price_currency']['slug'] ][0],
+                    'url' => $values[ $fields['event_price_url']['slug'] ][0],
+                    'availability' => $values[ $fields['event_price_availability']['slug'] ][0],
+                    'validFrom' => $values[ $fields['event_price_valid_from']['slug'] ][0],
                 ),
 
             )

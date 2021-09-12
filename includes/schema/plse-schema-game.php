@@ -60,6 +60,7 @@ class PLSE_Schema_Game extends Abstract_Schema_Piece {
      * |- select_multiple = if true, multiple options selected from a list
      * |- option_list     = either an array of values, or a string specifying a datalist in PLSE_Datalists
      * |- is_image        = for url fields, if the value is an image, show a thumbnail,
+     * |- validate_date   = for date fields, check date against another date, or the current date
      * |- start_of_block  = lets metabox frame the start of a block of related fields
      * 
      * @since    1.0.0

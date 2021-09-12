@@ -1190,6 +1190,45 @@ class PLSE_Init {
     }
 
     /**
+     * If there is an error in meta-fields or rendering the Schema, put a flag up 
+     * in the plugin options screen. Examples include:
+     * - a Schema which is missing required fields
+     * - an Event which is over, or with invalid dates
+     * - multiple broken links
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    array     $field  the field with the error (use $field['err'])
+     * @param    boolean   $write if set to true, write, otherwise clear the field
+     */
+    public function plugin_options_field_warning ( $field, $erase = false ) {
+
+        //delete_option( PLSE_OPTIONS_FIELD_WARNING );
+
+        $curr_warning_arr = get_option( PLSE_OPTIONS_FIELD_WARNING );
+
+        if ( $erase == PLSE_ERASE ) {
+
+            echo "ERASING WARNING FOR:" . $field['slug']; //////////////////////
+
+            ////////unset( $curr_warning_arr[ $field['slug'] ] );
+
+        } else {
+
+            ////////echo "WARNING BEING SAVED FOR:" . $field['slug']; ////////////////////
+
+            if ( ! is_array( $curr_warning_arr ) ) $curr_warning_arr = array();
+
+            $curr_warning_arr[ $field['slug'] ] = array( $field['err'], $field['post_id'], date( 'm/d/Y h:i:s a', time() ) );
+
+        }
+
+        // update the error array
+        update_option( PLSE_OPTIONS_FIELD_WARNING, $curr_warning_arr );
+
+    }
+
+    /**
      * -----------------------------------------------------------------------
      * COMPATIBILITY CHECKS
      * -----------------------------------------------------------------------

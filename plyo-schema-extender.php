@@ -152,6 +152,26 @@ if ( ! defined( 'PLSE_OPTIONS_SLUG' ) ) {
     define( 'PLSE_OPTIONS_SLUG', 'plse-settings-' );
 }
 
+// options slug to report problems in a meta field (e.g. expired Event)
+if ( ! defined( 'PLSE_OPTIONS_FIELD_WARNING' ) ) {
+    define( 'PLSE_OPTIONS_FIELD_WARNING', 'plse-field-warning' );
+}
+
+// field is required by Schema
+if ( ! defined( 'PLSE_OPTIONS_REQUIRED' ) ) {
+    define( 'PLSE_OPTIONS_REQUIRED', 'required' );
+}
+
+// flag for checking current date
+if ( ! defined( 'PLSE_OPTIONS_CURRENT_DATE' ) ) {
+    define( 'PLSE_OPTIONS_CURRENT_DATE', 'current' );
+}
+
+// flag value ( 1 second, minute, hour day - set to 1 day)
+if ( ! defined( 'PLSE_OPTIONS_DATE_FLAG') ) {
+    define( 'PLSE_OPTIONS_DATE_FLAG', 86400 );
+}
+
 /**
  * --------------------------------------------------------------------------
  * YOAST LOCAL SEO DATA
@@ -281,6 +301,11 @@ if ( ! defined( 'PLSE_META_USED_SETTINGS') ) {
     define( 'PLSE_META_USED_SETTINGS', 'meta_to_settings' );
 }
 
+// erase data flag
+if ( ! defined( 'PLSE_ERASE' ) ) {
+    define( 'PLSE_ERASE', true );
+}
+
 /**
  * --------------------------------------------------------------------------
  * INTERNALLY USED IN FORM CONTROLS
@@ -313,6 +338,7 @@ if ( ! defined( 'PLSE_INPUT_TYPES' ) ) {
         'IMAGE' => 'image',
         'AUDIO' => 'audio',
         'VIDEO' => 'video',
+        'POST_WARNING' => 'post_warning', // warning in post relayed to plugin
 
     ) );
 
