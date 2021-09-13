@@ -926,21 +926,16 @@ class PLSE_Metabox {
                                 break;
 
                             default: 
+                                // we assume all fields contain text-like data
                                 if ( is_array( $value ) ) {
                                     foreach ( $value as $val ) {
                                         if ( ! is_array( $val ) ) $value = sanitize_text_field( $value );
                                     }
                                 }
                                 else if ( ! is_array( $value ) ) $value = sanitize_text_field( $value );
-                                // TODO: sanitize array
                                 break;
 
                         }
-
-                        // TODO: Sanitize here (though should have been done in jquery)
-                        //https://newbedev.com/validating-custom-meta-box-values-required-fields
-                        // check for validation, flag
-                        //////set_user_setting('plse-user-setting-error', 'ERROR'); //////////////////
 
                         // update or delete data
                         if ( empty( $value ) ) {

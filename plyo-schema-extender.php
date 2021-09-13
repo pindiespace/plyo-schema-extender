@@ -367,16 +367,9 @@ if ( ! defined( 'PLSE_CAT_SLUG' ) ) {
 // TODO:
 // TODO: DATE RANGE AND TIME RANGE VALIDATION
 // TODO: VALIDATION FOR ALL METABOX FIELDS
-// TODO: SANITIZE FOR ALL METABOX FIELDS
-// TODO: PRIVATE ERRORS TO PLUGIN SETTINGS FROM RENDER, METABOX
-
-// TODO: $field['err'] to compartmentalize
-
-// TODO: remove option saving from metabox, just wp_data
 
 // TODO: $check_xxxx for checking get_option('slug') outside of PLSE_Options
-//
-// TODO: convert $args to $field
+
 // AUDIT: string constants
 // AUDIT: code names
 // AUDIT: css classes
@@ -387,10 +380,7 @@ if ( ! defined( 'PLSE_CAT_SLUG' ) ) {
 // TODO: on reload, save the current open tab automatically
 //
 // TODO: copy Yoast Local SEO should bounce the user to the "address" tab, status message
-// TODO: warning messages for field value
 // TODO: warning for invalid minimal schema (required fields can't be filled)
-// TODO:
-// TODO: add Service schema
 // TODO: add Product Review to schema
 // TODO:
 // *************************************************************

@@ -476,7 +476,6 @@ class PLSE_Datalists {
         'ZW' => 'Zimbabwe'
     );
 
-    // TODO: REVERSE LABEL AND VALUE
     private $game_genres = array(
         'https://en.wikipedia.org/wiki/Adventure_game' => 'Adventure',
         'https://en.wikipedia.org/wiki/Action_game' => 'Action',

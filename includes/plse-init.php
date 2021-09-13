@@ -631,14 +631,6 @@ class PLSE_Init {
 
     }
 
-    public function get_imageObject () {
-        // TODO:
-    }
-
-    public function get_videoObject () {
-        // TODO:
-    }
-
     /**
      * Attach new Schemas to Yoast.
      * NOTE: must be added early when plugin has just loaded, waiting for 'the_content' hook is too late.
@@ -1093,8 +1085,6 @@ class PLSE_Init {
             'twitter_site'
         ];
 
-        // TODO: abstract out into main area
-        
         foreach ( $social_profiles as $profile ) {
             $social_profile = $helpers->options->get( $profile, '' );
             if ( $social_profile !== '' ) {
@@ -1203,19 +1193,13 @@ class PLSE_Init {
      */
     public function plugin_options_field_warning ( $field, $erase = false ) {
 
-        //delete_option( PLSE_OPTIONS_FIELD_WARNING );
-
         $curr_warning_arr = get_option( PLSE_OPTIONS_FIELD_WARNING );
 
         if ( $erase == PLSE_ERASE ) {
 
-            echo "ERASING WARNING FOR:" . $field['slug']; //////////////////////
-
-            ////////unset( $curr_warning_arr[ $field['slug'] ] );
+            unset( $curr_warning_arr[ $field['slug'] ] );
 
         } else {
-
-            ////////echo "WARNING BEING SAVED FOR:" . $field['slug']; ////////////////////
 
             if ( ! is_array( $curr_warning_arr ) ) $curr_warning_arr = array();
 

@@ -1390,7 +1390,7 @@ class PLSE_Fields {
         }
 
         /*
-         * NOTE: $values is supposed to be an array, unlike most other fields stored in DB.
+         * NOTE: $values is supposed to be an array(), unlike most other fields stored in DB.
          * NOTE: a maximum number of added fields is calculated from the $option_list size, if present
          * TODO: UNIQUE-IFY the RESULTS (no duplicates)
          */

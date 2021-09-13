@@ -323,16 +323,16 @@ class PLSE_Options {
         do_settings_sections( $this->options_data->get_section_box_slug( 'HIDDEN' ) );
         echo "</div>\n"; 
 
+        // tab system (really one big long form)
         echo $this->setup_tabs();
 
         // panels
-        // TODO: KLUDGE
         $this->setup_panels();
 
         echo '</div></div>'; // end of container, row, col-md-12
 
         submit_button(); 
-    
+
         echo '</form>';
         echo '</div>' . "\n"; // end of wrapper
         echo '</div>' . "\n"; // end of big row
@@ -900,36 +900,41 @@ class PLSE_Options {
      * @since    1.0.0
      * @access   public
      * @param    array    $field name of field, state, additional properties
-     * 
-     * TODO:
-     * TODO: CONVERT THIS TO AN ARRAY
-     * TODO:
      */
     public function render_post_warning_field ( $field ) {
 
         echo '<div class="plse-label-description" style="border-radius: 6px;">';
         echo '<table><thead><tr><td><b>Link to Post</b></td><td><b>Warning Message</b></td><td><b>Time</b></td></tr></thead><tbody><tr>';
-        
-        if ( current_user_can( 'administrator' ) ) {
 
-            if ( is_array( $field['value'] ) && count( $field['value'] ) > 0 ) {
+        // error list storied when posts were saved
+        $val = $field['value'];
 
-                foreach( $field['value'] as $key => $err ) {
+        // loose check if current user can edit meta-data for the post
+        // if ( current_user_can( 'administrator' ) ) {
+        if ( current_user_can_for_blog( get_current_blog_id(), 'edit_posts' ) ) {
 
-                    echo '<tr><td><a href="' . get_edit_post_link( $err[1] ) . '">' . get_the_title( $err[1] ) . '</a></td>';
+            if ( is_array( $val ) && count( $val ) > 0 ) {
+
+                foreach( $val as $key => $err ) {
+
+                    $post_id = $err[1];
+
+                    echo '<tr><td><a href="' . get_edit_post_link( $post_id ) . '">' . get_the_title( $post_id ) . '</a></td>';
                     echo '<td>' . $err[0] . '</td>';
                     echo '<td>' . $err[2] . '</td></tr>';
                 }
-    
+
             } else {
 
+                // no Schema errors recorded that weren't cleared by updating a $post
                 echo '<tr><td colspan="3">' . __( 'No schema errors at present' ) . '</td></tr>';
 
             }
 
         } else {
 
-            echo '<tr><td colspan="3">' . __( 'your user account doesn\'t have permissions to edit Schemas' ) . '</td></tr>'; // TODO: determine permissions relative to post
+            // user can't edit the meta-data on this post
+            echo '<tr><td><a href="' . get_edit_post_link( $post_id ) . '">' . get_the_title( $post_id ) . '</a></td><td colspan="2">' . __( 'your user account doesn\'t have permissions to edit Schemas. Check with your site admin.' ) . '</td></tr>';
 
         }
 
