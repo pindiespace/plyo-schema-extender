@@ -1193,6 +1193,8 @@ class PLSE_Init {
      */
     public function plugin_options_field_warning ( $field, $erase = false ) {
 
+        //delete_option( PLSE_OPTIONS_FIELD_WARNING );
+
         $curr_warning_arr = get_option( PLSE_OPTIONS_FIELD_WARNING );
 
         if ( $erase == PLSE_ERASE ) {

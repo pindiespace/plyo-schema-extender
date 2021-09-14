@@ -891,14 +891,17 @@ class PLSE_Metabox {
                                 $value = esc_textarea( trim( $value ) );
                                 break;
 
+                            // if we're saving an invalid date, report it to plugin options
                             case PLSE_INPUT_TYPES['DATE']:
                                 // format: '2015-11-26'
                                 $value = date( 'Y-m-d', strtotime( $value ) );
+                                $field['value'] = $value;
+                                if ( $field['validate_date'] == PLSE_OPTIONS_CURRENT_DATE ) {
+                                    $this->fields->is_expired_date( $field );
+                                } else if ( ! empty( $field['validate_date'] ) ) {
+                                    $this->fields->is_valid_date( $field );
+                                }
                                 break;
-
-                            //case PLSE_INPUT_TYPES['SELECT_MULTIPLE']:
-                            //    $value = $value;
-                            //    break;
 
                             case PLSE_INPUT_TYPES['SELECT_MULTIPLE']:
                             case PLSE_INPUT_TYPES['REPEATER']:
