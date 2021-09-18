@@ -185,7 +185,7 @@ class PLSE_Options_Data {
                     'label' => 'Warning messages from posts, pages with Schema',
                     'title' => 'Follow the link to check the post or page',
                     'type'   => PLSE_INPUT_TYPES['POST_WARNING'],
-                    'description'  => 'Last Schema Warning in site pages or posts (edit page or post to clear)',
+                    'description'  => 'Last Schema Warning in site pages or posts (edit page or post to clear) ',
                 ),
 
                 'import_yoast_local' => array(

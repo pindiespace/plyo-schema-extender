@@ -83,7 +83,7 @@ class PLSE_Metabox {
      * @access   private
      * @var      string    $schema_transient_name    name for transient
      */
-    private $schema_transient_name = 'plse_meta_transient';
+    private $schema_transient_name = PLSE_TRANSIENT_SLUG;
 
     /**
      * Maximum for meta repeater fields.
@@ -984,7 +984,7 @@ class PLSE_Metabox {
      * @param     number     $duration    the duration of the transient, default to 5 seconds
      */
     public function metabox_store_transient ( $err_msg, $duration = 5 ) {
-        set_transient( $this->schema_transient_name . get_current_user_id(), $err_msg, $duration );
+        set_transient( $this->schema_transient_name, $err_msg . get_current_user_id(), $duration );
     }
 
     /**

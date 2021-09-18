@@ -1199,7 +1199,9 @@ class PLSE_Init {
 
         if ( $erase == PLSE_ERASE ) {
 
-            unset( $curr_warning_arr[ $field['slug'] ] );
+            if ( isset ( $curr_warning_arr[ $field['slug'] ] ) ) {
+                unset( $curr_warning_arr[ $field['slug'] ] );
+            }
 
         } else {
 
