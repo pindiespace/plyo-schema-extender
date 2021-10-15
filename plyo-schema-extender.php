@@ -57,6 +57,35 @@ if ( ! defined( 'PLSE_SCHEMA_EXTENDER_PATH' ) ) {
     define( 'PLSE_SCHEMA_EXTENDER_PATH', dirname( __FILE__ ) );
 }
 
+/*
+ * -----------------------------------------------------------------------
+ * Install and Uninstall flags
+ * -----------------------------------------------------------------------
+ */
+
+// flag indicating that the plugin has run at least once
+if ( ! defined( 'PLSE_INSTALL_OLD_SLUG' ) ) {
+    define( 'PLSE_INSTALL_OLD_SLUG', 'plse_options_old' );
+}
+
+// value written on first run of installed plugin
+if ( ! defined( 'PLSE_INSTALL_OLD_SLUG_VALUE' ) ) {
+    define( 'PLSE_INSTALL_OLD_SLUG_VALUE', 'installed' );
+}
+
+// remove option values during plugin uninstall
+if ( ! defined( 'PLSE_UNINSTALL_OPTIONS_DELETE' ) ) {
+    define( 'PLSE_UNINSTALL_OPTIONS_DELETE', 'plse_uninstall_options_delete' );
+}
+
+// remove meta-data for schema from pages and posts during uninstall
+if ( ! defined( 'PLSE_UNINSTALL_META_DELETE' ) ) {
+    define( 'PLSE_UNINSTALL_META_DELETE', 'plse_uninstall_meta_delete' );
+}
+
+// fire this function on activate
+register_activation_hook( __FILE__, 'set_firsttime_defaults' );
+
 /**
  * --------------------------------------------------------------------------
  * LOADER - loads classes depending on context
@@ -197,3 +226,34 @@ add_action( 'plugins_loaded', function () {
     }
 
 } );
+
+/**
+ * callback for register activation hook. When the plugin is activated 
+ * for the first time, set a flag to set a few defaults in options
+ * 
+ * @since    1.0.0
+ * @access   public
+ */
+function set_firsttime_defaults () {
+
+    // make sure user has permissions
+    if ( ! current_user_can( 'activate_plugins' ) ) return;
+
+    // make sure referrer is correct
+    $plugin = isset( $_REQUEST['plugin'] ) ? $_REQUEST['plugin'] : '';
+    check_admin_referer( "activate-plugin_{$plugin}" );
+
+    // if this is a new install (options flag set)
+    if ( ! get_option( PLSE_INSTALL_OLD_SLUG ) ) {
+
+        if ( is_admin() && current_user_can( 'administrator' ) ) {
+            update_option( PLSE_INSTALL_OLD_SLUG, PLSE_INSTALL_OLD_SLUG_VALUE );
+
+            // add values for a few constants
+            // TODO:
+
+        }
+
+    }
+
+}

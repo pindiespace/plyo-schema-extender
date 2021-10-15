@@ -23,8 +23,24 @@ class PLSE_Options_Data {
     static private $__instance = null;
 
     /**
-     * Toggle checkbox for Schema on/off in plugin options. These appear above 
+     * Toggle the checkbox for Schema on/off in plugin options. These appear above 
      * the fields associated with the Schema in a options page tab
+     * 
+     * $field[]
+     * |- section_slug    = the id used to access the field, with get_option()
+     * |- section_title   = appears when mouse moves over field
+     * |- section_message = onscreen message associated with the toggle box
+     * |- section_box     = group of Schema options this toggle box is associated with
+     * |- tab             = name of onscreen tab this toggle box is associated with
+     * |- fields          = sub-array holding checkbox description inside the toggle box
+     * |-   + slug        = checkbox control slug
+     * |-   + description = onscreen description for checkbox
+     * |-   +  label      = label tag associate with checkbox
+     * |-   +  type       = type of control (alwasy checkbox)
+     * 
+     * @since    1.0.0
+     * @access   private
+     * @var      array    $options_toggle    checkboxes for turning Schema on and off
      */
     private $options_toggle = array(
 
@@ -227,7 +243,27 @@ class PLSE_Options_Data {
                     'title' => 'Check to actively test typed-in URLs',
                     'type'   => PLSE_INPUT_TYPES['CHECKBOX'],
                     'description'  => 'If this is selected, URLs typed into custom Schema fields in posts will be checked online. It may result in slow loading.',
-                )
+                ),
+
+                // these options control whether plugin data is deleted on uninstall
+
+                // delete options data
+                'uninstall_delete' => array(
+                    'slug' => PLSE_UNINSTALL_OPTIONS_DELETE,
+                    'label' => 'Delete all configuration data for the plugin when the plugin is uninstalled.',
+                    'title' => 'Delete configuration when you uninstall this plugin',
+                    'type' => PLSE_INPUT_TYPES['CHECKBOX'],
+                    'description' => 'If this option is checked, all option data will be deleted when you uninstall this plugin.'
+                ),
+
+                // delete all meta data attached to pages and posts
+                'meta_delete' => array(
+                    'slug' => PLSE_UNINSTALL_META_DELETE,
+                    'label' => 'Delete all Schema meta-data associated with pages and posts when the plugin is uninstalled.',
+                    'title' => 'Delete Schema data when you delete this plugin',
+                    'type' => PLSE_INPUT_TYPES['CHECKBOX'],
+                    'description' => 'If this option is checked, all the Schema data applied to pages and posts will be deleted when you uninstall this plugin.'
+                ),
 
             )
         ),
@@ -650,7 +686,7 @@ class PLSE_Options_Data {
      */
 
     /**
-     * Get Settings API options arrat, grouped by Schema
+     * Get Settings API options array, grouped by Schema
      * 
      * @since    1.0.0
      * @access   public
@@ -670,7 +706,6 @@ class PLSE_Options_Data {
     public function get_toggles () {
         return $this->options_toggle;
     }
-
 
     /**
      * Unwrap individual fields for all Schema out of the data object.

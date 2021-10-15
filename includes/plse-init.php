@@ -830,6 +830,9 @@ class PLSE_Init {
 
     }
 
+    /**
+     * Get the Vimeo video thumbnail
+     */
     public function get_vimeo_thumb( $url, $type = 'small' ) {
 
         $url = esc_url( $url );
@@ -1390,8 +1393,8 @@ class PLSE_Init {
                 $plugin_data = get_plugin_data( __FILE__ );
                 ?>
                 <div class="updated error">
-                    <p>
-                        <?php
+                    <p><?php
+                       
                         echo $err;
                         echo '<br><strong>' . $plugin_data['Name'] . __( 'has been deactivated' ) . '</strong>';
                         ?>
