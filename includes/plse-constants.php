@@ -1,6 +1,13 @@
 
 <?php 
 
+/**
+ * Global constants used to initalize the plugin, also used during 
+ * plugin uninstalls.
+ * 
+ * @since    1.0.0
+ */
+
 if ( ! defined( 'PLSE_SCHEMA_PHP_MIN_VERSION' ) ) {
     define( 'PLSE_SCHEMA_PHP_MIN_VERSION', '5.6' );
 }

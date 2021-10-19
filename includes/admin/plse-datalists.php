@@ -22,6 +22,13 @@ class PLSE_Datalists {
      */
     static private $__instance = null;
 
+    /**
+     * Set a language field accord to Schema requirements.
+     * 
+     * @since    1.0.0
+     * @access   private
+     * @var      array    $languages    language list.
+     */
     private $languages = array(
         'af' => 'Afrikaans',
         'sq' => 'Albanian - shqip',
@@ -221,6 +228,13 @@ class PLSE_Datalists {
         'WY' => 'Wyoming'
     );
 
+    /**
+     * Set a countries field accord to Schema requirements.
+     * 
+     * @since    1.0.0
+     * @access   private
+     * @var      array    $countries    country list.
+     */
     private $countries = array(
         'US' => 'United States',
         'AF' => 'Afghanistan',
@@ -476,6 +490,14 @@ class PLSE_Datalists {
         'ZW' => 'Zimbabwe'
     );
 
+    /**
+     * Provide common defaults for game genres, for Game Schema, with 
+     * URL to Wikipedia entry.
+     * 
+     * @since    1.0.0
+     * @access   private
+     * @var      array    $game_genres    game genre list.
+     */
     private $game_genres = array(
         'https://en.wikipedia.org/wiki/Adventure_game' => 'Adventure',
         'https://en.wikipedia.org/wiki/Action_game' => 'Action',
@@ -524,6 +546,13 @@ class PLSE_Datalists {
         'https://en.wikipedia.org/wiki/Sandbox_game' => 'Sandbox',
     );
 
+    /**
+     * Provide common defaults for digital platforms for Game Schema.
+     * 
+     * @since    1.0.0
+     * @access   private
+     * @var      array    $platforms    platform list.
+     */
     private $platforms = array(
         'android' => 'Android',
         'ios' => 'iOS',
@@ -557,7 +586,13 @@ class PLSE_Datalists {
         'freebsd' => 'Free BSD (Nintendo Switch)'
     );
 
-    // ISO currency codes https://en.wikipedia.org/wiki/ISO_4217
+    /**
+     * ISO currency codes https://en.wikipedia.org/wiki/ISO_4217
+     * 
+     * @since    1.0.0
+     * @access   private
+     * @var      array    $currency    currency list.
+     */
     private $currency = array(
         'AED' => 'United Arab Emirates dirham',
         'AFN' => 'Afghanistan afghani',
@@ -720,6 +755,10 @@ class PLSE_Datalists {
     /**
      * Based on Google's list for softwareApplication
      * {@link https://developers.google.com/search/docs/advanced/structured-data/software-app}
+     * 
+     * @since    1.0.0
+     * @access   private
+     * @var      array    $application_category    software application list.
      */
     private $application_category = array(
         'GameApplication' => 'Game',
@@ -749,8 +788,13 @@ class PLSE_Datalists {
     );
 
     /**
-     * actions to take, check Schema.org full hierarchy
+     * Actions to take, check Schema.org full hierarchy, used by 
+     * Service schema.
      * {@link https://schema.org/docs/full.html}
+     * 
+     * @since    1.0.0
+     * @access   private
+     * @var      array    $actions    actions list.
      */
     private $actions = array(
         'AchieveAction' => 'Achieve (general)',
@@ -878,6 +922,13 @@ class PLSE_Datalists {
 
     );
 
+    /**
+     * Creative Work types, from Schema.org
+     * 
+     * @since    1.0.0
+     * @access   private
+     * @var      array    $creative_works    Schema.org Creative Work list.
+     */
     private $creative_works = array(
         'AmpStory' => 'AMP Mobile Page',
         'ArchiveComponent' => 'Data Archive',
@@ -952,7 +1003,14 @@ class PLSE_Datalists {
         'WebSite' => 'Web Site',
     );
 
-    // https://schema.org/Event
+    /**
+     * Event types, based on Schema.org list
+     * {@link https://schema.org/Event}
+     * 
+     * @since    1.0.0
+     * @access   private
+     * @var      array    $event_types    Schema.org Event type list.
+     */
     private $event_types = array(
         'Event' => 'Event', // super-type
         'BusinessEvent' => 'Business',

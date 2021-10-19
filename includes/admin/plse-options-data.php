@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Initializes plugin features, creates default plugin menu and options page.
+ * Data needed to create options fields.
  *
  * @since      1.0.0
  * @category   WordPress_Plugin

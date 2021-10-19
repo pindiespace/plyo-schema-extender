@@ -1,7 +1,8 @@
 <?php
 
 /**
- * Initializes plugin features, creates default plugin menu and options page.
+ * Initialize the plugin options and metabox, provide methods used by 
+ * both options and metabox fields.
  *
  * @since      1.0.0
  * @category   WordPress_Plugin

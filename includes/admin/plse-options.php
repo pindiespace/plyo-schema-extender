@@ -1,8 +1,8 @@
 <?php
 
 /**
- * Handles meta-boxes and custom fields posted to specific CPTs and categories.
- * The initial creation of the plugin menu and options pages are handled in 
+ * Handles admin options for the plugin. Specify when to fire Schema, 
+ * and default values for specific Schema types.
  * PLSE_Init.
  *
  * @since      1.0.0

@@ -57,7 +57,7 @@ if ( get_option( PLSE_UNINSTALL_OPTIONS_DELETE ) == true ) {
  * Check plugin options to see if meta-data should be deleted
  * ---------------------------------------------------------------------
 */
-if ( get_option( PLSE_UNSTALL_META_DELETE )  == true) {
+if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
 
     require_once PLSE_SCHEMA_EXTENDER_PATH . '/includes/admin/plse-metabox.php';
     $plse_metabox = PLSE_Metabox::getInstance();
@@ -95,7 +95,7 @@ if ( get_option( PLSE_UNSTALL_META_DELETE )  == true) {
             )
         );
 
-        // loop through the posts, scan for all defined Schema fields, delete if present
+        // loop through the posts, scan for all defined Schema fields, delete meta-data if present
         foreach ( $posts as $curr_post ) {
 
             // loop through each post type, deleting all Schema keys
