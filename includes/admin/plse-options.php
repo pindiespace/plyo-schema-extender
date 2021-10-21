@@ -1169,7 +1169,7 @@ class PLSE_Options {
     }
 
     /**
-     * Validate date.
+     * Validate date, if present.
      * 
      * @since    1.0.0
      * @access   public
@@ -1179,7 +1179,8 @@ class PLSE_Options {
     public function validate_date_field ( $in ) {
 
         $out = $in = sanitize_text_field( trim( $in ) );
-        if ( ! $this->fields->is_date( $out ) ) {
+
+        if ( ! empty( $out ) && ! $this->fields->is_date( $out ) ) {
             add_settings_error(
                 $this->option_group,
                 'date_validation_error',
@@ -1191,7 +1192,7 @@ class PLSE_Options {
     }
 
     /**
-     * Validate time.
+     * Validate time, if present.
      * 
      * @since    1.0.0
      * @access   public
@@ -1201,7 +1202,7 @@ class PLSE_Options {
     public function validate_time_field ( $in ) {
 
         $out = $in = sanitize_text_field( trim( $in ) );
-        if ( ! $this->fields->is_time( $out ) ) {
+        if ( ! empty( $out ) && ! $this->fields->is_time( $out ) ) {
             add_settings_error(
                 $this->option_group,
                 'time_validation_error',

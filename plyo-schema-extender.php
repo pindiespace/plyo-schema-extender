@@ -122,7 +122,6 @@ add_action( 'plugins_loaded', function () {
      * initialized here so categories and tags add correctly to pages and custom post types
      */
     require_once PLSE_SCHEMA_EXTENDER_PATH .'/includes/plse-constants.php';
-
     require_once PLSE_SCHEMA_EXTENDER_PATH . '/includes/plse-init.php';
     $plse_init = PLSE_Init::getInstance();
 

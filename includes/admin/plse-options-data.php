@@ -502,7 +502,7 @@ class PLSE_Options_Data {
                 'start_time' => array(
                     'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-start-time',
                     'label' => 'Start Time',
-                    'title' => 'Day when the event starts',
+                    'title' => 'The time when the service first began',
                     'type'  => PLSE_INPUT_TYPES['TIME'],
                     'description' => 'The time the Service first started',
                 ),

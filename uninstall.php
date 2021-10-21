@@ -9,22 +9,29 @@
 
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) exit;
 
-// include utilities
+// include base file path (redefined, originally defined in plyo-schema-extender.php)
+if ( ! defined( 'PLSE_SCHEMA_EXTENDER_PATH' ) ) {
+    define( 'PLSE_SCHEMA_EXTENDER_PATH', dirname( __FILE__ ) );
+}
 
-// include field constants
+/* 
+ * include plyo-schema-extender, which includes plse-constants. We 
+ * manually include plse-constants.php, since the plugins_loaded action 
+ * hook isn't firing in uninstall.php
+ */
+require_once PLSE_SCHEMA_EXTENDER_PATH .'/includes/plse-constants.php';
 require_once PLSE_SCHEMA_EXTENDER_PATH .'/plyo-schema-extender.php';
 
 // require all the Schema files to delete individual meta fields
 require_once PLSE_SCHEMA_EXTENDER_PATH . '/includes/plse-init.php';
 
+
 $plse_init = PLSE_Init::getInstance();
 
 // remove plugin transients
-
 delete_transient( PLSE_TRANSIENT_SLUG );
 
 // remove plugin cron events
-// TODO:
 
 /**
  * ---------------------------------------------------------------------
@@ -59,6 +66,17 @@ if ( get_option( PLSE_UNINSTALL_OPTIONS_DELETE ) == true ) {
 */
 if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
 
+    // require options fields array list, since used in meta-data
+    require_once PLSE_SCHEMA_EXTENDER_PATH . '/includes/admin/plse-options-data.php';
+    $options_data = PLSE_Options_Data::getInstance();
+
+    // metabox uses plse-datalists.php
+    require_once PLSE_SCHEMA_EXTENDER_PATH . '/includes/admin/plse-datalists.php';
+
+    // metabox uses plse-fields.php
+    require_once PLSE_SCHEMA_EXTENDER_PATH . '/includes/admin/plse-fields.php';
+
+    // load the metabox class
     require_once PLSE_SCHEMA_EXTENDER_PATH . '/includes/admin/plse-metabox.php';
     $plse_metabox = PLSE_Metabox::getInstance();
 
