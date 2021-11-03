@@ -507,25 +507,6 @@ class PLSE_Options_Data {
                     'description' => 'The time the Service first started',
                 ),
 
-                'service_number' => array(
-                    'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-number',
-                    'label' => 'Service Number',
-                    'title' => 'The Number of the Service',
-                    'type'  => PLSE_INPUT_TYPES['INT'],
-                    'description' => 'The number associated with the service',
-                ),
-
-/*
-                'service_quantity' => array(
-                    'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-quantity',
-                    'label' => 'Service Quantity',
-                    'title' => 'The Quantity of the Service',
-                    'type'  => PLSE_INPUT_TYPES['FLOAT'],
-                    'description' => 'The quantity associated with the service',
-                    'required' => 'required',
-                ),
-*/
-
                 'service_length' => array(
                     'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_SERVICE . '-service-length',
                     'label' => 'Length of Service',
@@ -738,7 +719,7 @@ class PLSE_Options_Data {
 
         $field_list = array();
 
-        foreach ( $this_options_toggle as $data_group ) {
+        foreach ( $this->options_toggle as $data_group ) {
             foreach ( $data_group['fields'] as $fields ) {
                 $field_list[] = $fields;
             }

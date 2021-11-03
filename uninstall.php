@@ -24,9 +24,11 @@ require_once PLSE_SCHEMA_EXTENDER_PATH .'/plyo-schema-extender.php';
 
 // require all the Schema files to delete individual meta fields
 require_once PLSE_SCHEMA_EXTENDER_PATH . '/includes/plse-init.php';
-
-
 $plse_init = PLSE_Init::getInstance();
+
+// require options fields array list, since used in meta-data
+require_once PLSE_SCHEMA_EXTENDER_PATH . '/includes/admin/plse-options-data.php';
+$options_data = PLSE_Options_Data::getInstance();
 
 // remove plugin transients
 delete_transient( PLSE_TRANSIENT_SLUG );
@@ -44,11 +46,11 @@ if ( get_option( PLSE_UNINSTALL_OPTIONS_DELETE ) == true ) {
     delete_option( PLSE_INSTALL_OLD_SLUG );
 
     // require options fields array list for plugin admin configuration
-    require_once PLSE_SCHEMA_EXTENDER_PATH . '/includes/admin/plse-options-data.php';
+    //require_once PLSE_SCHEMA_EXTENDER_PATH . '/includes/admin/plse-options-data.php';
 
     $options_data = PLSE_Options_Data::getInstance();
     $options_fields = $options_data->get_options_fields();
-    $toggle_fields = $options_data->get_toggle_fields();
+    $toggle_fields = $options_data->get_toggles_fields();
 
     // remove plugin options
     foreach( $options_fields as $key => $field ) {
@@ -67,8 +69,8 @@ if ( get_option( PLSE_UNINSTALL_OPTIONS_DELETE ) == true ) {
 if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
 
     // require options fields array list, since used in meta-data
-    require_once PLSE_SCHEMA_EXTENDER_PATH . '/includes/admin/plse-options-data.php';
-    $options_data = PLSE_Options_Data::getInstance();
+    //require_once PLSE_SCHEMA_EXTENDER_PATH . '/includes/admin/plse-options-data.php';
+    //$options_data = PLSE_Options_Data::getInstance();
 
     // metabox uses plse-datalists.php
     require_once PLSE_SCHEMA_EXTENDER_PATH . '/includes/admin/plse-datalists.php';
@@ -88,9 +90,6 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
     $output = 'names'; // names or objects, note names is the default
     $operator = 'and'; // 'and' or 'or'
 
-    $post_types = get_post_types( $args, $output, $operator );
-    // TODO: check if 'page' and 'post' included
-
     // get all defined Schema files, to get Schema fields
     $schema_list = $plse_init->get_available_schemas();
 
@@ -100,7 +99,14 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
         $schema_fields[] = $this->load_schema_fields( $schema_label );
     }
 
-    // delete all meta-data from pages and posts
+    $post_types = get_post_types( $args, $output, $operator );
+
+    // TODO: check if 'page' and 'post' included
+    // TODO: run the meta delete
+
+    /**
+     * delete all meta data from pages, posts, custom posts
+     */
     foreach ( $post_types as $post_type ) {
 
         // get all the posts for a cpt 

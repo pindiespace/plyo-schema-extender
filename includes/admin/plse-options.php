@@ -987,13 +987,17 @@ class PLSE_Options {
      * @param    string    $in    data input into the field.
      * @return   mixed     $out   validated input data
      */
-    public function validate_hidden_field ( $in ) {
+    public function validate_hidden_field ( $in ) { 
+
+        // check if this is a first-time install
+        if ( get_option( PLSE_INSTALL_OLD_SLUG ) === false ) return '';
+
         $out = $in = sanitize_text_field( trim( $in ) );
         if ( ! $out || empty( $out ) || strlen( $out ) != strlen( $in ) ) {
             add_settings_error(
                 $this->option_group,
                 'hidden_validation_error',
-                '<span style="color:red">Error:</span> Hidden field ('.$out.'), contact Administrator',
+                '<span style="color:red">Error:</span> Invalid hidden field: ("'.$out.'"), contact Administrator',
                 'error'
             );
         }
@@ -1022,12 +1026,16 @@ class PLSE_Options {
      * @return   mixed     $out   validated input data
      */
     public function validate_tel_field ( $in ) {
+
+        // check if this is a first-time install
+        if ( get_option( PLSE_INSTALL_OLD_SLUG ) === false ) return '';
+
         $out = $in = trim( sanitize_text_field( $in ) );
         if( ! $this->fields->is_phone( $out ) ) {
             add_settings_error(
                 $this->option_group,
                 'phone_validation_error',
-                '<span style="color:red">Error:</span> ' . __( 'Invalid Phone (extra characters?): ('.$out.'), please re-enter' ),
+                '<span style="color:red">Error:</span> ' . __( 'Invalid Phone option (empty or extra characters?): ("'.$out.'"), please re-enter' ),
                 'error'
             );
         }
@@ -1044,12 +1052,15 @@ class PLSE_Options {
      */
     public function validate_postal_field ( $in ) {
 
+        // check if this is a first-time install
+        if ( get_option( PLSE_INSTALL_OLD_SLUG ) === false ) return '';
+
         $out = $in = trim( sanitize_text_field ( $in ) );
         if ( ! $this->fields->is_postal( $out ) ) {
             add_settings_error(
                 $this->option_group,
                 'phone_validation_error',
-                '<span style="color:red">Error: </span>' . __( 'Invalid Postal Code, extra characters: ('.$out.'), please re-enter' ),
+                '<span style="color:red">Error: </span>' . __( 'Invalid Postal Code option (empty or extra characters): ("'.$out.'"), please re-enter' ),
                 'error'
             );
         }
@@ -1065,12 +1076,16 @@ class PLSE_Options {
      * @return   mixed     $out   validated input data
      */
     public function validate_email_field ( $in ) {
+
+        // check if this is a first-time install
+        if ( get_option( PLSE_INSTALL_OLD_SLUG ) === false ) return '';
+
         $out = $in = sanitize_email( trim( $in ) );
         if ( ! $this->fields->is_email( $out ) ) {
             add_settings_error(
                 $this->option_group,
                 'email_validation_error',
-                '<span style="color:red">Error:</span>' . __( 'Invalid Email ('. sanitize_email( $in ) .'), please re-enter' ),
+                '<span style="color:red">Error:</span>' . __( 'Invalid Email option (empty or empty characters): ("'. sanitize_email( $in ) .'"), please re-enter' ),
                 'error'
             );
         }
@@ -1109,12 +1124,16 @@ class PLSE_Options {
      * @return   mixed      $out   validated input data
      */
     public function validate_int_field ( $in ) {
+
+        // check if this is a first-time install
+        if ( get_option( PLSE_INSTALL_OLD_SLUG ) === false ) return '';
+
         $out = sanitize_text_field( trim( $in ) );
         if ( ! $this->fields->is_int( $out ) ) {
             add_settings_error(
                 $this->option_group,
                 'int_validation_error',
-                '<span style="color:red">Error:</span>' . __( 'Invalid Integer ('. $out .'), please re-enter' ),
+                '<span style="color:red">Error:</span>' . __( 'Invalid Integer (empty or not a number): ("'. $out .'"), please re-enter' ),
                 'error'
             );
         }
