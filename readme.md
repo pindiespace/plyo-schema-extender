@@ -83,6 +83,14 @@ In pages and posts that you have set to have schema, you'll see additional meta-
 
 
 
+After installation, if you do a 'Save' you may note these error messages:
+
+![image-20211104152651469](/assets/docs/image-20211104152651469.png)
+
+To fix this, just go to the Contact and Address tabs and fill out your organization's information.
+
+
+
 ## Basic Information in the Plugin
 
 One of the things missing in the basic version of Yoast SEO is detailed information about your company or organization. Plyo Schema Extender lets you manually add this information in using the Contact tab in the plugin:
@@ -173,11 +181,48 @@ Adding in the Internet address of a website, image, or other asset is common. PL
 
 ![image-20211103171136577](assets/docs/image-20211103171136577.png)
 
-Checking this options causes an additional error message to appear beside the meta-box in each page or post with non-functional URLs:
+Checking this options causes an additional error message to appear beside the meta-box in each page or post with non-functional URLs. 
+
+Remember to refresh your page - just pressing the "Update" button doesn't show the errors, since the PLSE plugin doesn't try to dynamically update your post. So, when you fill out a schema:
+
+1. Edit the fields
+2. Press the "update" or "save" button at upper right of the post window
+3. Press the web browser's circular "refresh" button at the top of the window to force error reporting.
+
+Errors are written next to fields. You may also see warning - not necessarily an errors, but problems. In this example, a malformed URL has been given:
 
 ![image-20211103171419755](assets/docs/image-20211103171419755.png)
 
-Note that this may slow up your page and post editing, since the plugin tries all the addresses to see if they work. It will not affect user access to your site.
+Note that actively checking URLs may slow up your editing, since the plugin tries all the addresses to see if they work. It will **not** affect the speed of user access to your site.
+
+A validated URL will look like the example below:
+
+![image-20211104091101347](assets/docs/image-20211104091101347.png)
+
+
+
+## Checking for Content Errors
+
+Some fields in the schema can be flagged when they have valid data, but the data would conflict with other data in the schema. For example, if you create an Event, and you indicate a end date *before* a start date, that error will be caught by PLSE, and displayed in the PLSE plugin options. 
+
+![image-20211104085538428](assets/docs/image-20211104085538428.png)
+
+To see these errors:
+
+1. Edit a schema in a page or post
+2. Select "save" or "update" button
+3. Navigate to the PLSE in the admin view
+4. Click on the Config tag
+
+The error or warning will be listed, along with a link back to the page or post. To fix it, go back to the page or post, look for the error, save or update, and reload the PLSE admin screen.
+
+![image-20211104091213810](C:assets/docs/image-20211104091213810.png)
+
+This system is especially useful if there are lots of schemas being updated on individual pages or posts. It is good practice for the administrator to check the plugin periodically to see if an error has crept in.
+
+
+
+## Schema Output
 
 All schema data is appended to the default Yoast SEO schema values. If you do a "view source" on a published page or post you can find this JSON+LD data similar to the following:
 
@@ -196,6 +241,23 @@ All schema data is appended to the default Yoast SEO schema values. If you do a 
 
 
 
+After you've confirmed that the schema is on the page, it should be checked with a schema validator. There are two schema validators you should use:
+
+- Schema.org validator: https://validator.schema.org/
+- Google's validator: https://developers.google.com/search/docs/advanced/structured-data
+
+Both of these validators can accept a link to a live website, or code from a development platform. An easy way to get code is to select the "Preview" option in the upper right of your post, and right-click -> "View Source" to get the generated HTML code. 
+
+![image-20211104091600832](assets/docs/image-20211104091600832.png)
+
+Note: if you use a development platform not available online (e.g. https://localhost/something) images won't validate. URLs only validate when they are available online to the validators.
+
+Keep checking until you've confirmed that your schema doesn't have any errors or warnings. The exception is "offers," since PLSE doesn't handle setting multiple prices for tickets or service fees. 
+
+It's important that you test your schema in both validators. PLSE only does basic checking for schema validity. Validation criteria for Google may change over time.
+
+
+
 ## Special Issues
 
 1. The standard 
@@ -203,10 +265,19 @@ All schema data is appended to the default Yoast SEO schema values. If you do a 
    [WordPress Plugin]: https://wordpress.org/plugins/amp/	"Wordpress AMP plugin"
 
     fails when PLSE is installed, unless you explicitly assign Custom Post Types to be processed by AMP. 
+   
 
-2. If you are using the AMP plugin, make sure your AMP settings are set to "Standard" and you enable Advanced Settings -> Content Types -> Your Custom Post Type. Otherwise, you'll wee Web Console errors.
+2. Google's validator currently (2021) doesn't handle the Service or Game schema, but Google itself will use these schema during indexing. 
+   
 
-3. Some things that are not supported in Plyo Schema Extender include:
+3. If you are using the 
+
+   [Wordpress AMP default]: https://wordpress.org/plugins/amp/	"Wordpress AMP default plugin"
+
+   , make sure your AMP settings are set to "Standard" and you enable Advanced Settings -> Content Types -> Your Custom Post Type. Otherwise, you'll wee Web Console errors.
+   
+
+4. Some things that are not supported in Plyo Schema Extender include:
 
    - offers
    - reviews
@@ -216,7 +287,7 @@ All schema data is appended to the default Yoast SEO schema values. If you do a 
 
    
 
-4. The Service Schema is a particular problem in pricing data. Pricing might be bulk, by the hour, or made of of multiply priced sub-services. They are currently not supported by the plugin.
+5. The Service Schema is a particular problem in pricing data. Pricing might be bulk, by the hour, or made of of multiply priced sub-services. They are currently not supported by the plugin.
    https://www.schemaapp.com/schema-markup/services-schema-markup-schema-org-services/
 
    

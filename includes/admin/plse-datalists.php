@@ -594,6 +594,7 @@ class PLSE_Datalists {
      * @var      array    $currency    currency list.
      */
     private $currency = array(
+        'USD' => 'United States dollar',
         'AED' => 'United Arab Emirates dirham',
         'AFN' => 'Afghanistan afghani',
         'ALL' => 'Albanian lek',
@@ -735,7 +736,6 @@ class PLSE_Datalists {
         'TZS' => 'Tanzanian shilling',
         'UAH' => 'Ukrainian hryvnia',
         'UGX' => 'Ugandan shilling',
-        'USD' => 'United States dollar',
         'UYU' => 'Uruguayan peso',
         'UZS' => 'Uzbekistan som',
         'VES' => 'Venezuelan bolívar soberano',
@@ -1477,7 +1477,7 @@ class PLSE_Datalists {
      * @return   string    HTML for a <datalist>
      */
     public function get_event_types_datalist ( $id = '' ) {
-        if ( ! $id ) $id = 'plse_event_types-data';
+        if ( ! $id ) $id = 'plse-event-types-data';
         return $this->get_datalist( $this->event_types, $id );
     }
 

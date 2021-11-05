@@ -189,13 +189,10 @@ class PLSE_Fields {
                     return $val; // simple indexed array
                 }
             } else if ( isset( $val[ $field['slug'] ] ) ) {
-                /////echo '$val[ $field[\'slug\'] ]';
-                /////print_r ($val[ $field['slug' ] ]);
                 return $val[ $field['slug' ] ];
             }
         }
 
-        /////echo 'SIMPLE VALUE';
         return $val;
     }
 
@@ -416,14 +413,11 @@ class PLSE_Fields {
                 $datetime1 = strtotime( $current );
                 $datetime2 = strtotime( $field['value'] );
 
-                // TODO: as we save, we need to see the actual value
-                // TODO: of a particular field
-                //$field['err'] = "aavvvalidate date:" . $field['validate_date'] . ' value:' . $field['value'] . ' datetime1:' . $datetime1 . ' datetime2:' . $datetime2;
-               // $this->init->plugin_options_field_warning( $field );
-
                 // subtract from current date to see if expired
                 if ( is_numeric( $datetime1 ) && is_numeric( $datetime2 ) ) {
                     $diff = ( $datetime2 - $datetime1 ) / PLSE_OPTIONS_DATE_FLAG;
+
+                    // report in plugin options, or clear a previous error
                     if ( $diff < -1 ) {
                         $field['err'] = $this->add_status_to_field( __( 'invalid (expired) date (' . -$diff . ') days, must be in the future' ) );
                         // report in plugin warnings
@@ -673,7 +667,7 @@ class PLSE_Fields {
                     $class = 'plse-input-msg-caution';
                 }
             } else {
-                $err = __( 'validated');
+                $err = __( PLSE_URL_VALIDATED );
                 $class = $this->OK_CLASS;
             }
 
@@ -765,7 +759,9 @@ class PLSE_Fields {
         if ( $this->was_sanitized( $field, $value ) ) {
             $field['err'] = $this->add_status_to_field( __( 'hidden field was sanitized:') . $field['slug'], $this->ERROR_CLASS );
         }
-        if ( ! empty ( $field['err'] ) ) echo $field['err'];
+        if ( ! empty ( $field['err'] ) ) {
+            echo $field['err'];
+        }
         return $value;
     }
 
@@ -781,7 +777,9 @@ class PLSE_Fields {
         if ( $this->was_sanitized( $field, $value ) ) {
             $field['err'] = $this->add_status_to_field( __( 'text field was sanitized'), $this->CAUTION_CLASS );
         }
-        if ( ! empty( $field['err'] ) ) echo $field['err'];
+        if ( ! empty( $field['err'] ) ) {
+            echo $field['err'];
+        }
         return $value;
     }
 
@@ -801,7 +799,9 @@ class PLSE_Fields {
             $field['err'] = $this->add_status_to_field( __( 'this is not a valid postal code' ), $this->ERROR_CLASS );
         }
         // render error messages next to field, if present (errors also appear on top of page)
-        if ( ! empty( $field['err'] ) ) echo $field['err'];
+        if ( ! empty( $field['err'] ) ) {
+            echo $field['err'];
+        }
         return $value;
     }
 
@@ -820,7 +820,13 @@ class PLSE_Fields {
             $field['err'] = $this->add_status_to_field( __( 'Invalid phone'), $this->ERROR_CLASS );
         }
         // render error messages next to field, if present (errors also appear on top of page)
-        if ( ! empty( $field['err'] ) ) echo $field['err'];
+        if ( ! empty( $field['err'] ) ) {
+            echo $field['err'];
+            $this->init->plugin_options_field_warning( $field );
+        } else {
+            $this->init->plugin_options_field_warning( $field, PLSE_ERASE );
+        }
+
         return $value;
     }
 
@@ -835,11 +841,19 @@ class PLSE_Fields {
         if ( $this->was_sanitized( $field, $value ) ) {
             $field['err'] = $this->add_status_to_field( __( 'field was sanitized'), $this->ERROR_CLASS );
         }
+
         if ( ! empty( $value) && ! $this->is_email( $value ) ) {
             $field['err'] = $this->add_status_to_field( __( 'Invalid email' ), $this->ERROR_CLASS );
         }
+
         // render error messages next to field, if present (errors also appear on top of page)
-        if ( ! empty( $field['err'] ) ) echo $field['err'];
+        if ( ! empty( $field['err'] ) ) {
+            echo $field['err'];
+            $this->init->plugin_options_field_warning( $field );
+        } else {
+            $this->init->plugin_options_field_warning( $field, PLSE_ERASE );
+        }
+
         return $value;
     }
 
@@ -863,12 +877,21 @@ class PLSE_Fields {
                 $value = $result['value']; // might be modified
             }
         }
-         // render error messages next to field, if present (errors also appear on top of page)
-         if ( ! empty( $field['err'] ) ) echo $field['err'];
+
+        // render error messages next to field, if present (errors also appear on top of page). 
+        if ( ! empty( $field['err'] ) ) {
+            echo $field['err'];
+            // filter out 'validated url' messages
+            if ( $field['err'] != PLSE_URL_VALIDATED ) {
+                $this->init->plugin_options_field_warning( $field );
+            }
+        } else {
+            $this->init->plugin_options_field_warning( $field, PLSE_ERASE );
+        }
+
          return $value;
 
     }
-
 
     /**
      * Render an integer field, validating min, max, float
@@ -906,7 +929,13 @@ class PLSE_Fields {
 
         $value = $this->render_simple_field( $field );
 
-        if ( $field['err'] ) echo $field['err'];
+        // render error messages next to field, if present (errors also appear on top of page)
+        if ( ! empty( $field['err'] ) ) {
+            echo $field['err'];
+            $this->init->plugin_options_field_warning( $field );
+        } else {
+            $this->init->plugin_options_field_warning( $field, PLSE_ERASE );
+        }
 
         return $value;
     }
@@ -946,7 +975,13 @@ class PLSE_Fields {
 
         $value = $this->render_simple_field( $field );
 
-        if ( $field['err'] ) echo $field['err'];
+        // render error messages next to field, if present (errors also appear on top of page)
+        if ( ! empty( $field['err'] ) ) {
+            echo $field['err'];
+            $this->init->plugin_options_field_warning( $field );
+        } else {
+            $this->init->plugin_options_field_warning( $field, PLSE_ERASE );
+        }
 
         return $value;
 
@@ -985,8 +1020,13 @@ class PLSE_Fields {
             $field['err'] = $this->add_status_to_field( __( 'field was sanitized'), $this->ERROR_CLASS );
         }
 
-        // render error messages next to field
-        if ( ! empty( $field['err'] ) ) echo $field['err'];
+        // render error messages next to field, if present (errors also appear on top of page)
+        if ( ! empty( $field['err'] ) ) {
+            echo $field['err'];
+            $this->init->plugin_options_field_warning( $field );
+        } else {
+            $this->init->plugin_options_field_warning( $field, PLSE_ERASE );
+        }
 
         return $value;
 
@@ -1024,14 +1064,20 @@ class PLSE_Fields {
             $field['err'] = $this->add_status_to_field( __( 'invalid date' ), $this->ERROR_CLASS );
         }
 
-        // check if dates are (1) expired, (2) invalid relative to another date, report results in metabox
+        /*
+         * check if dates are (1) expired, (2) invalid relative to another date, 
+         * report results in metabox
+         */
         if ( $field['validate_date'] == PLSE_OPTIONS_CURRENT_DATE ) {
             $this->is_expired_date( $field );
         } else if ( !empty( $field['validate_date'] ) ) {
             $this->is_valid_date( $field );
         }
 
-        if ( ! empty( $field['err'] ) ) echo $field['err'];
+        // we've already handled central plugin reporting, so don't do it here
+        if ( ! empty( $field['err'] ) ) {
+            echo $field['err'];
+        }
 
         return $value;
 
@@ -1109,6 +1155,8 @@ class PLSE_Fields {
         echo '<span class="plse-slider-output"></span>'; // class online used in JS, not in CSS
         echo '</div>';
         echo '<p>Slide the slider, or use keyboard arrow keys to adjust.</p>';
+
+        // errors in duration can't be determined here
 
         return $value;
 
@@ -1224,7 +1272,9 @@ class PLSE_Fields {
         echo '<div class="' . $class . '">';
         echo $this->render_label( $field );
         echo '<input type="' . $type .'" title="' . $title . '" id="' . $slug . '" name="' . $slug . '" autocomplete="on" class="plse-datalist" size="' . $size . '" value="' . $value . '" list="' . $list_id . '">';
-        if ( ! empty( $field['err'] ) ) echo $field['err'];
+        if ( ! empty( $field['err'] ) ) {
+            echo $field['err'];
+        }
         echo '</div>';
 
         // message describing how to use a datalist
@@ -1285,7 +1335,7 @@ class PLSE_Fields {
 
         }
 
-        // since option_lists come from the plugin, not validated
+        // since option_lists come from the plugin, we assume they are always valid
         echo '<div class="' . $class .'">';
         echo $this->render_label( $field );
         echo '<select title="' . $field['title'] . ' id="' . $slug . '" name="' . $slug . '" class="plse-option-select-dropdown">' . "\n";
@@ -1785,12 +1835,9 @@ class PLSE_Fields {
         $slug  = sanitize_key( $field['slug'] );
         $title = esc_html( $field['title'] );
         echo '<div class="' . $class . '">';
-        // split the data (message, post_id)
 
         // render the text field
         $value = $this->render_text_field( $field );
-
-        // render post_ID into a hyperlink to the problem post
 
         echo '</div>';
         return $value;
@@ -1816,7 +1863,5 @@ class PLSE_Fields {
     public function add_status_to_field ( $msg = '', $status_class = 'plse-input-msg-caution' ) {
         return '<span class="plse-input-msg ' . $status_class .'">' . $msg . '</span><br>';
     }
-
-
 
 }

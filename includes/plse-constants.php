@@ -306,3 +306,13 @@ if ( ! defined( 'PLSE_CPT_SLUG' ) ) {
 if ( ! defined( 'PLSE_CAT_SLUG' ) ) {
     define ( 'PLSE_CAT_SLUG', '-cat-slug' );
 }
+
+/**
+ * --------------------------------------------------------------------------
+ * CONSTANTS RELATED TO FIELD DATA
+ * --------------------------------------------------------------------------
+ */
+
+if ( ! defined( 'PLSE_URL_VALIDATED' ) ) {
+    define ( 'PLSE_URL_VALIDATED', 'validated' );
+}

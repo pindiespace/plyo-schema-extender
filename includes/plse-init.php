@@ -1197,8 +1197,6 @@ class PLSE_Init {
      */
     public function plugin_options_field_warning ( $field, $erase = false ) {
 
-        //delete_option( PLSE_OPTIONS_FIELD_WARNING );
-
         $curr_warning_arr = get_option( PLSE_OPTIONS_FIELD_WARNING );
 
         if ( $erase == PLSE_ERASE ) {
@@ -1210,6 +1208,11 @@ class PLSE_Init {
         } else {
 
             if ( ! is_array( $curr_warning_arr ) ) $curr_warning_arr = array();
+
+            if ( empty( $field['post_id'] ) ) {
+                $post = $this->get_post();
+                $field['post_id'] = $post->ID;
+            }
 
             $curr_warning_arr[ $field['slug'] ] = array( $field['err'], $field['post_id'], date( 'm/d/Y h:i:s a', time() ) );
 
@@ -1365,20 +1368,6 @@ class PLSE_Init {
      * Used when the plugin can't work (e.g. no Yoast)
      * -----------------------------------------------------------------------
      */
-
-    /**
-     * Add an error description next to a Schema field. This should be used 
-     * for specific error messages relative to the field, not if the field is empty.
-     * 
-     * @since    1.0.0
-     * @access   public
-     * @param    string    $msg  error message
-     * @param    string    $status_class controls appearance of message
-     * @return   string    wrap the error message in HTML for display
-     */
-    //public function add_status_to_field ( $msg = '', $status_class = 'plse-input-msg-caution' ) {
-    //    return '<span class="plse-input-msg ' . $status_class .'">' . $msg . '</span><br>';
-    //}
 
     /**
      * Add an error dialog at the top of the WP_Admin options explaining prblems.

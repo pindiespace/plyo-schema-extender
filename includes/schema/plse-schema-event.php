@@ -66,10 +66,10 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
                 'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_EVENT . '-type',
                 'label' => 'Event Type (defaults to "Event") if left blank',
                 'title' => 'Sub-Type of event',
-                'type'  => PLSE_INPUT_TYPES['DATALIST'],
-                'option_list' => 'event_types',
+                'type' => PLSE_INPUT_TYPES['SELECT_SINGLE'],
                 'required' => 'required',
                 'wp_data' => PLSE_DATA_POST_META,
+                'option_list' => 'event_types',
                 'start_of_block' => 'Primary Event Information'
             ),
 
@@ -282,7 +282,7 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
 
             'event_organizer_url' => array(
                 'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_EVENT . '-organizer-url',
-                'label' => 'The address of the Organizer (if not this site)',
+                'label' => 'The online address of the Organizer website (if not this site)',
                 'title' => 'URL leading to a third-party organizer, not this site\'s organization',
                 'type'  => PLSE_INPUT_TYPES['URL'],
                 'required' => '',
@@ -303,8 +303,8 @@ class PLSE_Schema_Event extends Abstract_Schema_Piece {
 
             'event_price_currency' => array(
                 'slug' => PLSE_OPTIONS_SLUG . PLSE_SCHEMA_EVENT . '-price-currency',
-                'label' => 'Web URL of the Organizer home page (if not this site)',
-                'title' => 'URL leading to a third-party organizer, not this site\'s organization',
+                'label' => 'Currency Needed to pay for the event',
+                'title' => 'The type of allowed money needed to pay for the event',
                 'type'  => PLSE_INPUT_TYPES['SELECT_SINGLE'],
                 'option_list' => 'currency',
                 'required' => '',
