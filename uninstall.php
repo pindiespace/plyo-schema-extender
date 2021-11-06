@@ -93,8 +93,6 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
     // get all defined Schema files, to get Schema fields
     $schema_list = $plse_init->get_available_schemas();
 
-    // load all the metabox field names
-    $schema_list = array();
     foreach ( $schema_list as $schema_label ) {
         $schema_fields[] = $this->load_schema_fields( $schema_label );
     }
@@ -102,7 +100,6 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
     $post_types = get_post_types( $args, $output, $operator );
 
     // TODO: check if 'page' and 'post' included
-    // TODO: run the meta delete
 
     /**
      * delete all meta data from pages, posts, custom posts

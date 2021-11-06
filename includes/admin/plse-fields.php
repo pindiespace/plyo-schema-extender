@@ -791,6 +791,8 @@ class PLSE_Fields {
      * @param    array    $field parameters
      */
     public function render_postal_field( $field ) {
+        // there is no 'postal' <input> type, so convert to text
+        $field['type'] = 'text';
         $value = $this->render_simple_field( $field );
         if ( $this->was_sanitized( $field, $value ) ) {
             $field['err'] = $this->add_status_to_field( __( 'field was sanitized' ), $this->ERROR_CLASS );

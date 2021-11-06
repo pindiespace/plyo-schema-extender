@@ -336,7 +336,7 @@ class PLSE_Options_Data {
                 // street address
                 'street' => array(
                     'slug'   => PLSE_LOCAL_STREET_ADDRESS_SLUG,
-                    'label'  => 'Address (apartment or office number)',
+                    'label'  => 'Street Number (apartment number or office number)',
                     'title'  => 'US and international street addresses are ok',
                     'type'   => PLSE_INPUT_TYPES['TEXT'],
                     'description'  => 'Organization Street Number (uses Yoast Local SEO if present)',
@@ -346,7 +346,7 @@ class PLSE_Options_Data {
                 // street name
                 'street2' => array(
                     'slug'   => PLSE_LOCAL_STREET_NAME_SLUG,
-                    'label'  => 'Address (street name)',
+                    'label'  => 'Street Name (e.g. East Willow Drive)',
                     'title'  => 'US and international street addresses are ok',
                     'type'   => PLSE_INPUT_TYPES['TEXT'],
                     'description'  => 'Street Name (uses Yoast Local SEO if present)',
@@ -364,7 +364,7 @@ class PLSE_Options_Data {
 
                 'state' => array(
                     'slug'   => PLSE_LOCAL_STATE_SLUG . '-state-field',
-                    'label'  => 'Full name or abbreviation',
+                    'label'  => 'Full state or region name or abbreviation (CA, California)',
                     'title'  => 'supply the state, province, regional location',
                     'type'   => PLSE_INPUT_TYPES['TEXT'],
                     'description'  => 'Organization State or region (uses Yoast Local SEO if present)',
@@ -373,7 +373,7 @@ class PLSE_Options_Data {
 
                 'country' => array(
                     'slug'   => PLSE_LOCAL_COUNTRY_SLUG,
-                    'label'  => 'Full name or abbreviation',
+                    'label'  => 'Full country name or abbreviation',
                     'title'  => 'Full name of country is best for Schema',
                     'type'   => PLSE_INPUT_TYPES['SELECT_SINGLE'],
                     'description'  => 'Organization Country (uses Yoast Local SEO if present)',
