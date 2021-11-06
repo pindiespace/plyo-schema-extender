@@ -595,6 +595,7 @@ class PLSE_Datalists {
      */
     private $currency = array(
         'USD' => 'United States dollar',
+        'CRYPTO' => 'Crypto',
         'AED' => 'United Arab Emirates dirham',
         'AFN' => 'Afghanistan afghani',
         'ALL' => 'Albanian lek',

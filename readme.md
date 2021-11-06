@@ -2,9 +2,7 @@
 
 A WordPress plugin for adding additional Schema to the 
 
-[Yoast SEO plugin]: https://yoast.com/	"Yoast SEO Plugin"
-
-.
+[Yoast SEO plugin]: https://yoast.com/	"Yoast SEO Plugin."
 
 Plyo Schema Extender (PLSE) provides interface for registering and managing some additional Schema defined on 
 
@@ -266,17 +264,14 @@ It's important that you test your schema in both validators. PLSE only does basi
 
     fails when PLSE is installed, unless you explicitly assign Custom Post Types to be processed by AMP. 
    
-
 2. Google's validator currently (2021) doesn't handle the Service or Game schema, but Google itself will use these schema during indexing. 
    
-
 3. If you are using the 
 
    [Wordpress AMP default]: https://wordpress.org/plugins/amp/	"Wordpress AMP default plugin"
 
    , make sure your AMP settings are set to "Standard" and you enable Advanced Settings -> Content Types -> Your Custom Post Type. Otherwise, you'll wee Web Console errors.
    
-
 4. Some things that are not supported in Plyo Schema Extender include:
 
    - offers
@@ -311,7 +306,6 @@ It's important that you test your schema in both validators. PLSE only does basi
 **Q:** *How would I add a new Schema type?*
 
 **A:** This requires custom coding in the plugin, so is not currently possible. 
-
 
 
 

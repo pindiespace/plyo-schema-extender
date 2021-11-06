@@ -516,19 +516,6 @@ class PLSE_Options_Data {
                     'max' => '10800', // 3 hours, in seconds
                 ),
 
-                'service_focus' => array(
-                    'slug' => PLSE_OPTIONS_SLUG . '-' . PLSE_SCHEMA_SERVICE . '-service_focus',
-                    'label' => 'Service Focus',
-                    'title' => 'Service Focus',
-                    'type' => PLSE_INPUT_TYPES['SELECT_SINGLE'],
-                    'description' => 'Most important of the services',
-                    'option_list' => array(
-                        'PHILKEY' => 'phil', // stores 'phil', displays 'PHIL'
-                        'BOBKEY' => 'bob',
-                        'KRESLKEY' => 'kresl'
-                    ),
-                ),
-
             )
 
         ),
