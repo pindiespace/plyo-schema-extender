@@ -338,15 +338,15 @@ class PLSE_Init {
 
             if ( is_archive() || is_category() || is_home() ) {
 
-                //get_all_cpt_names
+                // get_all_cpt_names
                 $my_cpt_names = $this->get_all_cpt_names();
 
-                // Add CPT to the category
+                // add CPT to the category
                 $wp_query->set( 'post_type', $my_cpt_names );
             }
 
             if ( $wp_query->is_search() ) {
-                // Add CPT to the search
+                // add CPT to the search
                 $wp_query->set( 'post_type', $my_cpt_names );
             }
 

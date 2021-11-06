@@ -385,6 +385,12 @@ class PLSE_Metabox {
             echo '<div class="plse-input-err-msg"><p>' . __( 'Error During Load' ) . '</p><span>' . $e . '</span></div>';
         }
 
+        ///////////////////////////////////////////////
+        ///////////////////
+        echo 'DEBUG:::' . get_option( PLSE_DEBUG );
+        //////////////////
+        ///////////////////////////////////////////////
+
         // descriptive metabox message
         echo '<p class="plse-meta-message">' . ucfirst( $msg ) . ' Schema. ' . $meta_field_args['message'] . '</p>';
         echo '<ul class="plse-meta-list">';

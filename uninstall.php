@@ -48,7 +48,7 @@ if ( get_option( PLSE_UNINSTALL_OPTIONS_DELETE ) == true ) {
     // require options fields array list for plugin admin configuration
     //require_once PLSE_SCHEMA_EXTENDER_PATH . '/includes/admin/plse-options-data.php';
 
-    $options_data = PLSE_Options_Data::getInstance();
+    /////////////$options_data = PLSE_Options_Data::getInstance();
     $options_fields = $options_data->get_options_fields();
     $toggle_fields = $options_data->get_toggles_fields();
 
@@ -100,6 +100,11 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
     $post_types = get_post_types( $args, $output, $operator );
 
     // TODO: check if 'page' and 'post' included
+    ///////////////////////////////////////////////////////////////////
+    /////////////////
+    update_option( PLSE_DEBUG, $schema_fields );
+    ////////////////
+    ///////////////////////////////////////////////////////////////////
 
     /**
      * delete all meta data from pages, posts, custom posts

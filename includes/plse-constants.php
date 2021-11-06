@@ -316,3 +316,7 @@ if ( ! defined( 'PLSE_CAT_SLUG' ) ) {
 if ( ! defined( 'PLSE_URL_VALIDATED' ) ) {
     define ( 'PLSE_URL_VALIDATED', 'validated' );
 }
+
+if ( ! defined( 'PLSE_DEBUG' ) ) {
+    define ( 'PLSE_DEBUG', 'plse-debug' );
+}
