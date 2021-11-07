@@ -61,6 +61,12 @@ if ( get_option( PLSE_UNINSTALL_OPTIONS_DELETE ) == true ) {
 } // end of plugin options tables deletes
 
 
+//////////////////////////////////
+///////////////////
+update_option( PLSE_DEBUG, "OUTSIDE META_DELETE");
+//////////////////
+//////////////////////////////////
+
 /**
  * ---------------------------------------------------------------------
  * Check plugin options to see if meta-data should be deleted
@@ -102,7 +108,10 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
     // TODO: check if 'page' and 'post' included
     ///////////////////////////////////////////////////////////////////
     /////////////////
-    update_option( PLSE_DEBUG, $schema_fields );
+    update_option( PLSE_DEBUG, 'INSIDE META BIGLERRRRR' );
+    // update_option( PLSE_DEBUG, $schema_list );
+    // update_option( PLSE_DEBUG, $schema_fields );
+    // update_option( PLSE_DEBUG, $post_types );
     ////////////////
     ///////////////////////////////////////////////////////////////////
 
