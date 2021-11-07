@@ -1370,6 +1370,18 @@ class PLSE_Init {
      */
 
     /**
+     * Check if an option exists in settings for the plugin
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @return   boolean    if true, option exists, else false
+     */
+    public function option_exists( $name, $site_wide = false ){
+        global $wpdb; 
+        return $wpdb->query( "SELECT * FROM " . ($site_wide ? $wpdb->base_prefix : $wpdb->prefix) . "options WHERE option_name ='$name' LIMIT 1" );
+    }
+
+    /**
      * Add an error dialog at the top of the WP_Admin options explaining prblems.
      * 
      * @since    1.0.0

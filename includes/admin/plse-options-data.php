@@ -245,24 +245,22 @@ class PLSE_Options_Data {
                     'description'  => 'If this is selected, URLs typed into custom Schema fields in posts will be checked online. It may result in slow loading.',
                 ),
 
-                // these options control whether plugin data is deleted on uninstall
+                // delete all meta data attached to pages and posts
+                'meta_delete' => array(
+                    'slug' => PLSE_UNINSTALL_META_DELETE,
+                    'label' => 'Delete all Schema meta data associated with pages and posts.',
+                    'title' => 'Delete Schema data when you uninstall this plugin',
+                    'type' => PLSE_INPUT_TYPES['CHECKBOX'],
+                    'description' => 'If this option is checked, all Schema data applied to pages and posts will be deleted when you uninstall this plugin.'
+                ),
 
-                // delete options data
+                // this options control whether plugin data is deleted on uninstall
                 'uninstall_delete' => array(
                     'slug' => PLSE_UNINSTALL_OPTIONS_DELETE,
                     'label' => 'Delete all configuration data for the plugin when the plugin is uninstalled.',
                     'title' => 'Delete configuration when you uninstall this plugin',
                     'type' => PLSE_INPUT_TYPES['CHECKBOX'],
                     'description' => 'If this option is checked, all option data will be deleted when you uninstall this plugin.'
-                ),
-
-                // delete all meta data attached to pages and posts
-                'mets_delete' => array(
-                    'slug' => PLSE_UNINSTALL_META_DELETE,
-                    'label' => 'Delete all Schema meta data associated with pages and posts.',
-                    'title' => 'Delete Schema data when you uninstall this plugin',
-                    'type' => PLSE_INPUT_TYPES['CHECKBOX'],
-                    'description' => 'If this option is checked, all Schema data applied to pages and posts will be deleted when you uninstall this plugin.'
                 ),
 
             )
@@ -334,24 +332,24 @@ class PLSE_Options_Data {
 
             'fields' => array(
 
-                // street address
-                'street' => array(
-                    'slug'   => PLSE_LOCAL_STREET_ADDRESS_SLUG,
-                    'label'  => 'Street Number (apartment number or office number)',
-                    'title'  => 'US and international street addresses are ok',
-                    'type'   => PLSE_INPUT_TYPES['TEXT'],
-                    'description'  => 'Organization Street Number (uses Yoast Local SEO if present)',
-                    'yoast_slug'  => 'location_address'
-                ),
-
                 // street name
                 'street2' => array(
                     'slug'   => PLSE_LOCAL_STREET_NAME_SLUG,
-                    'label'  => 'Street Name (e.g. East Willow Drive)',
+                    'label'  => 'Street Name and Number (e.g. 2113 East Willow Drive)',
                     'title'  => 'US and international street addresses are ok',
                     'type'   => PLSE_INPUT_TYPES['TEXT'],
                     'description'  => 'Street Name (uses Yoast Local SEO if present)',
                     'yoast_slug'  => 'location_address_2'
+                ),
+
+                // apartment or office number
+                'street' => array(
+                    'slug'   => PLSE_LOCAL_STREET_ADDRESS_SLUG,
+                    'label'  => 'Apartment number (#2) or office number (123)',
+                    'title'  => 'US and international street addresses are ok',
+                    'type'   => PLSE_INPUT_TYPES['TEXT'],
+                    'description'  => 'Organization Street Number (uses Yoast Local SEO if present)',
+                    'yoast_slug'  => 'location_address'
                 ),
 
                 'city' => array(

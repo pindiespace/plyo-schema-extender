@@ -980,6 +980,28 @@ class PLSE_Options {
     }
 
     /**
+     * Generate an error string for invalid fields
+     * 
+     * @since    1.0.0
+     * @access   public
+     * @param    string    $in    incoming validation result
+     * @param    string    $type  type ('Email', 'Postal'....)
+     * @return   string    error message
+     */
+    public function generate_validation_error_string ( $in, $type ) {
+        if ( empty( $out ) ) {
+            $t = 'Missing';
+            $q = '';
+            $r = '';
+        } else {
+            $t = 'Invalid';
+            $q = '(extra characters?): ("'.$out.'")';
+            $r = 're-';
+        }
+        return  '<span style="color:red">Error:</span> ' . __( $t . ' ' . $type . ' option' . $q .  ', please ' . $r . 'enter' );
+    }
+
+    /**
      * Validate hidden (text-like) field. Used when the Options API saves a value.
      * 
      * @since    1.0.0
@@ -988,9 +1010,6 @@ class PLSE_Options {
      * @return   mixed     $out   validated input data
      */
     public function validate_hidden_field ( $in ) { 
-
-        // check if this is a first-time install
-        if ( get_option( PLSE_INSTALL_OLD_SLUG ) === false ) return '';
 
         $out = $in = sanitize_text_field( trim( $in ) );
         if ( ! $out || empty( $out ) || strlen( $out ) != strlen( $in ) ) {
@@ -1027,19 +1046,19 @@ class PLSE_Options {
      */
     public function validate_tel_field ( $in ) {
 
-        // check if this is a first-time install
-        if ( get_option( PLSE_INSTALL_OLD_SLUG ) === false ) return '';
-
         $out = $in = trim( sanitize_text_field( $in ) );
         if( ! $this->fields->is_phone( $out ) ) {
-            add_settings_error(
-                $this->option_group,
-                'phone_validation_error',
-                '<span style="color:red">Error:</span> ' . __( 'Invalid Phone option (empty or extra characters?): ("'.$out.'"), please re-enter' ),
-                'error'
-            );
+                add_settings_error(
+                    $this->option_group,
+                    'phone_validation_error',
+                    $this->generate_validation_error_string( $out, 'Phone' ),
+                    //'<span style="color:red">Error:</span> ' . __( $t . ' Phone option ' . $q .  ', please re-enter' ),
+                    'error'
+                );
         }
+
         return $out;
+
     }
 
     /**
@@ -1052,15 +1071,13 @@ class PLSE_Options {
      */
     public function validate_postal_field ( $in ) {
 
-        // check if this is a first-time install
-        if ( get_option( PLSE_INSTALL_OLD_SLUG ) === false ) return '';
-
         $out = $in = trim( sanitize_text_field ( $in ) );
         if ( ! $this->fields->is_postal( $out ) ) {
             add_settings_error(
                 $this->option_group,
                 'phone_validation_error',
-                '<span style="color:red">Error: </span>' . __( 'Invalid Postal Code option (empty or extra characters): ("'.$out.'"), please re-enter' ),
+                $this->generate_validation_error_string( $out, 'Postal' ),
+                //'<span style="color:red">Error: </span>' . __( $t . ' Postal Code option ' . $q . ', please re-enter' ),
                 'error'
             );
         }
@@ -1077,15 +1094,13 @@ class PLSE_Options {
      */
     public function validate_email_field ( $in ) {
 
-        // check if this is a first-time install
-        if ( get_option( PLSE_INSTALL_OLD_SLUG ) === false ) return '';
-
         $out = $in = sanitize_email( trim( $in ) );
         if ( ! $this->fields->is_email( $out ) ) {
             add_settings_error(
                 $this->option_group,
                 'email_validation_error',
-                '<span style="color:red">Error:</span>' . __( 'Invalid Email option (empty or empty characters): ("'. sanitize_email( $in ) .'"), please re-enter' ),
+                $this->generate_validation_error_string( $out, 'Email' ),
+                //'<span style="color:red">Error:</span>' . __( $t . ' Email option ' . $q . ', please re-enter' ),
                 'error'
             );
         }
@@ -1125,15 +1140,13 @@ class PLSE_Options {
      */
     public function validate_int_field ( $in ) {
 
-        // check if this is a first-time install
-        if ( get_option( PLSE_INSTALL_OLD_SLUG ) === false ) return '';
-
         $out = sanitize_text_field( trim( $in ) );
         if ( ! $this->fields->is_int( $out ) ) {
             add_settings_error(
                 $this->option_group,
                 'int_validation_error',
-                '<span style="color:red">Error:</span>' . __( 'Invalid Integer (empty or not a number): ("'. $out .'"), please re-enter' ),
+                $this->generate_validation_error_string( $out, 'Integer' ),
+                ///'<span style="color:red">Error:</span>' . __( 'Invalid Integer ' . $q . ', please re-enter' ),
                 'error'
             );
         }
@@ -1154,6 +1167,7 @@ class PLSE_Options {
             add_settings_error(
                 $this->option_group,
                 'float_validation_error',
+                $this->generate_validation_error_string( $out, 'Float number' ),
                 '<span style="color:red">Error:</span>' . __( 'Invalid Float ('. $out .'), please re-enter' ),
                 'error'
             );

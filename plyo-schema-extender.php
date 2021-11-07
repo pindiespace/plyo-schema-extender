@@ -64,13 +64,13 @@ if ( ! defined( 'PLSE_SCHEMA_EXTENDER_PATH' ) ) {
  */
 
 // flag indicating that the plugin has run at least once
-if ( ! defined( 'PLSE_INSTALL_OLD_SLUG' ) ) {
-    define( 'PLSE_INSTALL_OLD_SLUG', 'plse_options_old' );
+if ( ! defined( 'PLSE_INSTALL_STATUS' ) ) {
+    define( 'PLSE_INSTALL_STATUS', 'plse_options_old' );
 }
 
-// value written on first run of installed plugin
-if ( ! defined( 'PLSE_INSTALL_OLD_SLUG_VALUE' ) ) {
-    define( 'PLSE_INSTALL_OLD_SLUG_VALUE', 'installed' );
+// value written on activation installed plugin into PLSE_INSTALL_STATUS
+if ( ! defined( 'PLSE_INSTALL_ACTIVATED' ) ) {
+    define( 'PLSE_INSTALL_ACTIVATED', 'activated' );
 }
 
 // remove option values during plugin uninstall
@@ -243,10 +243,9 @@ function set_firsttime_defaults () {
     check_admin_referer( "activate-plugin_{$plugin}" );
 
     // if this is a new install (options flag set)
-    if ( ! get_option( PLSE_INSTALL_OLD_SLUG ) ) {
+    if ( ! get_option( PLSE_INSTALL_STATUS ) ) {
 
         if ( is_admin() && current_user_can( 'administrator' ) ) {
-            update_option( PLSE_INSTALL_OLD_SLUG, PLSE_INSTALL_OLD_SLUG_VALUE );
 
             // add values for a few constants
             // TODO:

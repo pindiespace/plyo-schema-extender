@@ -81,6 +81,8 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
     $post_types = get_post_types( $args, $output, $operator );
 
     // TODO: check if 'page' and 'post' included
+    // TODO: fix empty fields
+    // TODO: === is the problem, not false
     ///////////////////////////////////////////////////////////////////
     /////////////////
     // update_option( PLSE_DEBUG, $schema_list );
@@ -130,9 +132,6 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
  * ---------------------------------------------------------------------
  */
 if ( get_option( PLSE_UNINSTALL_OPTIONS_DELETE ) == true ) {
-
-    // remove the firsttime flag set with the activation hook in plyo-schema-extender.php
-    delete_option( PLSE_INSTALL_OLD_SLUG );
 
     // require options fields array list for plugin admin configuration
     //require_once PLSE_SCHEMA_EXTENDER_PATH . '/includes/admin/plse-options-data.php';
