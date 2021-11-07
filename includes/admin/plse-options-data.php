@@ -257,15 +257,16 @@ class PLSE_Options_Data {
                 ),
 
                 // delete all meta data attached to pages and posts
-                'meta_delete' => array(
+                'mets_delete' => array(
                     'slug' => PLSE_UNINSTALL_META_DELETE,
-                    'label' => 'Delete all Schema meta-data associated with pages and posts when the plugin is uninstalled.',
-                    'title' => 'Delete Schema data when you delete this plugin',
+                    'label' => 'Delete all Schema meta data associated with pages and posts.',
+                    'title' => 'Delete Schema data when you uninstall this plugin',
                     'type' => PLSE_INPUT_TYPES['CHECKBOX'],
-                    'description' => 'If this option is checked, all the Schema data applied to pages and posts will be deleted when you uninstall this plugin.'
+                    'description' => 'If this option is checked, all Schema data applied to pages and posts will be deleted when you uninstall this plugin.'
                 ),
 
             )
+
         ),
 
         // general data, which may be imported from Yoast Local SEO if it exists
