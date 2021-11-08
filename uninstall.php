@@ -75,7 +75,7 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
     $schema_list = $plse_init->get_available_schemas();
 
     foreach ( $schema_list as $schema_label ) {
-        $schema_fields[] = $this->load_schema_fields( $schema_label );
+        $schema_fields[] = $plse_metabox->load_schema_fields( $schema_label );
     }
 
     $post_types = get_post_types( $args, $output, $operator );
@@ -85,7 +85,7 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
     // TODO: === is the problem, not false
     ///////////////////////////////////////////////////////////////////
     /////////////////
-    // update_option( PLSE_DEBUG, $schema_list );
+    update_option( PLSE_DEBUG, $schema_list );
     // update_option( PLSE_DEBUG, $schema_fields );
     // update_option( PLSE_DEBUG, $post_types );
     ////////////////
