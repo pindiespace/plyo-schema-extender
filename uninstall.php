@@ -80,15 +80,10 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
     $operator = 'and'; // 'and' or 'or'
     $post_types = get_post_types( $args, $output, $operator );
 
-    // TODO: check if 'page' and 'post' included
-    // TODO: fix empty fields
-    // TODO: === is the problem, not false
+
     ///////////////////////////////////////////////////////////////////
-    /////////////////
-    //update_option( PLSE_DEBUG, $schema_list ); // event, game service
-    //update_option( PLSE_DEBUG, $schema_fields ); // all schema fields in overall schema array
-    //update_option( PLSE_DEBUG, $post_types );
-    $bob = ['start of array...'];
+    ////////////////
+    ////////$bob = ['start of array...'];
     ////////////////
     ///////////////////////////////////////////////////////////////////
 
@@ -122,14 +117,14 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
 
                 $fields = $field_array['fields'];
 
+                // https://developer.wordpress.org/reference/functions/metadata_exists/
                 foreach ( $fields as $field ) {
-                    // delete_metadata('post', 0, $field['slug'], '', true);
-                    // https://developer.wordpress.org/reference/functions/metadata_exists/
+                   
                     if ( metadata_exists( 'post', $curr_post->ID, $field['slug'] ) ) {
-                        $bob[] = '+++' . $post_type . '-' . $curr_post->ID . '-' . $field['slug'] . '-EXISTS-, ';
+                        /////////////$bob[] = '+++' . $post_type . '-' . $curr_post->ID . '-' . $field['slug'] . '-EXISTS-, ';
                         delete_metadata( 'post', 0, $field['slug'], '', true );
                     } else {
-                        $bob[] = '---' . $post_type . '-'. $curr_post->ID . '-' . $field['slug'] . '-NOT_EXIST-, ';
+                        //////////////$bob[] = '---' . $post_type . '-'. $curr_post->ID . '-' . $field['slug'] . '-NOT_EXIST-, ';
                     }
 
                 }
@@ -142,7 +137,7 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
 
     ////////////////////////////////////////////////////
     ///////////////////////////////
-    update_option( PLSE_DEBUG, $bob );
+    //////////update_option( PLSE_DEBUG, $bob );
     ///////////////////////////////
     ////////////////////////////////////////////////////
 

@@ -159,21 +159,32 @@ You might use these if your website represents a single schema under Service, Ga
 
 Schema data entry appears as a set of empty meta-boxes in your pages and posts. The meta-boxes will appear under the fields added by Yoast SEO itself.
 
-- To enter your data, just type. Some fields may let you use the WordPress Media Library to select an image, or upload one from your local system.
-- Image fields that accept an address (URL) may also create a small thumbnail image, so you can check if it worked. 
+- Pages, posts, and Custom Post Types can all have schema independently.
+- To display a schema for a page or post, assign a category. Set the categories used to assign schema in the plugin options for each schema type.
+- To display a schema for a Custom Post Type, create the CPT, then assign it to a schema in the plugin options.
+- Load the page, and scroll down past the Yoast data. If you assigned your category or CPT correctly you will see additional schema fields.
+- To enter your data, just type. 
+- Some fields let you use the WordPress Media Library to select an image, or upload one from your local system.
+- Some Image fields that accept an address (URL).
+- If you assign an image by URL, it may also create a small thumbnail image, so you can check if it worked. 
 - The Video URL fields check either YouTube or Vimeo, and create a mini-player if the URL is correct, along with a thumbnail image.
+- Some fields are "repeaters," meaning you can set multiple values for that field. The values will be turned into a list in the final schema data.
 
-The plugin flags some meta box fields that are required for each schema with a warning message in the upper-right, as seen here:
+The PLSE plugin flags some meta box fields that are known to be required with a warning message in the upper-right, as seen here:
 
 ![image-20211103164218449](assets/docs/image-20211103164218449.png)
 
-If you don't fill these required fields in, or fill them in incorrectly, your schema data will be written, but PLSE will flag the error (make sure you refresh the page manually):
+If you don't fill these required fields in, or fill them in incorrectly, your schema data will be written, but PLSE will flag the error the next time you save and reload the web page (make sure you reload/refresh the page manually after saving):
 
 ![image-20211103170403033](assets/docs/image-20211103170403033.png)
 
 
 
-The plugin also keeps links to invalid pages and posts under the Config flag in the plugin.
+The plugin also generates a list of invalid pages and posts under the Config tab in the plugin.
+
+
+
+## Dynamic URL Checks
 
 Adding in the Internet address of a website, image, or other asset is common. PLSE expects these web addresses to be in URL (Uniform Resource Locator) format. If you want PLSE to check if your URLs are valid, select the following option in the plugin Config tab:
 
@@ -201,16 +212,14 @@ A validated URL will look like the example below:
 
 ## Checking for Content Errors
 
-Some fields in the schema can be flagged when they have valid data, but the data would conflict with other data in the schema. For example, if you create an Event, and you indicate a end date *before* a start date, that error will be caught by PLSE, and displayed in the PLSE plugin options. 
+Some fields in the schema will be flagged when they have valid data, but the data would conflict with other data already in the schema. For example, if you create an Event, and you indicate a end date that is *before* a start date for the event, that error will be caught by PLSE, and displayed in the PLSE plugin options. 
 
 ![image-20211104085538428](assets/docs/image-20211104085538428.png)
 
-To see these errors:
+**To see these errors:**
 
-1. Edit a schema in a page or post
-2. Select "save" or "update" button
-3. Navigate to the PLSE in the admin view
-4. Click on the Config tag
+1. Navigate to the PLSE in the admin view
+2. Click on the Config tag
 
 The error or warning will be listed, along with a link back to the page or post. To fix it, go back to the page or post, look for the error, save or update, and reload the PLSE admin screen.
 
@@ -237,7 +246,11 @@ All schema data is appended to the default Yoast SEO schema values. If you do a 
 <!-- / Yoast SEO plugin. -->
 ```
 
+The plugin does NOT have an option to create schema data in the HTML markup - all schema are added to the existing Yoast schema JSON string.
 
+
+
+## Validating Your Schema
 
 After you've confirmed that the schema is on the page, it should be checked with a schema validator. There are two schema validators you should use:
 
