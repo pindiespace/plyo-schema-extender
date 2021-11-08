@@ -87,9 +87,11 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
     /////////////////
     //update_option( PLSE_DEBUG, $schema_list ); // event, game service
     //update_option( PLSE_DEBUG, $schema_fields ); // all schema fields in overall schema array
-    update_option( PLSE_DEBUG, $post_types );
+    //update_option( PLSE_DEBUG, $post_types );
+    $bob = ['start of array...'];
     ////////////////
     ///////////////////////////////////////////////////////////////////
+
 
     /**
      * delete all meta data from pages, posts, custom posts
@@ -106,6 +108,12 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
             )
         );
 
+        /////////////////////////////////////
+        ///////////////////////
+        $bob['post_count'] = count( $posts );
+        ///////////////////////
+        /////////////////////////////////////
+
         // loop through the posts, scan for all defined Schema fields, delete meta-data if present
         foreach ( $posts as $curr_post ) {
 
@@ -115,6 +123,7 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
                 $fields = $field_array['fields'];
 
                 foreach ( $fields as $field ) {
+                    $bob[] = $field['slug'] . ', ';
                     // delete_metadata('post', 0, $field['slug'], '', true);
                     // https://developer.wordpress.org/reference/functions/metadata_exists/
                     if ( metadata_exists( $post_type, $curr_post->ID, $field['slug'] ) ) {
@@ -128,6 +137,12 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
         }
 
     }
+
+    ////////////////////////////////////////////////////
+    ///////////////////////////////
+    update_option( PLSE_DEBUG, $bob );
+    ///////////////////////////////
+    ////////////////////////////////////////////////////
 
 }
 
