@@ -86,8 +86,8 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
     ///////////////////////////////////////////////////////////////////
     /////////////////
     //update_option( PLSE_DEBUG, $schema_list ); // event, game service
-    update_option( PLSE_DEBUG, $schema_fields );
-    // update_option( PLSE_DEBUG, $post_types );
+    //update_option( PLSE_DEBUG, $schema_fields ); // all schema fields in overall schema array
+    update_option( PLSE_DEBUG, $post_types );
     ////////////////
     ///////////////////////////////////////////////////////////////////
 
@@ -110,12 +110,17 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
         foreach ( $posts as $curr_post ) {
 
             // loop through each post type, deleting all Schema keys
-            foreach ( $schema_fields as $field ) {
+            foreach ( $schema_fields as $field_array ) {
 
-                // delete_metadata('post', 0, $field['slug'], '', true);
-                // https://developer.wordpress.org/reference/functions/metadata_exists/
-                if ( metadata_exists( $post_type, $curr_post->ID, $field['slug'] ) ) {
-                    delete_metadata( $post_type, 0, $field['slug'], '', true );
+                $fields = $field_array['fields'];
+
+                foreach ( $fields as $field ) {
+                    // delete_metadata('post', 0, $field['slug'], '', true);
+                    // https://developer.wordpress.org/reference/functions/metadata_exists/
+                    if ( metadata_exists( $post_type, $curr_post->ID, $field['slug'] ) ) {
+                        delete_metadata( $post_type, 0, $field['slug'], '', true );
+                    }
+
                 }
 
             }
