@@ -387,7 +387,8 @@ class PLSE_Metabox {
 
         ///////////////////////////////////////////////
         ///////////////////
-        echo 'DEBUG:::' . get_option( PLSE_DEBUG );
+        //////echo 'DEBUG:::' . get_option( PLSE_DEBUG );
+        print_r( get_option( PLSE_DEBUG ) );
         //////////////////
         ///////////////////////////////////////////////
 

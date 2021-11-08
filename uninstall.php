@@ -85,8 +85,8 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
     // TODO: === is the problem, not false
     ///////////////////////////////////////////////////////////////////
     /////////////////
-    update_option( PLSE_DEBUG, $schema_list );
-    // update_option( PLSE_DEBUG, $schema_fields );
+    //update_option( PLSE_DEBUG, $schema_list ); // event, game service
+    update_option( PLSE_DEBUG, $schema_fields );
     // update_option( PLSE_DEBUG, $post_types );
     ////////////////
     ///////////////////////////////////////////////////////////////////
