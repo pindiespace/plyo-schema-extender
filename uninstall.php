@@ -123,14 +123,13 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
                 $fields = $field_array['fields'];
 
                 foreach ( $fields as $field ) {
-                    $bob[] = $field['slug'] . ', ';
                     // delete_metadata('post', 0, $field['slug'], '', true);
                     // https://developer.wordpress.org/reference/functions/metadata_exists/
                     if ( metadata_exists( $post_type, $curr_post->ID, $field['slug'] ) ) {
-                        $bob[] = '-EXISTS-, ';
+                        $bob[] = '++-' . $post_type . '-' . $curr_post->ID . $field['slug'] . '-EXISTS-, ';
                         delete_metadata( $post_type, 0, $field['slug'], '', true );
                     } else {
-                        $bob[] = '-NOT_EXIST-, ';
+                        $bob[] = '-' . $post_type . '-'. $curr_post->ID . $field['slug'] . '-NOT_EXIST-, ';
                     }
 
                 }
