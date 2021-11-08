@@ -63,13 +63,7 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
     require_once PLSE_SCHEMA_EXTENDER_PATH . '/includes/admin/plse-metabox.php';
     $plse_metabox = PLSE_Metabox::getInstance();
 
-    $args = array(
-        'public'   => true,
-        '_builtin' => false,
-    );
 
-    $output = 'names'; // names or objects, note names is the default
-    $operator = 'and'; // 'and' or 'or'
 
     // get all defined Schema files, to get Schema fields
     $schema_list = $plse_init->get_available_schemas();
@@ -78,6 +72,12 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
         $schema_fields[] = $plse_metabox->load_schema_fields( $schema_label );
     }
 
+    $args = array(
+        'public'   => true,
+        '_builtin' => false,
+    );
+    $output = 'names'; // names or objects, note names is the default
+    $operator = 'and'; // 'and' or 'or'
     $post_types = get_post_types( $args, $output, $operator );
 
     // TODO: check if 'page' and 'post' included
@@ -110,7 +110,7 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
 
         /////////////////////////////////////
         ///////////////////////
-        $bob['post_count'] = count( $posts );
+        $bob[] = 'POST_TYPE:'. $post_type;
         ///////////////////////
         /////////////////////////////////////
 
@@ -127,7 +127,10 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
                     // delete_metadata('post', 0, $field['slug'], '', true);
                     // https://developer.wordpress.org/reference/functions/metadata_exists/
                     if ( metadata_exists( $post_type, $curr_post->ID, $field['slug'] ) ) {
+                        $bob[] = '-EXISTS-, ';
                         delete_metadata( $post_type, 0, $field['slug'], '', true );
+                    } else {
+                        $bob[] = '-NOT_EXIST-, ';
                     }
 
                 }
