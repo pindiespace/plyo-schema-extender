@@ -79,56 +79,41 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
     $operator = 'and'; // 'and' or 'or'. 
     $post_types = get_post_types( $args, $output, $operator );
 
-    // add relevant builtins, since we didn't do it above
-    $post_types[] = 'page';
-    $post_types[] = 'post';
-
-    ///////////////////////////////////////////////////////////////////
-    ////////////////
+    ///////////////////////////////////////////////
+    //////////////////////
     $bob = array();
-    //////////////$bob = $post_types;
-    /////////////$bob[] = ' NUM:' . count( $post_types );
-    ////////////////
-    ///////////////////////////////////////////////////////////////////
+    //////////////////////
+    ///////////////////////////////////////////////
 
-    /**
-     * delete all meta data from pages, posts, custom posts
-     */
-    foreach ( $post_types as $post_type ) {
+    // get all the posts for a cpt 
+    $posts = get_posts( 
+        array(
+        'post_type' => $post_types,
+        'post_status' => 'any',
+        'numberposts' => -1
+        )
+    );
 
-        // get all the posts for a cpt 
-        $posts = get_posts( 
-            array(
-            'post_type' => $post_type,
-            //'_builtin' => true,
-            'post_status' => 'publish',
-            'numberposts' => -1
-            // 'order'    => 'ASC'
-            )
-        );
+    // loop through the posts, scan for all defined Schema fields, delete meta-data if present
+    foreach ( $posts as $curr_post ) {
 
-        /////////////////////////////////////
-        ///////////////////////
-        $bob[] = 'NTH POST_TYPE:'. $post_type;
-        ///////////////////////
-        /////////////////////////////////////
+        $post_type = get_post_type( $curr_post->ID );
+        $bob[] = 'CURRPOSTTYPE::' . $post_type;
 
-        // loop through the posts, scan for all defined Schema fields, delete meta-data if present
-        foreach ( $posts as $curr_post ) {
+        // loop through all the schemas defined by the plugin
+        foreach ( $schema_fields as $field_array ) {
 
-            // loop through each post type, deleting all Schema keys
-            foreach ( $schema_fields as $field_array ) {
-
+                // get all the meta-fields associated with each Schema
                 $fields = $field_array['fields'];
 
                 // https://developer.wordpress.org/reference/functions/metadata_exists/
                 foreach ( $fields as $field ) {
 
                     if ( metadata_exists( 'game', $curr_post->ID, $field['slug'] ) ) {
-                        $bob[] = '+++' . $post_type . '-' . $curr_post->ID . '-' . $field['slug'] . '-EXISTS-, ';
+                        $bob[] = '+++(' . $post_type . ')-' . $curr_post->ID . '-' . $field['slug'] . '-EXISTS-, ';
                         delete_metadata( $post_type, 0, $field['slug'], '', true );
                     } else {
-                        $bob[] = '---' . $post_type . '-'. $curr_post->ID . '-' . $field['slug'] . '-NOT_EXIST-, ';
+                        $bob[] = '---[' . $post_type . ']-'. $curr_post->ID . '-' . $field['slug'] . '-NOT_EXIST-, ';
                     }
 
                 }
@@ -144,8 +129,6 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
     update_option( PLSE_DEBUG, $bob );
     ///////////////////////////////
     ////////////////////////////////////////////////////
-
-}
 
 /**
  * ---------------------------------------------------------------------
