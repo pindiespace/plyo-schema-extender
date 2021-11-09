@@ -105,6 +105,7 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
 
         /////////////////////////////////////
         ///////////////////////
+        $bob = array();
         $bob[] = 'POST_TYPE:'. $post_type;
         ///////////////////////
         /////////////////////////////////////
@@ -121,10 +122,10 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
                 foreach ( $fields as $field ) {
                    
                     if ( metadata_exists( 'post', $curr_post->ID, $field['slug'] ) ) {
-                        /////////////$bob[] = '+++' . $post_type . '-' . $curr_post->ID . '-' . $field['slug'] . '-EXISTS-, ';
+                        $bob[] = '+++' . $post_type . '-' . $curr_post->ID . '-' . $field['slug'] . '-EXISTS-, ';
                         delete_metadata( 'post', 0, $field['slug'], '', true );
                     } else {
-                        //////////////$bob[] = '---' . $post_type . '-'. $curr_post->ID . '-' . $field['slug'] . '-NOT_EXIST-, ';
+                        /$bob[] = '---' . $post_type . '-'. $curr_post->ID . '-' . $field['slug'] . '-NOT_EXIST-, ';
                     }
 
                 }
@@ -137,7 +138,7 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
 
     ////////////////////////////////////////////////////
     ///////////////////////////////
-    //////////update_option( PLSE_DEBUG, $bob );
+    update_option( PLSE_DEBUG, $bob );
     ///////////////////////////////
     ////////////////////////////////////////////////////
 
