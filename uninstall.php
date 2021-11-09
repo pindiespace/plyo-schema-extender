@@ -111,7 +111,7 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
 
                     if ( metadata_exists( 'game', $curr_post->ID, $field['slug'] ) ) {
                         $bob[] = '+++(' . $post_type . ')-' . $curr_post->ID . '-' . $field['slug'] . '-EXISTS-, ';
-                        delete_metadata( $post_type, 0, $field['slug'], '', true );
+                        delete_metadata( $post_type, $curr_post->ID, $field['slug'], '', true );
                     } else {
                         $bob[] = '---[' . $post_type . ']-'. $curr_post->ID . '-' . $field['slug'] . '-NOT_EXIST-, ';
                     }
