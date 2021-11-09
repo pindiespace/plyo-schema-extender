@@ -73,15 +73,17 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
 
     $args = array(
         'public'   => true,
-        '_builtin' => true,
+        '_builtin' => false,
     );
     $output = 'names'; // names or objects, note names is the default
-    $operator = 'and'; // 'and' or 'or'. 'and' is default
+    $operator = 'and'; // 'and' or 'or'. 
     $post_types = get_post_types( $args, $output, $operator );
 
     ///////////////////////////////////////////////////////////////////
     ////////////////
-    $bob[] = ' NUM:' . count( $post_types );
+    $bob = array();
+    $bob = $post_types;
+    /////////////$bob[] = ' NUM:' . count( $post_types );
     ////////////////
     ///////////////////////////////////////////////////////////////////
 
@@ -94,7 +96,7 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
         $posts = get_posts( 
             array(
             'post_type' => $post_type,
-            '_builtin' => true,
+            //'_builtin' => true,
             'post_status' => 'publish',
             'numberposts' => -1
             // 'order'    => 'ASC'
@@ -103,8 +105,7 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
 
         /////////////////////////////////////
         ///////////////////////
-        $bob = array();
-        $bob[] = 'POST_TYPE:'. $post_type;
+        ///////////////////$bob[] = 'POST_TYPE:'. $post_type;
         ///////////////////////
         /////////////////////////////////////
 
@@ -120,10 +121,10 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
                 foreach ( $fields as $field ) {
                    
                     if ( metadata_exists( 'post', $curr_post->ID, $field['slug'] ) ) {
-                        $bob[] = '+++' . $post_type . '-' . $curr_post->ID . '-' . $field['slug'] . '-EXISTS-, ';
+                        //////////////$bob[] = '+++' . $post_type . '-' . $curr_post->ID . '-' . $field['slug'] . '-EXISTS-, ';
                         delete_metadata( 'post', 0, $field['slug'], '', true );
                     } else {
-                        $bob[] = '---' . $post_type . '-'. $curr_post->ID . '-' . $field['slug'] . '-NOT_EXIST-, ';
+                        ////////////////$bob[] = '---' . $post_type . '-'. $curr_post->ID . '-' . $field['slug'] . '-NOT_EXIST-, ';
                     }
 
                 }
