@@ -71,7 +71,7 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
         $schema_fields[] = $plse_metabox->load_schema_fields( $schema_label );
     }
 
-    /*
+
     $args = array(
         'public'   => true,
         '_builtin' => false,
@@ -95,6 +95,7 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
         )
     );
 
+    /*
     // loop through the posts, scan for all defined Schema fields, delete meta-data if present
     foreach ( $posts as $curr_post ) {
 
