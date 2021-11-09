@@ -124,9 +124,9 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
                 // https://developer.wordpress.org/reference/functions/metadata_exists/
                 foreach ( $fields as $field ) {
                    
-                    if ( metadata_exists( 'post', $curr_post->ID, $field['slug'] ) ) {
+                    if ( metadata_exists( $post_type, $curr_post->ID, $field['slug'] ) ) {
                         $bob[] = '+++' . $post_type . '-' . $curr_post->ID . '-' . $field['slug'] . '-EXISTS-, ';
-                        delete_metadata( 'post', 0, $field['slug'], '', true );
+                        delete_metadata( $post_type, 0, $field['slug'], '', true );
                     } else {
                         $bob[] = '---' . $post_type . '-'. $curr_post->ID . '-' . $field['slug'] . '-NOT_EXIST-, ';
                     }
