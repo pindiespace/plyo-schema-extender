@@ -111,7 +111,7 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
 
                     if ( metadata_exists( 'post', $curr_post->ID, $field['slug'] ) ) {
                         $bob[] = '+++(' . $post_type . ')-' . $curr_post->ID . '-' . $field['slug'] . '-EXISTS-, ';
-                        delete_metadata( 'post', $curr_post->ID, $field['slug'], '', true );
+                        delete_metadata( 'post', $curr_post->ID, $field['slug'], false, false );
                     } else {
                         $bob[] = '---[' . $post_type . ']-'. $curr_post->ID . '-' . $field['slug'] . '-NOT_EXIST-, ';
                     }
@@ -121,6 +121,9 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
             }
 
         }
+
+        // post loop DEBUG
+        delete_metadata( 'post', $curr_post->ID, 'plse-settings-game-name', false, true );
 
     }
 
