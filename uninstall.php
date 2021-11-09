@@ -71,6 +71,7 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
         $schema_fields[] = $plse_metabox->load_schema_fields( $schema_label );
     }
 
+    /*
     $args = array(
         'public'   => true,
         '_builtin' => false,
@@ -122,8 +123,21 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
 
         }
 
-        // post loop DEBUG
-        delete_metadata( 'post', $curr_post->ID, 'plse-settings-game-name', false, true );
+
+    }
+
+    */
+
+    // post loop DEBUG
+    foreach ( $schema_fields as $field_array ) {
+        // get all the meta-fields associated with each Schema
+        $fields = $field_array['fields'];
+
+        // https://developer.wordpress.org/reference/functions/metadata_exists/
+        // delete this key in ALL objects (final 'true')
+        foreach ( $fields as $field ) {
+           delete_metadata( 'post', $curr_post->ID, 'plse-settings-game-name', false, true );
+        }
 
     }
 
@@ -132,6 +146,8 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
     update_option( PLSE_DEBUG, $bob );
     ///////////////////////////////
     ////////////////////////////////////////////////////
+
+}
 
 /**
  * ---------------------------------------------------------------------
@@ -154,6 +170,3 @@ if ( get_option( PLSE_UNINSTALL_OPTIONS_DELETE ) == true ) {
     }
 
 } // end of plugin options tables deletes
-
-
-
