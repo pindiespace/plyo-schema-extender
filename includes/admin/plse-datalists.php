@@ -30,7 +30,6 @@ class PLSE_Datalists {
      * @var      array    $languages    language list.
      */
     private $languages = array(
-        'en' => 'English',
         'af' => 'Afrikaans',
         'sq' => 'Albanian - shqip',
         'am' => 'Amharic - አማርኛ',
@@ -56,6 +55,7 @@ class PLSE_Datalists {
         'cs' => 'Czech - čeština',
         'da' => 'Danish - dansk',
         'nl' => 'Dutch - Nederlands',
+        'en' => 'English',
         'en-AU' => 'English (Australia)',
         'en-CA' => 'English (Canada)',
         'en-IN' => 'English (India)',

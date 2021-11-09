@@ -214,7 +214,7 @@ add_action( 'plugins_loaded', function () {
                      * add Categories and Tags to Pages so they can be used to select 
                      * Schemas (controlled in plugin options).
                      */
-                    add_action( 'pre_get_posts', [ 'PLSE_Init', 'category_and_tag_archives' ] );
+                    add_action( 'pre_get_posts', [ $plse_init, 'category_and_tag_archives' ] );
 
                 }
 
