@@ -63,30 +63,27 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
     require_once PLSE_SCHEMA_EXTENDER_PATH . '/includes/admin/plse-metabox.php';
     $plse_metabox = PLSE_Metabox::getInstance();
 
-
-
     // get all defined Schema files, to get Schema fields
     $schema_list = $plse_init->get_available_schemas();
 
+    // get all the Schema field slugs defined by the plugin
     foreach ( $schema_list as $schema_label ) {
         $schema_fields[] = $plse_metabox->load_schema_fields( $schema_label );
     }
 
     $args = array(
         'public'   => true,
-        '_builtin' => false,
+        '_builtin' => true,
     );
     $output = 'names'; // names or objects, note names is the default
-    $operator = 'and'; // 'and' or 'or'
+    $operator = 'and'; // 'and' or 'or'. 'and' is default
     $post_types = get_post_types( $args, $output, $operator );
 
-
     ///////////////////////////////////////////////////////////////////
     ////////////////
-    ////////$bob = ['start of array...'];
+    $bob[] = ' NUM:' . count( $post_types );
     ////////////////
     ///////////////////////////////////////////////////////////////////
-
 
     /**
      * delete all meta data from pages, posts, custom posts
@@ -97,6 +94,7 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
         $posts = get_posts( 
             array(
             'post_type' => $post_type,
+            '_builtin' => true,
             'post_status' => 'publish',
             'numberposts' => -1
             // 'order'    => 'ASC'
@@ -125,7 +123,7 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
                         $bob[] = '+++' . $post_type . '-' . $curr_post->ID . '-' . $field['slug'] . '-EXISTS-, ';
                         delete_metadata( 'post', 0, $field['slug'], '', true );
                     } else {
-                        /$bob[] = '---' . $post_type . '-'. $curr_post->ID . '-' . $field['slug'] . '-NOT_EXIST-, ';
+                        $bob[] = '---' . $post_type . '-'. $curr_post->ID . '-' . $field['slug'] . '-NOT_EXIST-, ';
                     }
 
                 }
