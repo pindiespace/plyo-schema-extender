@@ -129,15 +129,21 @@ if ( get_option( PLSE_UNINSTALL_META_DELETE )  == true) {
 
     */
 
-    // post loop DEBUG
-    foreach ( $schema_fields as $field_array ) {
-        // get all the meta-fields associated with each Schema
-        $fields = $field_array['fields'];
+    foreach( $posts as $curr_post ) {
 
-        // https://developer.wordpress.org/reference/functions/metadata_exists/
-        // delete this key in ALL objects (final 'true')
-        foreach ( $fields as $field ) {
-           delete_metadata( 'post', $curr_post->ID, 'plse-settings-game-name', false, true );
+        // post loop DEBUG
+        foreach ( $schema_fields as $field_array ) {
+            // get all the meta-fields associated with each Schema
+            $fields = $field_array['fields'];
+
+            // https://developer.wordpress.org/reference/functions/metadata_exists/
+            // delete this key in ALL objects (final 'true')
+            foreach ( $fields as $field ) {
+                /////delete_metadata( 'post', $curr_post->ID, 'plse-settings-game-name', false, true );
+                delete_metadata( 'post', $curr_post->ID, $field['slug'], false, true );
+                $bob[] = 'deleted:' . $field['slug'] . ', ';
+            }
+
         }
 
     }
